@@ -5,11 +5,12 @@ import { normalizeTeachingMode } from "../lib/teaching";
 const defaultMode = normalizeTeachingMode(settings.teachingMode);
 
 import { t } from "../lib/ui";
+import IslandModeTip from "./island/IslandModeTip";
 ---
 
 <section
   id="teaching-mode-control"
-  class="mb-8 rounded-xl border border-gray-200 bg-gray-50/70 p-5 dark:border-stone-800 dark:bg-stone-900/50"
+  class="mb-8 rounded-xl island-mode-panel p-5"
   data-default-mode={defaultMode}
 >
   <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
@@ -18,24 +19,8 @@ import { t } from "../lib/ui";
   </div>
   <p class="mt-2 text-sm text-gray-600 dark:text-stone-400">{t("modeScope")}</p>
   <div class="mt-4 grid gap-2 sm:grid-cols-2" role="group" aria-label={t("teachingMode")}>
-    <button
-      type="button"
-      class="teaching-mode-option rounded-lg border px-3 py-3 text-left transition-colors"
-      data-teaching-mode="simple"
-      aria-pressed="false"
-    >
-      <span class="block font-medium">{t("simple")}</span>
-      <span class="mt-1 block text-xs text-gray-500 dark:text-stone-500">{t("simpleDescription")}</span>
-    </button>
-    <button
-      type="button"
-      class="teaching-mode-option rounded-lg border px-3 py-3 text-left transition-colors"
-      data-teaching-mode="immersive"
-      aria-pressed="false"
-    >
-      <span class="block font-medium">{t("immersive")}</span>
-      <span class="mt-1 block text-xs text-gray-500 dark:text-stone-500">{t("immersiveDescription")}</span>
-    </button>
+    <IslandModeTip client:load mode="simple" label={t("simple")} title={t("simpleDescription")} />
+    <IslandModeTip client:load mode="immersive" label={t("immersive")} title={t("immersiveDescription")} />
   </div>
   <p id="teaching-mode-status" class="mt-3 text-xs text-gray-500 dark:text-stone-500" role="status" aria-live="polite"></p>
   <p id="teaching-mode-error" class="mt-3 hidden text-xs text-red-600 dark:text-red-400" role="alert"></p>
@@ -45,7 +30,6 @@ import { t } from "../lib/ui";
   (function() {
     var root = document.getElementById("teaching-mode-control");
     if (!root) return;
-    var buttons = Array.prototype.slice.call(root.querySelectorAll("[data-teaching-mode]"));
     var status = document.getElementById("teaching-mode-status");
     var error = document.getElementById("teaching-mode-error");
     var defaultMode = root.getAttribute("data-default-mode") === "immersive" ? "immersive" : "simple";
@@ -65,8 +49,12 @@ import { t } from "../lib/ui";
       try { localStorage.setItem("teachingMode", mode); } catch (_) {}
     }
 
+    function modeButtons() {
+      return Array.prototype.slice.call(root.querySelectorAll("[data-teaching-mode]"));
+    }
+
     function setVisualMode(mode) {
-      buttons.forEach(function(button) {
+      modeButtons().forEach(function(button) {
         var selected = button.getAttribute("data-teaching-mode") === mode;
         button.setAttribute("aria-pressed", selected ? "true" : "false");
         button.classList.toggle("theme-active-nav", selected);
@@ -74,10 +62,11 @@ import { t } from "../lib/ui";
         button.classList.toggle("dark:border-stone-700", !selected);
         button.classList.toggle("border-transparent", selected);
       });
+      root.dispatchEvent(new CustomEvent("teaching-mode-visual", { detail: mode }));
     }
 
     function setButtonsDisabled(disabled) {
-      buttons.forEach(function(button) {
+      modeButtons().forEach(function(button) {
         button.disabled = disabled;
         button.classList.toggle("cursor-wait", disabled);
         button.classList.toggle("opacity-60", disabled);
@@ -156,10 +145,12 @@ import { t } from "../lib/ui";
       }
     }
 
-    buttons.forEach(function(button) {
-      button.addEventListener("click", function() {
-        choose(button.getAttribute("data-teaching-mode"));
-      });
+    root.addEventListener("click", function(event) {
+      var target = event.target;
+      if (!target || !target.closest) return;
+      var button = target.closest("[data-teaching-mode]");
+      if (!button || !root.contains(button)) return;
+      choose(button.getAttribute("data-teaching-mode"));
     });
 
     var current = localMode();

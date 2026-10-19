@@ -1,5 +1,5 @@
 <!-- source: https://docs.astro.build/zh-cn/guides/framework-components/ -->
-<!-- retrieved: 2026-10-13; tool: siteone-crawler 2.5.1; prefix: /zh-cn -->
+<!-- retrieved: 2026-10-19; tool: siteone-crawler 2.5.1; scope: siteone-domain -->
 
 # 前端框架
 
@@ -165,6 +165,12 @@ src/pages/astro-children.astro
 了解更多关于 [Astro 组件中的客户端 `<script>`](../../../zh-cn/guides/client-side-scripts/index.md) 的信息。
 
 Learn
+
+## Learn Astro with Coding in Public
+
+150\+ video lessons
+
+[Get 20% off](https://learnastro.dev/?code=ASTRO_PROMO)
 
 | [贡献](../../../zh-cn/contribute/index.md) | [社区](https://astro.build/chat) | [赞助](https://opencollective.com/astrodotbuild) |
 

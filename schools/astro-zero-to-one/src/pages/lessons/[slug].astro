@@ -6,6 +6,11 @@ export const prerender = true;
 
 import Base from "../../layouts/Base.astro";
 import AgentPrompt from "../../components/AgentPrompt.astro";
+import IslandMark from "../../components/island/IslandMark";
+import LessonTabs from "../../components/island/LessonTabs";
+import IslandTypewriter from "../../components/island/IslandTypewriter";
+import IslandLessonChrome from "../../components/island/IslandLessonChrome";
+import { Tag } from "animal-island-ui";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -18,12 +23,17 @@ export async function getStaticPaths() {
 
 const { lesson } = Astro.props;
 const { Content } = await render(lesson);
+const lessonBody = lesson.body ?? "";
+const hasCode = /```(?!mermaid\b)/.test(lessonBody);
+const hasTable = /^\|.+\|$/m.test(lessonBody);
+const minutes = Math.max(1, Math.round(lessonBody.length / 280));
 
 const allLessons = (await getCollection("lessons")).sort((a, b) => a.data.order - b.data.order);
 const currentIndex = allLessons.findIndex((l) => l.data.slug === lesson.data.slug);
 const next = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
 import { t } from "../../lib/ui";
+import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
 ---
 
 <Base title={lesson.data.title} description={lesson.data.description}>
@@ -31,64 +41,54 @@ import { t } from "../../lib/ui";
     <a href="/" class="text-sm text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">{t("allLessons")}</a>
   </div>
 
-  <header class="mb-8">
-    <p class="text-sm font-mono text-gray-400 dark:text-gray-600 mb-1">{t("lessonNumber", { number: lesson.data.order })}</p>
-    <h1 class="text-3xl font-bold">{lesson.data.title}</h1>
-    <p class="text-gray-600 dark:text-gray-400 mt-2">{lesson.data.description}</p>
+  <header class="island-lesson-header">
+    <div class="island-lesson-tags">
+      <Tag color="brown" variant="outlined">{t("lessonNumber", { number: lesson.data.order })}</Tag>
+      {hasCode && <Tag color="app-blue" variant="soft">含代码</Tag>}
+      {hasTable && <Tag color="app-teal" variant="soft">含表格</Tag>}
+      <Tag color="brown" variant="soft">约 {minutes} 分钟</Tag>
+    </div>
+    <h1 class="island-lesson-title"><IslandMark client:load name={lesson.data.title} size="middle" /></h1>
+    <IslandTypewriter client:load text={lesson.data.description} />
   </header>
 
-  <div id="lesson-completed-banner" class="theme-banner hidden mb-6 rounded-lg px-4 py-3 text-sm font-medium">
+  <div id="lesson-completed-banner" class="island-done-banner hidden">
+    <span class="island-done-check" aria-hidden="true">
+      <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 8.5 6.2 12 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </span>
     <span id="lesson-completed-text">{t("lessonDone")}</span>
   </div>
 
   <div id="lesson-enroll-nudge" class="hidden mb-8 rounded-lg border border-gray-200 dark:border-stone-700 px-4 py-3 text-sm text-gray-600 dark:text-stone-400">
     <a href="/" class="theme-link font-medium underline underline-offset-2">{t("freeEnroll")}</a>{t("trackProgress")}</div>
 
-  <article class="prose dark:prose-invert max-w-none">
+  <LessonTabs client:load readLabel="自己阅读" teachLabel="交给教师" />
+  <article class="prose dark:prose-invert max-w-none island-lesson-sheet" data-lesson-panel="read">
     <Content />
+    <MermaidDiagrams />
   </article>
-
-  <AgentPrompt title={lesson.data.title} />
-
-  <!-- Agent-only notice: shown for lessons that can only be completed in OpenCode -->
-  {lesson.data.agentOnly && (
-    <div id="lesson-agent-only" class="mt-10 pt-6 border-t border-gray-200 dark:border-stone-800 hidden">
-      <p id="lesson-agent-only-text" class="text-center text-sm text-gray-500 dark:text-stone-500">{t("agentContinue")}</p>
-      {next && (
-        <a
-          id="lesson-agent-only-next"
-          href={`/lessons/${next.data.slug}`}
-          class="theme-button mt-4 flex w-full justify-center cursor-pointer items-center gap-2 rounded-lg px-6 py-4 text-sm font-medium select-none hidden"
-        >{t("nextLesson", { title: next.data.title })}</a>
+  <div data-lesson-panel="teach" hidden>
+      {lesson.data.agentOnly && (
+        <div id="lesson-agent-only" class="mt-10 pt-6 border-t border-gray-200 dark:border-stone-800 hidden">
+          <p id="lesson-agent-only-text" class="text-center text-sm text-gray-500 dark:text-stone-500">{t("agentContinue")}</p>
+          {next && (
+            <a
+              id="lesson-agent-only-next"
+              href={`/lessons/${next.data.slug}`}
+              class="theme-button mt-4 flex w-full justify-center cursor-pointer items-center gap-2 rounded-lg px-6 py-4 text-sm font-medium select-none hidden"
+            >{t("nextLesson", { title: next.data.title })}</a>
+          )}
+        </div>
       )}
-    </div>
-  )}
-
-  <!-- Lesson action: combined mark-complete + next-lesson button -->
-  <div id="lesson-action" class="mt-10 pt-6 border-t border-gray-200 dark:border-stone-800 hidden">
-    {next ? (
-      <button
-        id="lesson-action-btn"
-        data-next-url={`/lessons/${next.data.slug}`}
-        class="theme-button flex w-full justify-center cursor-pointer items-center gap-2 rounded-lg px-6 py-4 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed select-none"
-      >
-        <span id="lesson-action-label">{t("nextLesson", { title: next.data.title })}</span>
-      </button>
-    ) : (
-      <button
-        id="lesson-action-btn"
-        class="theme-button flex w-full justify-center cursor-pointer items-center gap-2 rounded-lg px-6 py-4 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed select-none"
-      >
-        <span id="lesson-action-label">{t("markLesson")}</span>
-      </button>
-    )}
   </div>
+  <AgentPrompt title={lesson.data.title} />
+  {next && (
+    <a class="island-next-bar" href={`/lessons/${next.data.slug}`}>下一站：{next.data.title} →</a>
+  )}
+  <IslandLessonChrome client:only="react" />
 
   <script is:inline define:vars={{ lessonSlug: lesson.data.slug, agentOnly: lesson.data.agentOnly }}>
     (function() {
-      var action = document.getElementById("lesson-action");
-      var btn = document.getElementById("lesson-action-btn");
-      var label = document.getElementById("lesson-action-label");
       var banner = document.getElementById("lesson-completed-banner");
       var bannerText = document.getElementById("lesson-completed-text");
       var nudge = document.getElementById("lesson-enroll-nudge");
@@ -108,6 +108,45 @@ import { t } from "../../lib/ui";
       window.school.markLessonVisited(lessonSlug);
 
       var wasAlreadyComplete = window.school.isLessonComplete(lessonSlug);
+      var celebrated = false;
+      var jumpScheduled = false;
+
+      function prefersIslandReducedMotion() {
+        return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      }
+
+      function afterIslandCelebration(url) {
+        if (!url || jumpScheduled) return;
+        jumpScheduled = true;
+        if (prefersIslandReducedMotion()) {
+          window.location.href = url;
+          return;
+        }
+        window.__islandCancelDepart = false;
+        window.dispatchEvent(new CustomEvent("school:island-depart", { detail: { url: url, ms: 3000 } }));
+        var done = false;
+        function finish() {
+          if (done || window.__islandCancelDepart) return;
+          done = true;
+          window.location.href = url;
+        }
+        setTimeout(finish, 3000);
+      }
+
+      function noteIslandLessonComplete() {
+        window.__islandLessonJustCompleted = true;
+        window.dispatchEvent(new CustomEvent("school:island-lesson-complete"));
+      }
+
+      function celebrateIfNewlyComplete(nextHref) {
+        var nowComplete = window.school.isLessonComplete(lessonSlug);
+        if (celebrated || wasAlreadyComplete || !nowComplete) return false;
+        celebrated = true;
+        wasAlreadyComplete = true;
+        noteIslandLessonComplete();
+        if (nextHref) afterIslandCelebration(nextHref);
+        return true;
+      }
 
       function formatBannerText(completion) {
         return window.schoolUI.completion("lesson", completion);
@@ -134,76 +173,27 @@ import { t } from "../../lib/ui";
         window.school.updateAllCheckmarks = function() {
           origUpdateAgentOnly();
           if (nudge && window.school.getStudentId()) nudge.classList.add("hidden");
-          if (window.school.isLessonComplete(lessonSlug)) {
-            showBanner();
+          if (!window.school.isLessonComplete(lessonSlug)) return;
+          showBanner();
           if (agentOnlyText) agentOnlyText.textContent = window.schoolUI.t("agentDone");
-            if (agentOnlyNext) agentOnlyNext.classList.remove("hidden");
-            // Auto-navigate if just completed by agent during this page session
-            if (!wasAlreadyComplete && agentOnlyNext) {
-              window.location.href = agentOnlyNext.getAttribute("href");
-            }
-          }
+          if (agentOnlyNext) agentOnlyNext.classList.remove("hidden");
+          celebrateIfNewlyComplete(agentOnlyNext ? agentOnlyNext.getAttribute("href") : "");
         };
         return;
       }
 
-      // Standard lessons: show the action button
-      if (!action || !btn) return;
-      action.classList.remove("hidden");
+      var nextLink = document.querySelector(".island-next-bar");
+      var nextUrl = nextLink ? nextLink.getAttribute("href") : "";
 
-      var nextUrl = btn.getAttribute("data-next-url");
-      var originalLabel = label.textContent;
+      if (wasAlreadyComplete) showBanner();
 
-      function setCompleted() {
-        showBanner();
-        if (nextUrl) {
-          window.location.href = nextUrl;
-        } else {
-          label.textContent = window.schoolUI.t("lessonComplete");
-          btn.disabled = true;
-        }
-      }
-
-      // If already complete, show the banner and make the button navigate directly
-      if (window.school.isLessonComplete(lessonSlug)) {
-        showBanner();
-        if (nextUrl) {
-          btn.addEventListener("click", function() { window.location.href = nextUrl; });
-        } else {
-          label.textContent = window.schoolUI.t("lessonComplete");
-          btn.disabled = true;
-        }
-      } else {
-        btn.addEventListener("click", async function() {
-          btn.disabled = true;
-          label.textContent = window.schoolUI.t("saving");
-          var progress = await window.school.markComplete(lessonSlug);
-          if (progress) {
-            window.school.updateAllCheckmarks();
-            setCompleted();
-          } else {
-            btn.disabled = false;
-            label.textContent = originalLabel;
-          }
-        });
-      }
-
-      // Update after progress fetch completes (in case cached state was stale)
       var origUpdate = window.school.updateAllCheckmarks.bind(window.school);
       window.school.updateAllCheckmarks = function() {
         origUpdate();
         if (nudge && window.school.getStudentId()) nudge.classList.add("hidden");
-        if (window.school.isLessonComplete(lessonSlug)) {
-          showBanner();
-          // Only auto-navigate if the lesson just became complete during this
-          // page session (i.e. it was completed by an agent while the student
-          // had this page open). If it was already complete when the page
-          // loaded, the student navigated here intentionally and we should
-          // not redirect them away.
-          if (nextUrl && !wasAlreadyComplete && label.textContent === originalLabel) {
-            setCompleted();
-          }
-        }
+        if (!window.school.isLessonComplete(lessonSlug)) return;
+        showBanner();
+        celebrateIfNewlyComplete(nextUrl);
       };
     })();
   </script>

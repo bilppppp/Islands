@@ -1,5 +1,5 @@
 <!-- source: https://docs.astro.build/zh-cn/basics/layouts/ -->
-<!-- retrieved: 2026-10-13; tool: siteone-crawler 2.5.1; prefix: /zh-cn -->
+<!-- retrieved: 2026-10-19; tool: siteone-crawler 2.5.1; scope: siteone-domain -->
 
 # 布局
 
@@ -124,14 +124,6 @@ src/layouts/BaseLayout.astro
 ---import BaseLayout from './BaseLayout.astro';const { frontmatter } = Astro.props;---<BaseLayout url={frontmatter.url}>  <h1>{frontmatter.title}</h1>  <h2>文章作者: {frontmatter.author}</h2>  <slot /></BaseLayout>
 ```
 Learn
-
-![Scrimba](data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==)
-
-## Learn Astro with James Q Quick
-
-Build your first site with 35 interactive Scrimba lessons
-
-[Get 20% off](https://scrimba.com/intro-to-astro-c00ar0fi5u?via=astro)
 
 | [贡献](../../../zh-cn/contribute/index.md) | [社区](https://astro.build/chat) | [赞助](https://opencollective.com/astrodotbuild) |
 

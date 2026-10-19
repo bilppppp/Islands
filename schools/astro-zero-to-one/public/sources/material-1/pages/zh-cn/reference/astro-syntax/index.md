@@ -1,5 +1,5 @@
 <!-- source: https://docs.astro.build/zh-cn/reference/astro-syntax/ -->
-<!-- retrieved: 2026-10-13; tool: siteone-crawler 2.5.1; prefix: /zh-cn -->
+<!-- retrieved: 2026-10-19; tool: siteone-crawler 2.5.1; scope: siteone-domain -->
 
 # 模板表达式参考
 

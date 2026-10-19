@@ -5,10 +5,19 @@
 export const prerender = true;
 
 import Base from "../layouts/Base.astro";
+import { Card, Button, Divider } from "animal-island-ui";
+import IslandMark from "../components/island/IslandMark";
+import IslandLessonBoard from "../components/island/IslandLessonBoard";
+import IslandCast from "../components/island/IslandCast";
 import config from "../../school.config";
 import { getCollection } from "astro:content";
 
 const lessons = (await getCollection("lessons")).sort((a, b) => a.data.order - b.data.order);
+const courseIntro = config.description
+	.trim()
+	.split(/(?<=[。！？])/)
+	.map((line) => line.trim())
+	.filter(Boolean);
 const exercises = (await getCollection("exercises")).sort((a, b) => a.data.order - b.data.order);
 
 import { t } from "../lib/ui";
@@ -21,119 +30,123 @@ import { t } from "../lib/ui";
     <!-- Particle layer: behind the card, not clipped -->
     <div id="celebration-layer" style="position:absolute; inset:-80px; pointer-events:none; z-index:1; overflow:visible;"></div>
     <!-- Card itself sits above the particle layer -->
-    <div class="theme-card-band rounded-2xl overflow-hidden" style="aspect-ratio:85.6/54; position:relative; z-index:2;">
-      <div class="flex flex-col justify-between h-full px-7 py-5">
-        <p class="text-xs font-mono uppercase tracking-[0.3em] opacity-80">{t("studentId")}</p>
-        <p id="student-id-display" class="text-2xl font-mono font-bold tracking-tight"></p>
-      </div>
+    <div class="island-id-face is-selected" data-role="warrior">
+      <Card color="app-red" className="island-id-card" style={{ position: "relative", zIndex: 2 }}>
+        <div class="island-id-layout">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-[0.3em] opacity-80">{t("studentId")}</p>
+            <p class="island-id-role">{t("roleWarrior")}</p>
+            <p class="island-id-value text-2xl font-mono font-bold tracking-tight"></p>
+          </div>
+          <span class="island-role-sprite island-role-sprite--warrior" aria-hidden="true"></span>
+        </div>
+      </Card>
+    </div>
+    <div class="island-id-face" data-role="wizard">
+      <Card color="purple" className="island-id-card" style={{ position: "relative", zIndex: 2 }}>
+        <div class="island-id-layout">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-[0.3em] opacity-80">{t("studentId")}</p>
+            <p class="island-id-role">{t("roleWizard")}</p>
+            <p class="island-id-value text-2xl font-mono font-bold tracking-tight"></p>
+          </div>
+          <span class="island-role-sprite island-role-sprite--wizard" aria-hidden="true"></span>
+        </div>
+      </Card>
+    </div>
+    <div class="island-id-face" data-role="priest">
+      <Card color="app-yellow" className="island-id-card" style={{ position: "relative", zIndex: 2 }}>
+        <div class="island-id-layout">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-[0.3em] opacity-80">{t("studentId")}</p>
+            <p class="island-id-role">{t("rolePriest")}</p>
+            <p class="island-id-value text-2xl font-mono font-bold tracking-tight"></p>
+          </div>
+          <span class="island-role-sprite island-role-sprite--priest" aria-hidden="true"></span>
+        </div>
+      </Card>
+    </div>
+    <div class="island-id-face" data-role="ranger">
+      <Card color="app-green" className="island-id-card" style={{ position: "relative", zIndex: 2 }}>
+        <div class="island-id-layout">
+          <div>
+            <p class="text-xs font-mono uppercase tracking-[0.3em] opacity-80">{t("studentId")}</p>
+            <p class="island-id-role">{t("roleRanger")}</p>
+            <p class="island-id-value text-2xl font-mono font-bold tracking-tight"></p>
+          </div>
+          <span class="island-role-sprite island-role-sprite--ranger" aria-hidden="true"></span>
+        </div>
+      </Card>
     </div>
   </div>
 
   <!-- Page header: hidden once enrolled -->
   <div id="page-header" class="mb-8">
-    <p class="text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
-      {config.description} {t("welcome")}
-    </p>
+    {courseIntro.length > 0 && (
+      <div class="island-intro">
+        {courseIntro.map((line) => <p>{line}</p>)}
+      </div>
+    )}
+    <Divider type="wave-yellow" />
   </div>
 
   <!-- Enrolled: lesson list -->
   <div id="enrolled-section" class="hidden mb-12">
-    <h2 class="text-sm font-mono uppercase tracking-wider text-gray-500 dark:text-gray-500 mb-4">{t("lessons")}</h2>
+    <h2 class="mb-4"><IslandMark client:load name={t("lessons")} size="small" /></h2>
 
-    <ol class="divide-y divide-gray-200 dark:divide-stone-800">
-      {lessons.map((lesson) => {
-        const isStub = lesson.body?.trim() === "Coming soon.";
-        const href = `/lessons/${lesson.data.slug}`;
-        return (
-          <li data-lesson-slug={lesson.data.slug} data-lesson-stub={isStub ? "true" : "false"}>
-            <div class="lesson-row flex flex-col gap-3 py-3 transition-colors sm:flex-row sm:items-center sm:justify-between">
-              <a
-                href={href}
-                class="lesson-link group flex min-w-0 items-center gap-3"
-              >
-                <span
-                  class="lesson-status flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-gray-300 bg-gray-100/70 text-white dark:border-stone-700 dark:bg-stone-900/70"
-                  aria-hidden="true"
-                >
-                  <span class="lesson-status-dot h-2 w-2 rounded-full bg-gray-400 dark:bg-stone-500"></span>
-                  <span class="lesson-check hidden h-full w-full items-center justify-center text-xs font-bold leading-none">&#10003;</span>
-                </span>
-                <div class="min-w-0">
-                  <h3 class:list={[
-                    "lesson-title font-medium transition-colors",
-                    isStub && "text-gray-400 dark:text-gray-600",
-                  ]}>
-                    {lesson.data.title}
-                    {isStub && <span class="ml-2 text-xs font-normal text-gray-400 dark:text-gray-600">{t("comingSoon")}</span>}
-                  </h3>
-                  <p class="lesson-description mt-0.5 text-sm text-gray-500 dark:text-gray-500">{lesson.data.description}</p>
-                </div>
-              </a>
-              <a
-                href={href}
-                class="lesson-cta theme-button hidden shrink-0 rounded-lg px-3 py-2 text-center font-mono text-sm"
-              >{t("continue")}</a>
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+    <IslandLessonBoard
+      client:load
+      lessons={lessons.map((lesson) => ({
+        slug: lesson.data.slug,
+        title: lesson.data.title,
+        description: lesson.data.description,
+        order: lesson.data.order,
+        stub: lesson.body?.trim() === "Coming soon.",
+      }))}
+    />
 
   </div>
 
   <!-- Not enrolled: enrollment widget -->
   <div id="not-enrolled-section" class="mb-12">
     <div id="enroll-step-button" class="py-8 text-center">
-      <button
-        type="button"
-        id="enroll-button"
-        class="rainbow-bg cursor-pointer rounded-lg px-10 py-4 font-mono font-semibold text-2xl disabled:opacity-50 disabled:cursor-not-allowed"
-      >{t("enroll")}</button>
+      <span id="enroll-button" class="inline-block">
+        <Button type="primary" size="large">{t("chooseIdentity")}</Button>
+      </span>
       <p class="text-sm text-gray-500 dark:text-stone-500 mt-4">{t("privacy")}</p>
     </div>
 
     <div id="enroll-step-color" class="hidden">
-      <p id="color-picker-copy" class="text-sm text-gray-600 dark:text-stone-400 mb-4">{t("chooseColor")}</p>
-      <div id="color-picker" class="grid grid-cols-6 gap-2 not-prose">
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="red"     aria-label={t("colorRed")}     title={t("colorRed")}     style="background:#dc2626;--i:0"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="orange"  aria-label={t("colorOrange")}  title={t("colorOrange")}  style="background:#ea580c;--i:1"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="amber"   aria-label={t("colorAmber")}   title={t("colorAmber")}   style="background:#b45309;--i:2"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="yellow"  aria-label={t("colorYellow")}  title={t("colorYellow")}  style="background:#ca8a04;--i:3"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="lime"    aria-label={t("colorLime")}    title={t("colorLime")}    style="background:#4d7c0f;--i:4"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="green"   aria-label={t("colorGreen")}   title={t("colorGreen")}   style="background:#15803d;--i:5"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="emerald" aria-label={t("colorEmerald")} title={t("colorEmerald")} style="background:#059669;--i:6"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="teal"    aria-label={t("colorTeal")}    title={t("colorTeal")}    style="background:#0f766e;--i:7"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="cyan"    aria-label={t("colorCyan")}    title={t("colorCyan")}    style="background:#0e7490;--i:8"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="sky"     aria-label={t("colorSky")}     title={t("colorSky")}     style="background:#0284c7;--i:9"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="blue"    aria-label={t("colorBlue")}    title={t("colorBlue")}    style="background:#2563eb;--i:10"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="indigo"  aria-label={t("colorIndigo")}  title={t("colorIndigo")}  style="background:#4f46e5;--i:11"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="violet"  aria-label={t("colorViolet")}  title={t("colorViolet")}  style="background:#7c3aed;--i:12"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="purple"  aria-label={t("colorPurple")}  title={t("colorPurple")}  style="background:#9333ea;--i:13"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="fuchsia" aria-label={t("colorFuchsia")} title={t("colorFuchsia")} style="background:#c026d3;--i:14"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="pink"    aria-label={t("colorPink")}    title={t("colorPink")}    style="background:#db2777;--i:15"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="rose"    aria-label={t("colorRose")}    title={t("colorRose")}    style="background:#e11d48;--i:16"></button>
-        <button type="button" class="enrollment-color-option h-12 w-full rounded-xl border-2 border-transparent shadow-sm" data-theme-color="slate"   aria-label={t("colorSlate")}   title={t("colorSlate")}   style="background:#475569;--i:17"></button>
+      <p id="role-picker-copy" class="text-sm text-gray-600 dark:text-stone-400 mb-4">{t("chooseRole")}</p>
+      <Card color="default" pattern="warm-peach-pink" className="island-role-card">
+      <div id="role-picker">
+        <IslandCast
+          client:load
+          labels={{
+            warrior: t("roleWarrior"),
+            wizard: t("roleWizard"),
+            priest: t("rolePriest"),
+            ranger: t("roleRanger"),
+          }}
+          notes={{
+            warrior: t("roleWarriorNote"),
+            wizard: t("roleWizardNote"),
+            priest: t("rolePriestNote"),
+            ranger: t("roleRangerNote"),
+          }}
+        />
       </div>
+      <p class="island-role-confirm">{t("confirmRole")}</p>
+      </Card>
       <p id="enroll-error" class="mt-2 text-red-500 text-sm hidden">{t("enrollError")}</p>
     </div>
   </div>
 
-  <!-- Orientation content (always visible) -->
-  <div class="prose dark:prose-invert max-w-none">
-    <!-- TODO: Replace this section with content about your school's subject -->
-
-    <h2>{t("howItWorks")}</h2>
-
-    <p>{t("orientation")}</p>
-  </div>
-
   <!-- Bottom enroll CTA: hidden once enrolled -->
   <div id="enroll-bottom-section" class="mt-10 py-8 text-center not-prose">
-    <button
-      type="button"
-      id="enroll-button-bottom"
-      class="rainbow-bg cursor-pointer rounded-lg px-10 py-4 font-mono font-semibold text-2xl disabled:opacity-50 disabled:cursor-not-allowed"
-    >{t("enroll")}</button>
+    <span id="enroll-button-bottom" class="inline-block">
+      <Button type="primary" size="large">{t("enroll")}</Button>
+    </span>
     <p class="text-sm text-gray-500 dark:text-stone-500 mt-4">{t("privacy")}</p>
   </div>
 
@@ -144,19 +157,31 @@ import { t } from "../lib/ui";
       var stepButton      = document.getElementById("enroll-step-button");
       var stepColor       = document.getElementById("enroll-step-color");
       var enrollBtn       = document.getElementById("enroll-button");
-      var colorPickerCopy = document.getElementById("color-picker-copy");
+      var colorPickerCopy = document.getElementById("role-picker-copy");
       var enrollError     = document.getElementById("enroll-error");
-      var display         = document.getElementById("student-id-display");
+      function paintId(value) {
+        document.querySelectorAll(".island-id-value").forEach(function(node) {
+          node.textContent = value;
+        });
+      }
       var notEnrolledSection  = document.getElementById("not-enrolled-section");
       var enrolledSection     = document.getElementById("enrolled-section");
       var enrollBottomSection = document.getElementById("enroll-bottom-section");
       var enrollBtnBottom     = document.getElementById("enroll-button-bottom");
 
-      var colorOptions = Array.prototype.slice.call(
-        document.querySelectorAll(".enrollment-color-option[data-theme-color]")
-      );
+      function roleOptions() {
+        return Array.prototype.slice.call(
+          document.querySelectorAll("#role-picker .island-role-option[data-role]")
+        );
+      }
+      var roleNames = ["warrior", "wizard", "priest", "ranger"];
 
-      var selectedTheme = window.school.getThemeColor();
+      function readRole() {
+        var saved = localStorage.getItem("learningRole");
+        return roleNames.indexOf(saved) === -1 ? "warrior" : saved;
+      }
+
+      var selectedRole = readRole();
       var isSubmitting = false;
 
       var chars  = "abcdefghijklmnopqrstuvwxyz";
@@ -177,9 +202,13 @@ import { t } from "../lib/ui";
       function fireCelebration() {
         var layer = document.getElementById("celebration-layer");
         if (!layer) return;
-        var palettes = window.school.getThemePalettes();
-        var palette = palettes[window.school.getThemeColor()] || palettes.blue;
-        var colors = [palette.solid, palette.solidHover, palette.linkDark, palette.softText, palette.softTextDark];
+        var roleColors = {
+          warrior: ["#b91c1c", "#fb7185", "#fdba74", "#fff7ed"],
+          wizard: ["#6d28d9", "#c4b5fd", "#818cf8", "#f5f3ff"],
+          priest: ["#ca8a04", "#fde68a", "#fffbeb", "#fef3c7"],
+          ranger: ["#15803d", "#86efac", "#fef08a", "#ecfccb"]
+        };
+        var colors = roleColors[selectedRole] || roleColors.warrior;
 
         // Center of the layer (offset accounts for the -80px inset bleed)
         var cx = layer.offsetWidth / 2;
@@ -219,7 +248,7 @@ import { t } from "../lib/ui";
         var resolveMs  = fast ? 45 : 140;
 
         var resolved = 0;
-        display.textContent = scramble(target);
+        paintId(scramble(target));
 
         var scrambleInterval = setInterval(function() {
           var next = "";
@@ -228,7 +257,7 @@ import { t } from "../lib/ui";
             else if (target[i] === "-") next += "-";
             else                        next += randomChar(target[i]);
           }
-          display.textContent = next;
+          paintId(next);
         }, scrambleMs);
 
         setTimeout(function() {
@@ -236,7 +265,7 @@ import { t } from "../lib/ui";
             if (resolved >= target.length) {
               clearInterval(scrambleInterval);
               clearInterval(resolveInterval);
-              display.textContent = target;
+              paintId(target);
               if (callback) callback();
               return;
             }
@@ -247,7 +276,7 @@ import { t } from "../lib/ui";
       }
 
       function revealIdCard(studentId) {
-        display.textContent = studentId;
+        paintId(studentId);
         idCard.classList.remove("hidden");
         pageHeader.classList.add("hidden");
       }
@@ -257,13 +286,14 @@ import { t } from "../lib/ui";
         if (enrollBottomSection) enrollBottomSection.classList.add("hidden");
         enrolledSection.classList.remove("hidden");
         pageHeader.classList.add("hidden");
-        display.textContent = studentId;
+        paintId(studentId);
         idCard.classList.remove("hidden");
 
         if (animate) {
           cipherReveal(studentId, fast, function() {
             fireCelebration();
             if (!fast) {
+              window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "success", message: "学习身份已领好" } }));
               window.school.updateAllCheckmarks();
               if (typeof window.school.updateEnrolledIndicator === "function") {
                 window.school.updateEnrolledIndicator();
@@ -273,18 +303,20 @@ import { t } from "../lib/ui";
         }
       }
 
-      function setSelectedTheme(themeName) {
-        selectedTheme = window.school.setThemeColor(themeName);
-        colorOptions.forEach(function(opt) {
-          var isSelected = opt.getAttribute("data-theme-color") === selectedTheme;
-          opt.style.outline = isSelected ? "2px solid var(--theme-solid)" : "none";
-          opt.style.outlineOffset = "2px";
+      function setSelectedRole(role) {
+        selectedRole = roleNames.indexOf(role) === -1 ? "warrior" : role;
+        localStorage.setItem("learningRole", selectedRole);
+        document.querySelectorAll(".island-id-face").forEach(function(face) {
+          face.classList.toggle("is-selected", face.getAttribute("data-role") === selectedRole);
+        });
+        roleOptions().forEach(function(opt) {
+          opt.setAttribute("aria-pressed", opt.getAttribute("data-role") === selectedRole ? "true" : "false");
         });
       }
 
       function setPickerState(message, disabled) {
         if (colorPickerCopy && message) colorPickerCopy.textContent = message;
-        colorOptions.forEach(function(opt) {
+        roleOptions().forEach(function(opt) {
           opt.disabled = disabled;
           opt.classList.toggle("opacity-60", disabled);
           opt.classList.toggle("cursor-not-allowed", disabled);
@@ -293,56 +325,53 @@ import { t } from "../lib/ui";
 
       // On page load: if already enrolled, show card + lesson list with fast cipher + celebration
       var existingId = window.school.getStudentId();
+      setSelectedRole(selectedRole);
       if (existingId) {
         showEnrolled(existingId, true, true);
-      } else {
-        setSelectedTheme(selectedTheme);
       }
 
-      // Bottom enroll button → scroll to top and trigger the main enroll flow
-      if (enrollBtnBottom) {
-        enrollBtnBottom.addEventListener("click", function() {
-          notEnrolledSection.scrollIntoView({ behavior: "smooth", block: "start" });
-          setTimeout(function() { if (enrollBtn) enrollBtn.click(); }, 400);
+      function submitEnrollment() {
+        if (isSubmitting) return;
+        isSubmitting = true;
+        if (enrollError) enrollError.classList.add("hidden");
+        if (stepButton) stepButton.classList.add("hidden");
+        if (stepColor) stepColor.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setPickerState(window.schoolUI.t("generatingId"), true);
+        window.school.enroll().then(function(data) {
+          showEnrolled(data.studentId, true, false);
+        }).catch(function() {
+          window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "error", message: "注册没有成功" } }));
+          if (enrollError) enrollError.classList.remove("hidden");
+          setPickerState(window.schoolUI.t("chooseRole"), false);
+          isSubmitting = false;
         });
       }
 
-      // Step 1: click Enroll button → show color picker with staggered animation
+      // The lower button enters with the selected character.
+      if (enrollBtnBottom) {
+        enrollBtnBottom.addEventListener("click", function() {
+          submitEnrollment();
+        });
+      }
+
+      // The upper button only opens the character picker.
       if (enrollBtn) {
         enrollBtn.addEventListener("click", function() {
           stepButton.classList.add("hidden");
           stepColor.classList.remove("hidden");
-          setSelectedTheme(selectedTheme);
-          // Trigger entrance animation on each swatch
-          colorOptions.forEach(function(opt) {
-            opt.classList.remove("swatch-animate");
-            // Force reflow so re-adding the class replays the animation
-            void opt.offsetWidth;
-            opt.classList.add("swatch-animate");
-          });
+          setSelectedRole(selectedRole);
         });
       }
 
-      // Step 2: click a color → enroll + animate
-      colorOptions.forEach(function(opt) {
-        opt.addEventListener("click", async function() {
-          if (isSubmitting) return;
-          isSubmitting = true;
-          enrollError.classList.add("hidden");
-          setSelectedTheme(opt.getAttribute("data-theme-color"));
-          // Scroll to top so the student ID card and enrolled state are visible
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          setPickerState(window.schoolUI.t("generatingId"), true);
-          try {
-            var data = await window.school.enroll();
-            showEnrolled(data.studentId, true, false);
-          } catch (e) {
-            enrollError.classList.remove("hidden");
-            setPickerState(window.schoolUI.t("chooseColor"), false);
-            isSubmitting = false;
-          }
+      var rolePicker = document.getElementById("role-picker");
+      if (rolePicker) {
+        rolePicker.addEventListener("click", function(event) {
+          var opt = event.target.closest(".island-role-option[data-role]");
+          if (!opt || isSubmitting) return;
+          setSelectedRole(opt.getAttribute("data-role"));
         });
-      });
+      }
     })();
   </script>
 </Base>

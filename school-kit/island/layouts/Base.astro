@@ -568,12 +568,12 @@ import ClientUI from "../components/ClientUI.astro";
       <!-- Sidebar -->
       <nav
         id="sidebar"
-        class="hidden lg:block w-72 shrink-0 border-r border-gray-200 dark:border-stone-800 h-screen sticky top-0 overflow-y-auto p-6"
+        class="hidden lg:block w-80 shrink-0 border-r border-gray-200 dark:border-stone-800 h-screen sticky top-0 overflow-y-auto p-6"
       >
         <div class="island-brand-row mb-4 px-1">
           <a href="/" class="island-mobile-brand" data-school-name={courseShortName}>
-            <h1 class="island-school-title m-0 text-xl">
-              <IslandMark client:load name={courseShortName} size="middle" />
+            <h1 class="island-school-title m-0">
+              <IslandMark client:load name={courseShortName} size="small" />
             </h1>
           </a>
           <IslandClock client:load />

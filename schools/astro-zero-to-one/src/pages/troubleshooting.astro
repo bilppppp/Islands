@@ -2,6 +2,7 @@
 export const prerender = true;
 
 import Base from "../layouts/Base.astro";
+import { Title } from "animal-island-ui";
 
 import { t } from "../lib/ui";
 ---
@@ -12,7 +13,7 @@ import { t } from "../lib/ui";
   </div>
 
   <header class="mb-8">
-    <h1 class="text-3xl font-bold">{t("troubleshooting")}</h1>
+    <h1 class="island-lesson-title"><Title color="brown" size="middle">{t("troubleshooting")}</Title></h1>
     <p class="text-gray-600 dark:text-stone-400 mt-2">{t("troubleshootingDescription")}</p>
   </header>
 

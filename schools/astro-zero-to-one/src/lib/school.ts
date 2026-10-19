@@ -12,6 +12,7 @@ export interface ProfileField {
 }
 
 export interface SchoolConfig {
+	chrome?: "island";
 	name: string;
 	publicName?: string;
 	shortName?: string;

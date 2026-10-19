@@ -1,17 +1,21 @@
 // src/content.config.ts
-// Astro 5 官方推荐的内容集合配置文件格式
+// Astro 官方内容集合配置文件
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 const blog = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/data/blog' }),
+  loader: glob({ pattern: '**/[^_]*.md', base: './src/blog' }),
   schema: z.object({
     title: z.string(),
+    pubDate: z.date(),
     description: z.string(),
-    pubDate: z.coerce.date(),
+    author: z.string(),
+    image: z.object({
+      url: z.string(),
+      alt: z.string(),
+    }),
     tags: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
   }),
 });
 

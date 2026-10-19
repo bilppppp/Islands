@@ -5,6 +5,7 @@
 export const prerender = true;
 
 import Base from "../layouts/Base.astro";
+import { Title } from "animal-island-ui";
 
 import { t } from "../lib/ui";
 ---
@@ -15,7 +16,7 @@ import { t } from "../lib/ui";
   </div>
 
   <header class="mb-8">
-    <h1 class="text-3xl font-bold">{t("disenroll")}</h1>
+    <h1 class="island-lesson-title"><Title color="brown" size="middle">{t("disenroll")}</Title></h1>
   </header>
 
   <div id="no-enrollment" class="hidden">
@@ -98,6 +99,7 @@ import { t } from "../lib/ui";
       document.getElementById("disenroll-button").addEventListener("click", function () {
         localStorage.removeItem("studentId");
         localStorage.removeItem("themeColor");
+        localStorage.removeItem("learningRole");
         localStorage.removeItem("progress");
         document.getElementById("disenroll-confirm").classList.add("hidden");
         document.getElementById("disenroll-done").classList.remove("hidden");

@@ -1,13 +1,15 @@
-export type DeployTarget = "dev" | "node" | "vercel";
+export type DeployTarget = "dev" | "node" | "vercel" | "cloudflare";
 
 export function resolveDeployTarget(
 	env: NodeJS.ProcessEnv = process.env,
 ): DeployTarget {
 	const raw = env.DEPLOY_TARGET;
 	if (raw === undefined || raw === "") return "dev";
-	if (raw === "dev" || raw === "node" || raw === "vercel") return raw;
+	if (raw === "dev" || raw === "node" || raw === "vercel" || raw === "cloudflare") {
+		return raw;
+	}
 	throw new Error(
-		`Invalid DEPLOY_TARGET: ${JSON.stringify(raw)}. Expected "dev", "node", or "vercel".`,
+		`Invalid DEPLOY_TARGET: ${JSON.stringify(raw)}. Expected "dev", "node", "vercel", or "cloudflare".`,
 	);
 }
 

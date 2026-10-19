@@ -267,16 +267,74 @@ html[data-chrome="island"] body {
 .island-brand-row {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 0.75rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.island-mobile-brand,
+.island-school-title {
+  flex: 0 1 auto;
+  min-width: max-content;
+  max-width: 100%;
+}
+
+.island-school-title {
+  margin: 0;
+  line-height: 1;
+}
+
+.island-lesson-title {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .island-clock {
   margin-left: auto;
+  flex: 0 0 auto;
   min-width: 3.2rem;
   color: #8a6a45;
   font-size: 0.95rem;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
+}
+
+.island-lesson-title [class*="animal-ribbon-"] {
+  max-width: 100%;
+  height: auto;
+  min-height: 2em;
+  white-space: normal;
+  box-sizing: border-box;
+}
+
+.island-lesson-title [class*="ribbonText"] {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  white-space: normal;
+  line-height: 1.25;
+  text-align: center;
+  padding: 0.35em 0;
+}
+
+#sidebar {
+  overflow-x: hidden;
+}
+
+#sidebar ol a {
+  min-width: 0;
+}
+
+#sidebar ol a > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.island-shell {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .island-progress-block {

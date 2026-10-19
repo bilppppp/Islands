@@ -3,7 +3,13 @@
 // Licensed under the Apache 2.0 license found in the LICENSE file or at:
 //     https://opensource.org/licenses/Apache-2.0
 import "../styles/main.css";
+import "../styles/island.css";
 import TeachingMode from "../components/TeachingMode.astro";
+import IslandProgress from "../components/island/IslandProgress";
+import IslandCountUp from "../components/island/IslandCountUp";
+import IslandShell from "../components/island/IslandShell";
+import IslandMark from "../components/island/IslandMark";
+import IslandClock from "../components/island/IslandClock";
 import config from "../../school.config";
 import { getCollection } from "astro:content";
 
@@ -21,6 +27,7 @@ const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href :
 const lessons = (await getCollection("lessons")).sort((a, b) => a.data.order - b.data.order);
 const exercises = (await getCollection("exercises")).sort((a, b) => a.data.order - b.data.order);
 const currentPath = Astro.url.pathname;
+const currentLessonSlug = (currentPath.match(/^\/lessons\/([^/]+)\/?$/) || [])[1] || "";
 
 import { t, locale } from "../lib/ui";
 
@@ -28,11 +35,12 @@ import ClientUI from "../components/ClientUI.astro";
 ---
 
 <!doctype html>
-<html lang={locale}>
+<html lang={locale} data-chrome="island">
   <head>
     <ClientUI />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:type" content="website" />
@@ -287,17 +295,7 @@ import ClientUI from "../components/ClientUI.astro";
       window.__applySchoolTheme = function(themeName) {
         var palette = window.__schoolThemePalettes[themeName] || window.__schoolThemePalettes.blue;
         var root = document.documentElement;
-        root.style.setProperty("--theme-solid", palette.solid);
-        root.style.setProperty("--theme-solid-hover", palette.solidHover);
-        root.style.setProperty("--theme-link", palette.link);
-        root.style.setProperty("--theme-link-dark", palette.linkDark);
-        root.style.setProperty("--theme-soft-bg", palette.softBg);
-        root.style.setProperty("--theme-soft-border", palette.softBorder);
-        root.style.setProperty("--theme-soft-text", palette.softText);
-        root.style.setProperty("--theme-soft-bg-dark", palette.softBgDark);
-        root.style.setProperty("--theme-soft-border-dark", palette.softBorderDark);
-        root.style.setProperty("--theme-soft-text-dark", palette.softTextDark);
-        root.style.setProperty("--theme-card-text", palette.cardText);
+        void palette;
         root.dataset.themeColor = window.__schoolThemePalettes[themeName] ? themeName : "blue";
       };
 
@@ -306,14 +304,6 @@ import ClientUI from "../components/ClientUI.astro";
       } catch {
         window.__applySchoolTheme("blue");
       }
-    </script>
-    <script is:inline>
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.classList.add("dark");
-      }
-      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
-        document.documentElement.classList.toggle("dark", e.matches);
-      });
     </script>
     <script is:inline>
       // Progress tracking API — defined in <head> so page-level scripts can use it
@@ -553,27 +543,44 @@ import ClientUI from "../components/ClientUI.astro";
     </script>
   </head>
   <body class="min-h-screen">
-    <div class="lg:flex">
+    <IslandShell client:load shortName={courseShortName}>
+    <div class="island-shell lg:flex">
       <!-- Mobile header -->
-      <header class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-stone-800">
-        <a href="/" class="font-mono font-bold text-lg">{courseShortName}</a>
-        <button
-          id="menu-toggle"
-          class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
-          aria-label={t("toggleNav")}
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+      <header class="island-topbar flex flex-col lg:hidden border-b border-gray-200 dark:border-stone-800">
+        <div class="island-brand-row">
+          <a href="/" class="island-mobile-brand">
+            <IslandMark client:load name={courseShortName} size="small" />
+          </a>
+          <IslandClock client:load />
+          <button
+            id="menu-toggle"
+            class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
+            aria-label={t("toggleNav")}
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+        <IslandProgress client:load total={lessons.length} />
       </header>
 
       <!-- Sidebar -->
       <nav
         id="sidebar"
-        class="hidden lg:block w-72 shrink-0 border-r border-gray-200 dark:border-stone-800 h-screen sticky top-0 overflow-y-auto p-6"
+        class="hidden lg:block w-80 shrink-0 border-r border-gray-200 dark:border-stone-800 h-screen sticky top-0 overflow-y-auto p-6"
       >
-        <a href="/" class="block font-mono font-bold text-xl mb-6 px-3" data-school-name={courseShortName}>{courseShortName}</a>
+        <div class="island-brand-row mb-4 px-1">
+          <a href="/" class="island-mobile-brand" data-school-name={courseShortName}>
+            <h1 class="island-school-title m-0">
+              <IslandMark client:load name={courseShortName} size="small" />
+            </h1>
+          </a>
+          <IslandClock client:load />
+        </div>
+        <div class="mb-6 px-1">
+          <IslandProgress client:load total={lessons.length} />
+        </div>
         <ol class="space-y-1">
           {lessons.map((lesson) => {
             const href = `/lessons/${lesson.data.slug}`;
@@ -601,6 +608,7 @@ import ClientUI from "../components/ClientUI.astro";
             );
           })}
         </ol>
+        <div id="sidebar-lesson-toc" class="island-sidebar-toc" hidden></div>
 {exercises.length > 0 && (
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-stone-800">
           <a
@@ -660,7 +668,11 @@ import ClientUI from "../components/ClientUI.astro";
         <TeachingMode />
         <slot />
       </main>
+      <aside class="island-rail hidden xl:block w-72 shrink-0 sticky top-0 h-screen overflow-y-auto p-6">
+        <IslandCountUp client:load currentLessonSlug={currentLessonSlug} />
+      </aside>
     </div>
+    </IslandShell>
 
 
 

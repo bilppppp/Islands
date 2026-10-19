@@ -9,10 +9,10 @@ When a material record contains `crawl` without `crawl.fallback`, that directory
 
 If the saved materials do not support the learner's goal, fill the HTTP HTML sources before writing lessons. From the repository root run `npm run school -- supplement SCHOOL_NAME`. That command starts siteone-crawler on each saved HTTP HTML source and follows the crawler's own same-domain links; it does not limit the crawl to the entry path. Pass `--crawl-prefix` only when a narrower path was explicitly requested. After it finishes, select and read only the pages the goal needs. If supplement fails, continue with the pages already saved and any pages you retrieve with your own web tools. Do not describe a single entry page as the whole documentation set.
 3. Design a coherent learning path around the learner's goal, prior knowledge, and requested depth. Each lesson should address a distinct, meaningful learning objective, with clear boundaries and natural progression. Avoid overloaded lessons, unnecessary fragmentation, repetition, and repackaging the source's original structure. Keep learner-facing content focused and readable, leaving adaptive explanations and deeper exploration to the teacher. Use however many lessons the goal and requested depth need. Do not require a creator or expert to write or review each lesson. In the output school's COURSE.md explain the goal, prerequisites, capabilities, why each lesson exists, its dependency on earlier lessons, the selected sources, exclusions and reasons, uncertainties, and how to adjust the route. Explicitly explain how depth/background/learning preferences affected the scope, prerequisites, explanations, activities and expected outcomes. Include a concise source ledger connecting major claims to actual source locations. State which files you actually read. Never say you read the entire repository if you did not.
-4. Write COMPLETE lessons as plain Markdown files in src/content/lessons/, with YAML frontmatter: title, slug (kebab-case), description, order (1-based), quiz: false, agentOnly: true, agentInstructions: |. Body must be complete, usable learning material, not an outline or a fixed checklist. Choose its content and organization to serve the lesson objective. Use only Markdown, no JSX/HTML expressions. Code fences are allowed. Use `$...$` for inline math and `$$` blocks for display math, with the opening and closing `$$` each on their own line. Keep Chinese explanations and units outside math mode. Write a literal dollar sign as `\$`. Keep code and commands in inline code or fenced code blocks.
+4. Write COMPLETE lessons as plain Markdown files in src/content/lessons/, with YAML frontmatter: title, slug (kebab-case), description, order (1-based), quiz: false, agentOnly: true, agentInstructions: |. The title is the public name of that lesson: what a learner studies, in the course language. Do not include the school directory slug, a "Lesson N" or "第N关" prefix, the brand "Learn Islands", or the genre phrase "AI 互动课程". A textbook section can be named for its idea, as in "正数和负数：概念、例题与练习". Body must be complete, usable learning material, not an outline or a fixed checklist. Choose its content and organization to serve the lesson objective. Use only Markdown, no JSX/HTML expressions. Code fences are allowed. Use `$...$` for inline math and `$$` blocks for display math, with the opening and closing `$$` each on their own line. Keep Chinese explanations and units outside math mode. Write a literal dollar sign as `\$`. Keep code and commands in inline code or fenced code blocks.
 5. agentInstructions are flexible, HARNESS-NEUTRAL teaching notes, not an exhaustive script. Include only lesson-specific capabilities, necessary source passages to read, relevant prerequisites and misconceptions/hints, a domain-appropriate activity, expected reasoning where needed, and an observable completion condition. Activities can be prediction+observation, a numerical calculation, explaining a diagram, or tracing a mechanism. Completion means participating in the activity and receiving feedback, not scoring perfectly. Do not demand installing/building an entire source project just to learn a concept. Do not repeat shared teaching behavior, progress GET/PUT instructions, model metadata, or harness-specific tool instructions, transport, or internal session details; the shared runtime protocol supplies these. Keep actual code/library names in source material, even if they happen to match a harness name.
 6. Use diagrams, visualizations, worked examples, or interactive artifacts when they materially improve understanding. Choose the simplest effective representation based on the learning content, and ground factual relationships in the source material. Do not require visualizations for every lesson. Place generated supporting artifacts under public/activities/ and reference them from lessons. Clearly label model-generated examples as examples, not original source. Verify executable examples where possible. Avoid fake implementations that teach a false mechanism. No dependency on a remote proprietary sandbox. Simple Node/Python calculations are sufficient when appropriate. Optional browser examples may use an installed local dependency; ensure that an alternative remains available.
-7. School identity, settings and profile options are already configured. Do not change infrastructure, school.config.ts, school.settings.json, shared teaching routes, package manifests, or progress data. No mandatory separate interview lesson: a teacher can briefly ask background when necessary. Keep profile choices optional. Do not create exercises merely to fill a section; activities belong in lessons when sufficient. Write course prose in the requested language (Chinese by default); retain technical identifiers. Write only COURSE.md, src/content/lessons/*.md and necessary public/sources/ and public/activities/ files. No new validation framework or testing scripts.
+7. School identity, settings and profile options are already configured. Do not change infrastructure, school.settings.json, shared teaching routes, package manifests, or progress data. In school.config.ts, set only publicName and shortName. publicName is the homepage course name in the course language: specific to this goal, without the directory slug and without "Learn Islands". Chinese courses end with the genre phrase "AI 互动课程", for example "七年级数学上册 AI 互动课程" or "React 重新渲染 AI 互动课程". shortName is what remains after removing that genre phrase and the brand, still enough to tell this course from another, for example "七年级数学" or "React 重新渲染". Do not reuse another subject's name. Leave every other school.config.ts field as scaffolded. No mandatory separate interview lesson: a teacher can briefly ask background when necessary. Keep profile choices optional. Do not create exercises merely to fill a section; activities belong in lessons when sufficient. Write course prose in the requested language (Chinese by default); retain technical identifiers. Write only COURSE.md, src/content/lessons/*.md, the publicName and shortName fields in school.config.ts, and necessary public/sources/ and public/activities/ files. No new validation framework or testing scripts.
 8. Self-review the full route for goal coverage, source fidelity, learnability and unnecessary material. Correct problems before finishing. Return a concise explanation of what was generated, how it supports the goal, and what remains unverified. Do not claim real teaching or progress validation: another process will conduct that.
 
 Infrastructure is preconfigured. All teachers receive shared teaching, source-access, profile and completion instructions via llms.txt. Website progress belongs to the School and must never be seeded by the generator. Transport details belong to the current harness integration and are not part of curriculum content. TeachingMode may change during learning without changing the curriculum depth or regenerating the route.
@@ -22,21 +22,20 @@ Repository working directory: /Users/gravity/Desktop/AI/Agent-native Learning Sc
 Input:
 {
   "name": "astro-zero-to-one",
-  "goal": "基于零基础框架小白视角，从头到尾系统掌握 Astro 框架栈：从为什么需要框架与零 JS 心智模型开始，循序渐进掌握项目结构、.astro 组件与模板语法、文件路由与链接、页面布局与插槽系统、样式与静态资源优化、内容集合（Content Collections）、群岛架构与客户端水合指令，以及构建预览与生产部署。",
-  "depth": "系统掌握 Astro 框架栈核心机制，针对零基础框架小白循序渐进，原汁原味还原官方文档体系",
-  "background": "完全没有接触过现代前端框架，仅具备基础 HTML/CSS/JS 常识",
-  "learningStyle": "具体官方示例驱动，直觉与机制推导结合，预测观察与动手实验，避免遗漏关键概念",
+  "goal": "以初学者视角，沿 Astro 官方中文文档的入门、教程和基础概念，系统学会建立项目、组件、页面、布局、样式和岛屿，并能照着官方示例完成一个小站点。",
+  "depth": "系统掌握官方入门和基础，不另起一套大纲",
+  "background": "还没有接触过前端框架",
+  "learningStyle": "详尽、易懂，术语随文解释，示例保持与官方文档一致",
   "teachingMode": "simple",
-  "language": "zh",
+  "language": "中文",
   "port": 4331,
-  "request": "基于零基础框架小白视角，从零到一系统掌握 Astro 框架栈。学习来源：https://docs.astro.build/zh-cn/getting-started/。原汁原味还原官方文档站，避免缺漏，针对完全没有接触过现代前端框架的小白循序渐进学习整个框架栈。",
+  "request": "学习 https://docs.astro.build/zh-cn/getting-started/ 。我是还没有接触过前端框架的初学者，希望课程顺序、术语和示例尽量与 Astro 官方中文文档一致，讲解详尽、易懂，能跟着一步步做完。",
   "sources": [
     "https://docs.astro.build/zh-cn/getting-started/"
   ],
-  "crawl": "force",
+  "crawl": "auto",
   "maxPages": 500,
-  "crawlWorkers": 4,
-  "crawlPrefix": "/zh-cn",
+  "crawlWorkers": 2,
   "output": "schools/astro-zero-to-one",
   "sourceRoot": "schools/astro-zero-to-one/materials",
   "materials": [
@@ -44,18 +43,18 @@ Input:
       "path": "material-1",
       "url": "https://docs.astro.build/zh-cn/getting-started/",
       "fetchedURL": "https://docs.astro.build/zh-cn/getting-started/",
-      "retrieved": "2026-10-13",
+      "retrieved": "2026-10-19",
       "version": "siteone-crawler 2.5.1",
       "provenance": "material-1/provenance.json",
       "pages": "material-1/pages",
       "crawl": {
         "tool": "siteone-crawler",
         "version": "2.5.1",
-        "prefix": "/zh-cn",
+        "prefix": null,
         "maxPages": 500,
-        "workers": 4,
-        "pageCount": 398,
-        "decision": "override-on"
+        "workers": 2,
+        "pageCount": 471,
+        "decision": "docs-host"
       }
     }
   ]

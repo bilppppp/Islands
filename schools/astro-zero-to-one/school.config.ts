@@ -1,10 +1,11 @@
 import type { SchoolConfig } from "./src/lib/school";
 
 const config: SchoolConfig = {
+	chrome: "island",
 	name: "astro-zero-to-one",
-	publicName: "Astro 入门 AI 互动课程",
-	shortName: "Astro 入门",
-	description: "基于零基础框架小白视角，从头到尾系统掌握 Astro 框架栈：从为什么需要框架与零 JS 心智模型开始，循序渐进掌握项目结构、.astro 组件与模板语法、文件路由与链接、页面布局与插槽系统、样式与静态资源优化、内容集合（Content Collections）、群岛架构与客户端水合指令，以及构建预览与生产部署。",
+	publicName: "Astro 入门与基础 AI 互动课程",
+	shortName: "Astro 入门与基础",
+	description: "以初学者视角，沿 Astro 官方中文文档的入门、教程和基础概念，系统学会建立项目、组件、页面、布局、样式和岛屿，并能照着官方示例完成一个小站点。",
 	adjectives: [
 		"bright",
 		"clever",

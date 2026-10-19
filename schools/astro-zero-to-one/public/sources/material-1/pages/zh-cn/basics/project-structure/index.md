@@ -1,5 +1,5 @@
 <!-- source: https://docs.astro.build/zh-cn/basics/project-structure/ -->
-<!-- retrieved: 2026-10-13; tool: siteone-crawler 2.5.1; prefix: /zh-cn -->
+<!-- retrieved: 2026-10-19; tool: siteone-crawler 2.5.1; scope: siteone-domain -->
 
 # 项目结构
 
@@ -134,12 +134,6 @@ TypeScript 配置文件加载是使用 [`tsm`](https://github.com/lukeed/tsm) �
 查看 [TypeScript 指南](../../../zh-cn/guides/typescript/index.md)了解关于配置的更多细节。
 
 Learn
-
-## Learn Astro with Coding in Public
-
-150\+ video lessons
-
-[Get 20% off](https://learnastro.dev/?code=ASTRO_PROMO)
 
 | [贡献](../../../zh-cn/contribute/index.md) | [社区](https://astro.build/chat) | [赞助](https://opencollective.com/astrodotbuild) |
 

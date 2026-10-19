@@ -1,11 +1,11 @@
 <!-- source: https://docs.astro.build/zh-cn/concepts/why-astro/ -->
-<!-- retrieved: 2026-10-13; tool: siteone-crawler 2.5.1; prefix: /zh-cn -->
+<!-- retrieved: 2026-10-19; tool: siteone-crawler 2.5.1; scope: siteone-domain -->
 
-## Learn Astro with James Q Quick
+## Learn Astro with Coding in Public
 
-Build your first site with 35 interactive Scrimba lessons
+150\+ video lessons
 
-[Get 20% off](https://scrimba.com/intro-to-astro-c00ar0fi5u?via=astro)
+[Get 20% off](https://learnastro.dev/?code=ASTRO_PROMO)
 
 **Astro** 是最适合构建像博客、营销网站、电子商务网站这样的**以内容驱动的网站**的 Web 框架。Astro 以开创了一种新的[前端架构](../../../zh-cn/concepts/islands/index.md)而闻名，与其他框架相比它减少了 JavaScript 的开销和复杂性。如果你需要一个加载速度快、具有良好 SEO 的网站，那么 Astro 就是你的选择。
 
@@ -88,11 +88,13 @@ Astro 在开发者工具方面有所投入，例如从你打开终端的那一�
 
 Learn
 
-## Learn Astro with Coding in Public
+![Scrimba](data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==)
 
-150\+ video lessons
+## Learn Astro with James Q Quick
 
-[Get 20% off](https://learnastro.dev/?code=ASTRO_PROMO)
+Build your first site with 35 interactive Scrimba lessons
+
+[Get 20% off](https://scrimba.com/intro-to-astro-c00ar0fi5u?via=astro)
 
 | [贡献](../../../zh-cn/contribute/index.md) | [社区](https://astro.build/chat) | [赞助](https://opencollective.com/astrodotbuild) |
 
@@ -104,7 +106,5 @@ Learn
 [Docs](../../../zh-cn/getting-started/index.md)
 
 | [GitHub](https://github.com/withastro/astro) | [Discord](https://astro.build/chat) |
-
-![Scrimba](data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==)
 
 ![](data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==)

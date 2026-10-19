@@ -27,7 +27,7 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 
 ![七年级英语首页，左侧是各单元，右侧说明词汇和句型按教材原文学习](docs/images/yingyu.png)
 
-仓库里的完整生成示例是 [astro-zero-to-one](schools/astro-zero-to-one/)。它从 [Astro 中文入门文档](https://docs.astro.build/zh-cn/getting-started/) 生成，面向还没有接触过框架的学习者。[课程设计问答](schools/astro-zero-to-one/QA.md) 说明了抓到的页面里哪些进入了这 10 关，以及为什么没有把全部材料写进课程。较早的七年级数学页面留在 [schools/math-grade7](schools/math-grade7/)。
+仓库里的完整生成示例是 [astro-zero-to-one](schools/astro-zero-to-one/)。它从 [Astro 中文入门文档](https://docs.astro.build/zh-cn/getting-started/) 生成，面向还没有接触过框架的学习者，使用岛屿页面，共 12 关。[课程设计问答](schools/astro-zero-to-one/QA.md) 说明了抓到的页面里哪些进入了课程，以及为什么没有把全部材料写进课程。较早的七年级数学页面留在 [schools/math-grade7](schools/math-grade7/)。
 
 ## 核心能力
 
@@ -43,7 +43,7 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 
 关卡在首页排成一条路：已经完成的在上面，当前这一关展开，后面的关有锁的样子，但仍然可以打开。进入一关后，课文保持 Markdown，铺在羊皮纸上。代码用深色代码块，较小的标题用双层纸样式。网页上可以选择简单或沉浸模式；注册时先选战士、巫师、牧师或游侠，再领取学习身份。教师读取课程、切换模式和记录进度的方式不变。
 
-仓库里的 [七年级数学](schools/math-grade7/) 和 [Astro 示例](schools/astro-zero-to-one/) 仍使用较早的页面。上面六门已发布的课程使用岛屿页面。
+仓库里的 [Astro 示例](schools/astro-zero-to-one/) 和上面六门已发布的课程使用岛屿页面。较早的页面留在 [七年级数学](schools/math-grade7/)。
 
 ## 快速开始
 

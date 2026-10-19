@@ -1,5 +1,5 @@
 <!-- source: https://docs.astro.build/zh-cn/guides/styling/ -->
-<!-- retrieved: 2026-10-13; tool: siteone-crawler 2.5.1; prefix: /zh-cn -->
+<!-- retrieved: 2026-10-19; tool: siteone-crawler 2.5.1; scope: siteone-domain -->
 
 ## Learn Astro with James Q Quick
 
@@ -550,6 +550,12 @@ src/components/RawStylesUrl.astro
 完整的细节见 [Vite 文档](https://cn.vite.dev/guide/assets.md#importing-asset-as-url)。
 
 Learn
+
+## Learn Astro with Coding in Public
+
+150\+ video lessons
+
+[Get 20% off](https://learnastro.dev/?code=ASTRO_PROMO)
 
 | [贡献](../../../zh-cn/contribute/index.md) | [社区](https://astro.build/chat) | [赞助](https://opencollective.com/astrodotbuild) |
 

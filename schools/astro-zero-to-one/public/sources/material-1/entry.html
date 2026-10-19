@@ -148,7 +148,7 @@
 </button>
 				<script type="module">var e=class extends HTMLElement{constructor(){super(),matchMedia(`(min-width: 50em)`).addEventListener(`change`,()=>this.hidePopover()),this.addEventListener(`toggle`,({newState:e})=>this.trapFocus(e===`open`))}trapFocus(e){document.querySelectorAll(`.main-frame, .sl-skip-link`).forEach(t=>{t.toggleAttribute(`inert`,e)})}};customElements.define(`sl-sidebar-pane`,e);</script><script type="module">var e=class extends HTMLElement{id=Math.floor(Math.random()*1e11).toString(32);count=0;TabStore=[];PanelStore=[];constructor(){super();let e=this.querySelectorAll(`.panels > [id]`),t=this.querySelector(`.tab-list`),n=t.querySelectorAll(`a`);t.setAttribute(`role`,`tablist`);let r=0;Array.prototype.forEach.call(n,(e,i)=>{e.setAttribute(`role`,`tab`),e.setAttribute(`id`,this.id+`tab`+ this.count++),e.setAttribute(`tabindex`,`-1`),e.parentElement?.setAttribute(`role`,`presentation`),this.TabStore[i]||this.TabStore.push(new Set),this.TabStore[i].add(e),`initial`in e.dataset&&e.dataset.initial!==`false`&&(r=i);let a=e=>{e.preventDefault();let n=t.querySelector(`[aria-selected]`);e.currentTarget!==n&&this.switchTab(e.currentTarget,i)};e.addEventListener(`click`,a),e.addEventListener(`auxclick`,a),e.addEventListener(`keydown`,e=>{let t=Array.prototype.indexOf.call(n,e.currentTarget),r=e.key===`ArrowLeft`?t-1:e.key===`ArrowRight`?t+1:e.key===`Home`?0:e.key===`End`?n.length-1:null;r!==null&&(e.preventDefault(),n[r]&&this.switchTab(n[r],r))})}),Array.prototype.forEach.call(e,(e,t)=>{e.setAttribute(`role`,`tabpanel`),e.setAttribute(`tabindex`,`-1`),e.setAttribute(`aria-labelledby`,n[t].id),e.hidden=!0,this.PanelStore[t]||this.PanelStore.push(new Set),this.PanelStore[t].add(e)}),n[r].removeAttribute(`tabindex`),n[r].setAttribute(`aria-selected`,`true`),e[r].hidden=!1}switchTab(e,t){this.TabStore.forEach(e=>e.forEach(e=>{e.removeAttribute(`aria-selected`),e.setAttribute(`tabindex`,`-1`)})),this.TabStore[t].forEach(e=>{e.removeAttribute(`tabindex`),e.setAttribute(`aria-selected`,`true`)}),this.PanelStore.forEach(e=>e.forEach(e=>{e.hidden=!0})),this.PanelStore[t].forEach(e=>{e.hidden=!1}),e.focus()}};customElements.define(`tabbed-content`,e);</script><sl-sidebar-pane popover id="starlight__sidebar" class="sidebar-pane astro-3xeg3vgp">
 					<div class="sidebar-content sl-flex astro-3xeg3vgp">
-						<sl-sidebar-state-persist data-hash="04kutqk" class="astro-zixqmjhc">
+						<sl-sidebar-state-persist data-hash="0s9d2ie" class="astro-zixqmjhc">
 	<script aria-hidden="true">
 		(() => {
 			try {
@@ -1090,6 +1090,16 @@
 			</li><li class="astro-ml3loke3">
 				<a href="/zh-cn/reference/experimental-flags/incremental-build/" class="fallback astro-ml3loke3" class="fallback">
 						<span class="astro-ml3loke3">Incremental builds</span>
+						
+					</a>
+			</li><li class="astro-ml3loke3">
+				<a href="/zh-cn/reference/experimental-flags/parallel-prerender/" class="fallback astro-ml3loke3" class="fallback">
+						<span class="astro-ml3loke3">Parallel prerendering</span>
+						
+					</a>
+			</li><li class="astro-ml3loke3">
+				<a href="/zh-cn/reference/experimental-flags/redirect-page/" class="fallback astro-ml3loke3" class="fallback">
+						<span class="astro-ml3loke3">Static redirect page</span>
 						
 					</a>
 			</li>

@@ -1,5 +1,5 @@
 <!-- source: https://docs.astro.build/zh-cn/guides/images/ -->
-<!-- retrieved: 2026-10-13; tool: siteone-crawler 2.5.1; prefix: /zh-cn -->
+<!-- retrieved: 2026-10-19; tool: siteone-crawler 2.5.1; scope: siteone-domain -->
 
 # 图像
 
@@ -488,12 +488,10 @@ Learn
 
 | [GitHub](https://github.com/withastro/astro) | [Discord](https://astro.build/chat) |
 
-![Scrimba](data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==)
-
 ![](data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==)
 
-## Learn Astro with James Q Quick
+## Learn Astro with Coding in Public
 
-Build your first site with 35 interactive Scrimba lessons
+150\+ video lessons
 
-[Get 20% off](https://scrimba.com/intro-to-astro-c00ar0fi5u?via=astro)
+[Get 20% off](https://learnastro.dev/?code=ASTRO_PROMO)

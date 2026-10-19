@@ -1,6 +1,6 @@
 # 部署
 
-同一所学校目录可以用三种方式运行。适配器和进度存储由 `DEPLOY_TARGET` 选择：`dev`、`node` 或 `vercel`。未设置时默认 `dev`。
+同一所学校目录可以用四种方式运行。适配器和进度存储由 `DEPLOY_TARGET` 选择：`dev`、`node`、`vercel` 或 `cloudflare`。未设置时默认 `dev`。
 
 ## 本机开发
 
@@ -43,3 +43,17 @@ npm run school -- start NAME
 构建在 `DEPLOY_TARGET=vercel` 时需要 `BLOB_STORE_ID` 或 `BLOB_READ_WRITE_TOKEN` 至少有一项。都没有时构建失败，只报 `BLOB_STORE_ID`。运行时两者都没有，进度接口返回 503。不要把令牌写进仓库或浏览器代码。
 
 已连接的 Blob 存储如果因用量上限被暂停，脚本会停下来并说明，不会把它当成部署成功。需要先在 Vercel 控制台恢复该存储。
+
+## Cloudflare Workers
+
+在学校目录执行：
+
+```sh
+./script/deploy-cloudflare
+```
+
+仓库里也可以运行 `npm run school -- deploy-cloudflare NAME`。脚本会为这所学校准备一个私有 R2 桶，用 `DEPLOY_TARGET=cloudflare` 构建，再发布到该 Worker 的 `workers.dev` 地址。进度仍是每个学生一份 JSON，键和原来的对象存储相同。
+
+本机 `start` 继续用 `wrangler.jsonc` 里的本地 KV，不会改到这个 R2 桶。这条命令也不会改域名。自定义域名要等 `workers.dev` 上的注册和进度读写都通过之后，再单独切换。
+
+公开地址在绑上自定义域名后可以设置 `PUBLIC_ORIGIN`。没有这份变量时，接口使用请求自己的来源。
