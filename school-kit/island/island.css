@@ -104,16 +104,50 @@ html[data-chrome="island"] body {
   color: #725d42;
 }
 
+:root {
+  --island-seal: url("/roles/seal-warrior.svg");
+}
+
+html[data-learning-role="wizard"] {
+  --island-seal: url("/roles/seal-wizard.svg");
+}
+
+html[data-learning-role="priest"] {
+  --island-seal: url("/roles/seal-priest.svg");
+}
+
+html[data-learning-role="ranger"] {
+  --island-seal: url("/roles/seal-ranger.svg");
+}
+
+.island-seal {
+  display: block;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  background: var(--island-seal) center / contain no-repeat;
+}
+
+.sidebar-check.hidden {
+  display: none;
+}
+
+.sidebar-check.flex {
+  display: block;
+}
+
 .island-done-check {
   display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 999px;
-  background: #11a89b;
-  color: #fffdf7;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: var(--island-seal) center / contain no-repeat;
+}
+
+.island-done-check svg {
+  display: none;
 }
 
 .island-prompt-card {
@@ -469,6 +503,16 @@ html[data-chrome="island"] body {
 
 .island-station-done .island-station-kicker {
   color: #0f766e;
+}
+
+.island-station-done::before {
+  top: 0.22rem;
+  left: 0.14rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 0;
+  background: var(--island-seal) center / contain no-repeat;
+  box-shadow: none;
 }
 
 .island-station .lesson-title {

@@ -55,6 +55,15 @@ import ClientUI from "../components/ClientUI.astro";
 
     <title>{pageTitle}</title>
     <script is:inline>
+      (function () {
+        var names = ["warrior", "wizard", "priest", "ranger"];
+        var role = "warrior";
+        try {
+          var saved = localStorage.getItem("learningRole");
+          if (names.indexOf(saved) !== -1) role = saved;
+        } catch (e) {}
+        document.documentElement.setAttribute("data-learning-role", role);
+      })();
       window.__schoolThemePalettes = {
         blue: {
           solid: "#2563eb",
@@ -500,7 +509,7 @@ import ClientUI from "../components/ClientUI.astro";
             const circle = el.querySelector(".sidebar-check");
             if (circle) {
               const complete = this.isLessonComplete(slug);
-              circle.textContent = complete ? "\u2713" : "";
+              circle.textContent = "";
               circle.classList.toggle("hidden", !complete);
               circle.classList.toggle("flex", complete);
             }
@@ -602,7 +611,7 @@ import ClientUI from "../components/ClientUI.astro";
                     <span class="text-gray-400 dark:text-stone-600 mr-1.5">{String(lesson.data.order).padStart(2, "0")}.</span>
                     {lesson.data.title}
                   </span>
-                  <span class="sidebar-check theme-solid-bg w-4 h-4 rounded-full text-white text-[10px] font-bold items-center justify-center shrink-0 ml-2 hidden"></span>
+                  <span class="sidebar-check island-seal shrink-0 ml-2 hidden" aria-hidden="true"></span>
                 </a>
               </li>
             );

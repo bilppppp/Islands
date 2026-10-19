@@ -271,7 +271,17 @@ def install_island_shell(target: Path) -> list[str]:
     for source, relative in ISLAND_ASTRO_FILES + ISLAND_RUNTIME_FILES:
         if write_if_changed(target / relative, source.read_text()):
             changed.append(str(relative))
-    for name in ("warrior.png", "wizard.png", "priest.png", "ranger.png", "NOTICE.txt"):
+    for name in (
+        "warrior.png",
+        "wizard.png",
+        "priest.png",
+        "ranger.png",
+        "NOTICE.txt",
+        "seal-warrior.svg",
+        "seal-wizard.svg",
+        "seal-priest.svg",
+        "seal-ranger.svg",
+    ):
         source = ISLAND / "roles" / name
         relative = Path("public/roles") / name
         if write_bytes_if_changed(target / relative, source.read_bytes()):

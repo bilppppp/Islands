@@ -306,6 +306,7 @@ import { t } from "../lib/ui";
       function setSelectedRole(role) {
         selectedRole = roleNames.indexOf(role) === -1 ? "warrior" : role;
         localStorage.setItem("learningRole", selectedRole);
+        document.documentElement.setAttribute("data-learning-role", selectedRole);
         document.querySelectorAll(".island-id-face").forEach(function(face) {
           face.classList.toggle("is-selected", face.getAttribute("data-role") === selectedRole);
         });

@@ -65,11 +65,11 @@ they already match. This documents the install path only; it does not claim a
 verified teaching loop.
 
 Island enrollment asks for a character instead of a theme color. The four
-walk cycles (warrior, wizard, priest, ranger) come from Eldiran's CC0
-32×32 RPG sprites; see `school-kit/island/roles/NOTICE.txt`. Choosing a
-character only marks it. The lower start button enrolls with that character.
-The choice is stored in this browser as `learningRole` and only changes the
-identity card. The student ID, progress, and page colors stay as they are.
+walk cycles and completion seals (warrior, wizard, priest, ranger) live in
+`school-kit/island/roles/`; see `NOTICE.txt` there. Choosing a character only
+changes that picture and the seal shown on a finished lesson. The lower start
+button enrolls with that character. The choice is stored in this browser as
+`learningRole`. The student ID, progress, course, and page colors stay as they are.
 
 ## Website language
 
