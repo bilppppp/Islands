@@ -1,16 +1,19 @@
-# Agent-native Learning School
+# Islands
 
-把学习材料和学习目标做成一所独立网站（School）。网站发给学生一串身份并记住进度；关卡上的提示词交给 Coding Agent，就可以按课程讲解、问答和练习，下次用同一身份接着学。课程深度决定学什么，教学模式决定互动节奏。Pi 是默认的生成和教学入口；具备文件读写、终端和 HTTP 访问能力的 Coding Agent 也可以建校或授课。各 Harness 的验证范围见 [HARNESS-VALIDATION.md](HARNESS-VALIDATION.md)。使用方式上的变化记在 [CHANGELOG.md](CHANGELOG.md)。
+Islands 把学习材料和学习目标做成一所独立网站（School）。网站发给学生一串身份并记住进度；关卡上的提示词交给 Coding Agent，就可以按课程讲解、问答和练习，下次用同一身份接着学。课程深度决定学什么，教学模式决定互动节奏。Pi 是默认的生成和教学入口；具备文件读写、终端和 HTTP 访问能力的 Coding Agent 也可以建校或授课。各 Harness 的验证范围见 [HARNESS-VALIDATION.md](HARNESS-VALIDATION.md)。使用方式上的变化记在 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 可以打开的课程
 
-三门七年级课程已经发布。打开后选择简单或沉浸模式，点「选择身份」选定角色，再点「开始学习」领取一串「形容词-名词-四位数字」的身份。进度写在网站上。
+六门七年级课程已经发布。打开后选择简单或沉浸模式，点「选择身份」选定角色，再点「开始学习」领取一串「形容词-名词-四位数字」的身份。进度写在网站上。
 
 | 课程 | 地址 |
 | --- | --- |
 | 七年级语文 | [yuwen.learnislands.com](https://yuwen.learnislands.com) |
 | 七年级数学 | [shuxue.learnislands.com](https://shuxue.learnislands.com) |
 | 七年级英语 | [yingyu.learnislands.com](https://yingyu.learnislands.com) |
+| 七年级生物 | [shengwu.learnislands.com](https://shengwu.learnislands.com) |
+| 七年级地理 | [dili.learnislands.com](https://dili.learnislands.com) |
+| 七年级历史 | [lishi.learnislands.com](https://lishi.learnislands.com) |
 
 七年级语文首页：
 
@@ -40,7 +43,7 @@
 
 关卡在首页排成一条路：已经完成的在上面，当前这一关展开，后面的关有锁的样子，但仍然可以打开。进入一关后，课文保持 Markdown，铺在羊皮纸上。代码用深色代码块，较小的标题用双层纸样式。网页上可以选择简单或沉浸模式；注册时先选战士、巫师、牧师或游侠，再领取学习身份。教师读取课程、切换模式和记录进度的方式不变。
 
-仓库里的 [七年级数学](schools/math-grade7/) 和 [Astro 示例](schools/astro-zero-to-one/) 仍使用较早的页面。上面三门已发布的课程使用岛屿页面。
+仓库里的 [七年级数学](schools/math-grade7/) 和 [Astro 示例](schools/astro-zero-to-one/) 仍使用较早的页面。上面六门已发布的课程使用岛屿页面。
 
 ## 快速开始
 
@@ -65,7 +68,7 @@
 把 `<本地仓库绝对路径>` 换成你的路径（路径里可以有空格）：
 
 ```text
-请使用本地仓库 <本地仓库绝对路径> 中的 Agent-native Learning School，先阅读 README.md、AGENT_GUIDE.md 和 AGENTS.md。
+请使用本地仓库 <本地仓库绝对路径> 中的 Islands，先阅读 README.md、AGENT_GUIDE.md 和 AGENTS.md。
 利用现有工具为 https://arxiv.org/abs/1706.03762 创建并启动一所新的独立 School，不要覆盖已有 School。
 我的目标是理解 Transformer 架构和 Attention 的关键计算。我已熟悉基础神经网络，希望深入理解组件关系、公式推导与简单数值实验；教学先用沉浸模式，允许中途调整节奏。
 完成后给我实际可访问的网站地址、可编辑的课程位置，以及在我使用的 Agent 中开始学习和恢复进度的步骤。未指定的设置使用项目默认值。
@@ -166,7 +169,7 @@ GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准
 | 本机 | `npm run school -- start NAME`，使用 `DEPLOY_TARGET=dev`。进度在 `.wrangler/` |
 | 自有服务器 | 在学校目录执行 `./script/serve`，使用 `DEPLOY_TARGET=node`。进度在 `.school-data/` |
 | Vercel | `npm run school -- deploy NAME`，或在学校目录执行 `./script/deploy-vercel`。脚本写入 `DEPLOY_TARGET=vercel` 并连接私有 Blob 存储。已连接的存储如果被暂停，脚本会停下来。`*.vercel.app` 在中国大陆可能打不开，实用地址是自定义域名 |
-| Cloudflare Workers | `npm run school -- deploy-cloudflare NAME`，或在学校目录执行 `./script/deploy-cloudflare`。进度写入该校私有 R2。脚本发布到 `workers.dev`；自定义域名要另外接上。上面三门课程的正式地址已经接在 `learnislands.com` |
+| Cloudflare Workers | `npm run school -- deploy-cloudflare NAME`，或在学校目录执行 `./script/deploy-cloudflare`。进度写入该校私有 R2。脚本发布到 `workers.dev`；自定义域名要另外接上。上面六门课程的正式地址已经接在 `learnislands.com` |
 
 本机备份保留 `.wrangler/`。自有服务器保留 `.school-data/`。Cloudflare 上的进度在该校的 R2 桶里。环境变量和域名见该学校的 `DEPLOYMENT.md`。
 

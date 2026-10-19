@@ -2,6 +2,17 @@
 
 这里只记使用方式上的变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [2026-10-19]
+
+### 新增
+
+- 七年级生物、地理、历史可以分别在 [shengwu.learnislands.com](https://shengwu.learnislands.com)、[dili.learnislands.com](https://dili.learnislands.com)、[lishi.learnislands.com](https://lishi.learnislands.com) 打开。
+
+### 变更
+
+- 项目名称改为 Islands。网站页头和 `learnislands.com` 上的课程地址不变。
+- 默认分支改为 `island`。`master` 保留在仓库里，不再作为默认分支。
+
 ## [2026-10-17]
 
 ### 新增
