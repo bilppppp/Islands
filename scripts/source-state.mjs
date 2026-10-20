@@ -8,6 +8,11 @@ export const SCHEMA_VERSION = 1;
 export const EXTRACTOR_VERSION = '1';
 export const INCOMPLETE_CANDIDATE_REASON = '候选目录不是完整材料树';
 export const UNOBSERVED_CRAWL_REASON = '这次抓取没有观测到该页，不能当成确认删除';
+export const SNAPSHOT_PATH = /^snapshots\/[^/]+\//;
+
+export function stableSourcePath(path) {
+  return String(path).replace(SNAPSHOT_PATH, '');
+}
 
 const SKIP_DIR = new Set(['.git', 'node_modules', '.wrangler', '.astro', '.vite', 'dist', '__pycache__', '.pi']);
 
@@ -80,10 +85,11 @@ export function parseSourceLedger(courseMd) {
 }
 
 export function matchLedgerClaim(sourcePath, ledger) {
-  const inner = String(sourcePath).replace(/^material-\d+\//, '');
+  const stable = stableSourcePath(sourcePath);
+  const inner = stable.replace(/^material-\d+\//, '');
   for (const row of ledger) {
     for (const pattern of row.patterns) {
-      if (globMatch(sourcePath, pattern) || globMatch(inner, pattern)) return row.claim;
+      if (globMatch(stable, pattern) || globMatch(inner, pattern)) return row.claim;
     }
   }
   return null;
@@ -133,7 +139,7 @@ export function readLessons(schoolPath) {
 export function collectReferencedPaths(schoolPath) {
   const seen = new Set();
   for (const lesson of readLessons(schoolPath)) {
-    for (const path of lesson.sources) seen.add(path);
+    for (const path of lesson.sources) seen.add(stableSourcePath(path));
   }
   return [...seen].sort();
 }
@@ -143,7 +149,8 @@ function settingsOf(schoolPath) {
 }
 
 function materialFor(path, materials) {
-  return (materials || []).find(item => item?.path && (path === item.path || path.startsWith(`${item.path}/`)));
+  const stable = stableSourcePath(path);
+  return (materials || []).find(item => item?.path && (stable === item.path || stable.startsWith(`${item.path}/`)));
 }
 
 export async function gitFileHistory(repoDir, filePath, { run = command } = {}) {
@@ -194,6 +201,7 @@ export function collectInventory(schoolPath, materials) {
   const publicRoot = join(schoolPath, 'public/sources');
   if (existsSync(publicRoot) && statSync(publicRoot).isDirectory()) {
     for (const rel of listFiles(publicRoot)) {
+      if (rel.startsWith('snapshots/')) continue;
       byPath.set(rel, fingerprintRecord(rel, readFileSync(join(publicRoot, rel))));
     }
   }
@@ -244,7 +252,7 @@ function writeJson(path, value) {
 }
 
 export function expandLedgerPatterns(sourcesRoot, ledger) {
-  const files = listFiles(sourcesRoot);
+  const files = listFiles(sourcesRoot).filter(file => !file.startsWith('snapshots/'));
   const expanded = [];
   for (const row of ledger) {
     for (const pattern of row.patterns) {
@@ -268,13 +276,14 @@ export function buildLessonDeps(schoolPath) {
   const assigned = new Set();
   const lessonEntries = lessons.map(lesson => {
     const sources = lesson.sources.map(path => {
-      assigned.add(path);
-      assigned.add(path.replace(/^material-\d+\//, ''));
-      const exists = existsSync(join(sourcesRoot, path));
-      const claim = matchLedgerClaim(path, ledger);
+      const stable = stableSourcePath(path);
+      assigned.add(stable);
+      assigned.add(stable.replace(/^material-\d+\//, ''));
+      const exists = existsSync(join(sourcesRoot, path)) || existsSync(join(sourcesRoot, stable));
+      const claim = matchLedgerClaim(stable, ledger);
       if (!exists) {
         return {
-          path,
+          path: stable,
           claim: claim || '',
           status: 'unresolved',
           reason: 'public/sources 中不存在该路径',
@@ -282,13 +291,13 @@ export function buildLessonDeps(schoolPath) {
       }
       if (!claim) {
         return {
-          path,
+          path: stable,
           claim: '',
           status: 'unresolved',
           reason: '账本没有对应这条路径，未用关键词猜测',
         };
       }
-      return { path, claim, status: 'reviewed' };
+      return { path: stable, claim, status: 'reviewed' };
     });
     return { slug: lesson.slug, order: lesson.order, sources };
   });
@@ -315,7 +324,7 @@ export function buildLessonDeps(schoolPath) {
     for (const pattern of row.patterns) {
       if (!pattern.includes('*')) continue;
       const prefix = pattern.split('*')[0];
-      for (const file of listFiles(sourcesRoot)) {
+      for (const file of listFiles(sourcesRoot).filter(item => !item.startsWith('snapshots/'))) {
         const inner = file.replace(/^material-\d+\//, '');
         if (!(file.startsWith(prefix) || inner.startsWith(prefix))) continue;
         if (assigned.has(file) || assigned.has(inner)) continue;
@@ -362,11 +371,12 @@ export function runIdFrom(now) {
 }
 
 export function locateCandidateFile(candidateRoot, sourcePath, materials) {
-  const direct = join(candidateRoot, sourcePath);
+  const stable = stableSourcePath(sourcePath);
+  const direct = join(candidateRoot, stable);
   if (existsSync(direct)) return direct;
-  const material = materialFor(sourcePath, materials);
+  const material = materialFor(stable, materials);
   if (material) {
-    const rest = sourcePath.slice(material.path.length + 1);
+    const rest = stable.slice(material.path.length + 1);
     const nested = join(candidateRoot, rest);
     if (existsSync(nested)) return nested;
   }
@@ -374,7 +384,7 @@ export function locateCandidateFile(candidateRoot, sourcePath, materials) {
 }
 
 export function listCandidateSourcePaths(candidateRoot, materials) {
-  const files = listFiles(candidateRoot);
+  const files = listFiles(candidateRoot).filter(file => !file.startsWith('snapshots/'));
   if (files.some(file => /^material-\d+\//.test(file))) return files;
   if ((materials || []).length === 1) return files.map(file => `${materials[0].path}/${file}`);
   return files;
@@ -395,18 +405,22 @@ export function compareSources({
   failed = [],
   unobserved = [],
   added = [],
+  lessonFingerprints = {},
 }) {
   const baselineByPath = new Map((baseline.files || []).map(file => [file.path, file]));
   const lessonByPath = new Map();
   for (const lesson of deps.lessons || []) {
     for (const source of lesson.sources || []) {
-      const list = lessonByPath.get(source.path) || [];
+      const stable = stableSourcePath(source.path);
+      const list = lessonByPath.get(stable) || [];
       list.push(lesson.slug);
-      lessonByPath.set(source.path, list);
+      lessonByPath.set(stable, list);
     }
   }
   const changed = [];
   const unchanged = [];
+  const candidateLessons = [];
+  const bySlug = new Map();
   const failedPaths = new Set(failed.map(item => item.path));
   const unobservedPaths = new Set(unobserved.map(item => item.path));
   const missingSet = new Set(missing);
@@ -414,22 +428,26 @@ export function compareSources({
     if (failedPaths.has(path) || unobservedPaths.has(path) || missingSet.has(path)) continue;
     const current = candidateFiles[path];
     if (!current) continue;
-    if (current.textFingerprint === file.textFingerprint) {
-      unchanged.push({ path });
-    } else {
-      changed.push({
-        path,
-        sha256: { baseline: file.sha256, candidate: current.sha256 },
-        textFingerprint: { baseline: file.textFingerprint, candidate: current.textFingerprint },
-      });
+    const slugs = lessonByPath.get(path) || [];
+    const differing = [];
+    for (const slug of slugs) {
+      const currentFp = lessonFingerprints?.[slug]?.[path] ?? file.textFingerprint;
+      if (currentFp === current.textFingerprint) continue;
+      differing.push(slug);
     }
-  }
-  const candidateLessons = [];
-  const bySlug = new Map();
-  for (const item of changed) {
-    for (const slug of lessonByPath.get(item.path) || []) {
+    const matchesBaseline = current.textFingerprint === file.textFingerprint;
+    if (matchesBaseline && !differing.length) {
+      unchanged.push({ path });
+      continue;
+    }
+    changed.push({
+      path,
+      sha256: { baseline: file.sha256, candidate: current.sha256 },
+      textFingerprint: { baseline: file.textFingerprint, candidate: current.textFingerprint },
+    });
+    for (const slug of differing) {
       const entry = bySlug.get(slug) || { slug, paths: [] };
-      entry.paths.push(item.path);
+      entry.paths.push(path);
       bySlug.set(slug, entry);
     }
   }
@@ -503,7 +521,24 @@ async function defaultGitShow(repo, spec) {
   return gitShowBytes(repo, spec);
 }
 
+function lessonSourceFingerprints(schoolPath) {
+  const result = {};
+  const sourcesRoot = join(schoolPath, 'public/sources');
+  for (const lesson of readLessons(schoolPath)) {
+    const byPath = {};
+    for (const path of lesson.sources) {
+      if (!SNAPSHOT_PATH.test(path)) continue;
+      const full = join(sourcesRoot, path);
+      if (!existsSync(full)) continue;
+      byPath[stableSourcePath(path)] = textFingerprint(readFileSync(full, 'utf8'));
+    }
+    if (Object.keys(byPath).length) result[lesson.slug] = byPath;
+  }
+  return result;
+}
+
 async function checkGitMaterial({ schoolPath, material, referenced, run, git }) {
+  referenced = referenced.map(stableSourcePath);
   const repo = join(schoolPath, 'materials', material.path);
   const failed = [];
   const deleted = [];
@@ -567,6 +602,7 @@ async function checkGitMaterial({ schoolPath, material, referenced, run, git }) 
 }
 
 function readLocalCandidate(schoolPath, candidateRoot, materials, referenced, { inventory = [], incomplete = false } = {}) {
+  referenced = referenced.map(stableSourcePath);
   const failed = [];
   const deleted = [];
   const unobserved = [];
@@ -631,6 +667,7 @@ function pageBytes(dest, page) {
 }
 
 export async function checkDocsMaterial({ schoolPath, material, referenced, now = new Date(), crawl, inventory = [] }) {
+  referenced = referenced.map(stableSourcePath);
   const date = now.toISOString().slice(0, 10);
   const materialsDir = join(schoolPath, 'materials');
   try {
@@ -711,13 +748,13 @@ export async function checkSchool(schoolPath, {
   }
   if (source && !existsSync(source)) throw new Error(`Candidate source is not an accessible local path: ${source}`);
   const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
-  const deps = JSON.parse(readFileSync(depsPath, 'utf8'));
+  const deps = buildLessonDeps(schoolPath);
   if (String(baseline.extractorVersion) !== String(EXTRACTOR_VERSION)) {
     throw new Error(`Baseline extractorVersion ${baseline.extractorVersion} does not match ${EXTRACTOR_VERSION}. Re-run sources NAME --baseline.`);
   }
   const settings = settingsOf(schoolPath);
   const materials = settings.materials || [];
-  const referenced = (baseline.files || []).map(file => file.path);
+  const referenced = (baseline.files || []).map(file => stableSourcePath(file.path));
   const inventory = baseline.inventory || [];
   const candidateFiles = {};
   const failed = [];
@@ -737,7 +774,8 @@ export async function checkSchool(schoolPath, {
   } else {
     const grouped = new Map();
     for (const path of referenced) {
-      const material = materialFor(path, materials) || { path: path.split('/')[0] };
+      const stable = stableSourcePath(path);
+      const material = materialFor(stable, materials) || { path: stable.split('/')[0] };
       const list = grouped.get(material.path) || { material, paths: [] };
       if (!list.material.commit && material.commit) list.material = material;
       if (!list.material.crawl && material.crawl) list.material = material;
@@ -791,6 +829,7 @@ export async function checkSchool(schoolPath, {
     failed,
     unobserved,
     added,
+    lessonFingerprints: lessonSourceFingerprints(schoolPath),
   }), extraChanged);
   report.runId = runIdFrom(now);
   const outDir = join(schoolPath, 'evidence/updates', report.runId);

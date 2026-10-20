@@ -12,6 +12,7 @@ import {
   rawSha256,
   readLessons,
   runIdFrom,
+  stableSourcePath,
 } from './source-state.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -92,11 +93,27 @@ function lessonBindings(schoolPath) {
   }));
 }
 
-function protectedBindings(schoolPath) {
-  return PROTECTED_FILES.filter(path => existsSync(join(schoolPath, path))).map(path => ({
+function addTreeBindings(schoolPath, relRoot, rows, { skip } = {}) {
+  const root = join(schoolPath, relRoot);
+  if (!existsSync(root)) return;
+  for (const rel of listFiles(root, { ignore: false })) {
+    if (skip && skip(rel)) continue;
+    const path = `${relRoot}/${rel}`;
+    rows.push({ path, sha256: rawSha256(readFileSync(join(schoolPath, path))) });
+  }
+}
+
+function protectedBindings(schoolPath, planId) {
+  const rows = PROTECTED_FILES.filter(path => existsSync(join(schoolPath, path))).map(path => ({
     path,
     sha256: rawSha256(readFileSync(join(schoolPath, path))),
   }));
+  addTreeBindings(schoolPath, 'public/activities', rows);
+  addTreeBindings(schoolPath, 'src/content/exercises', rows);
+  addTreeBindings(schoolPath, 'public/sources/snapshots', rows, {
+    skip: rel => Boolean(planId) && (rel === planId || rel.startsWith(`${planId}/`)),
+  });
+  return rows;
 }
 
 export function latestChangesRunId(schoolPath) {
@@ -167,8 +184,44 @@ function writeSeen(schoolPath, planId) {
   writeJson(path, { schemaVersion: SCHEMA_VERSION, lastSeenSnapshot: planId, lessons });
 }
 
+export function evaluateRouteReview({ lessons, candidateLessons, changePaths }) {
+  const reasons = [];
+  const candidates = candidateLessons || [];
+  const route = lessons || [];
+  if (candidates.length > route.length / 2) reasons.push('候选关超过一半');
+  const ordered = [...route].sort((a, b) => a.order - b.order || String(a.slug).localeCompare(String(b.slug)));
+  const entry = ordered[0];
+  const candidateSlugs = new Set(candidates.map(item => item.slug));
+  if (entry && candidateSlugs.has(entry.slug)) reasons.push('入口');
+  let indexHit = false;
+  let prereqHit = false;
+  for (const path of changePaths || []) {
+    const users = route.filter(lesson =>
+      (lesson.sources || []).some(src => stableSourcePath(src) === path),
+    );
+    if (entry && users.some(lesson => lesson.slug === entry.slug) && users.some(lesson => lesson.slug !== entry.slug)) {
+      indexHit = true;
+    }
+    for (let i = 0; i < users.length; i++) {
+      for (let j = i + 1; j < users.length; j++) {
+        if (Math.abs(Number(users[i].order) - Number(users[j].order)) === 1) prereqHit = true;
+      }
+    }
+  }
+  if (indexHit) reasons.push('索引');
+  if (prereqHit) reasons.push('前置');
+  return { routeReview: reasons.length > 0, routeReviewReasons: reasons };
+}
+
+function changePathsOf(report) {
+  return [...(report.changed || []), ...(report.added || [])].map(item => (
+    typeof item === 'string' ? item : item.path
+  ));
+}
+
 export function assertPlanReady(plan, schoolPath) {
   const known = new Set((plan.lessons || []).map(item => item.slug));
+  const bySlug = new Map(readLessons(schoolPath).map(lesson => [lesson.slug, lesson]));
   let pending = 0;
   let local = 0;
   for (const change of plan.changes || []) {
@@ -178,11 +231,19 @@ export function assertPlanReady(plan, schoolPath) {
     }
     if (change.verdict === LOCAL_REVISION_VERDICT) {
       local += 1;
+      if (change.kind !== 'changed' && change.kind !== 'added') {
+        throw new Error(`局部修订 only allowed for changed or added, not ${change.kind}: ${change.path}`);
+      }
       if (!Array.isArray(change.lessons) || !change.lessons.length) {
         throw new Error(`局部修订 for ${change.path} must include a lessons array of slugs.`);
       }
       for (const slug of change.lessons) {
         if (!known.has(slug)) throw new Error(`局部修订 names unknown lesson ${slug}.`);
+        const lesson = bySlug.get(slug) || (plan.lessons || []).find(item => item.slug === slug);
+        const sources = (lesson?.sources || []).map(stableSourcePath);
+        if (!sources.includes(change.path)) {
+          throw new Error(`局部修订 names ${slug} but that lesson does not reference ${change.path}.`);
+        }
       }
       continue;
     }
@@ -209,12 +270,6 @@ function snapshotPrefix(planId) {
   return `snapshots/${planId}/`;
 }
 
-const ANY_SNAPSHOT_PREFIX = /^snapshots\/[^/]+\//;
-
-function stableSourcePath(path) {
-  return String(path).replace(ANY_SNAPSHOT_PREFIX, '');
-}
-
 export function retargetSourceList(sources, planId, snapshotted) {
   const prefix = snapshotPrefix(planId);
   return sources.map(path => {
@@ -235,11 +290,24 @@ function replaceSourcesBlock(text, sources) {
 function snapshottedPaths(plan) {
   const paths = new Set();
   for (const change of plan.changes || []) {
+    if (change.verdict !== LOCAL_REVISION_VERDICT) continue;
     if (change.kind !== 'changed' && change.kind !== 'added') continue;
     if (!change.snapshotSha256) continue;
     paths.add(change.path);
   }
   return paths;
+}
+
+function assertNamedLessonsRevised(plan, schoolPath) {
+  const named = new Set(localRevisionSlugs(plan));
+  if (!named.size) return;
+  const prepared = plan.preparedLessonSha256 || {};
+  const current = new Map(lessonBindings(schoolPath).map(item => [item.slug, item.sha256]));
+  for (const slug of named) {
+    if (current.get(slug) === prepared[slug]) {
+      throw new Error(`课文尚未按计划修订: ${slug}`);
+    }
+  }
 }
 
 function readAdoptions(schoolPath) {
@@ -468,7 +536,11 @@ async function planUpdate({ schoolPath, options, originalCwd, now }) {
   const baseline = JSON.parse(readFileSync(baselinePath, 'utf8'));
   const planId = runIdFrom(now);
   const lessons = lessonBindings(schoolPath);
-  const candidateCount = (report.candidateLessons || []).length;
+  const review = evaluateRouteReview({
+    lessons,
+    candidateLessons: report.candidateLessons || [],
+    changePaths: changePathsOf(report),
+  });
   const source = options.source?.[0] ? resolve(originalCwd, options.source[0]) : undefined;
   if (source && !existsSync(source)) throw new Error(`Candidate source is not an accessible local path: ${source}`);
   const changes = planChanges(report);
@@ -485,10 +557,11 @@ async function planUpdate({ schoolPath, options, originalCwd, now }) {
     runId: report.runId || runId,
     extractorVersion: baseline.extractorVersion,
     createdAt: now.toISOString(),
-    routeReview: candidateCount > lessons.length / 2,
+    routeReview: review.routeReview,
+    routeReviewReasons: review.routeReviewReasons,
     candidateLessons: report.candidateLessons || [],
     lessons,
-    protectedFiles: protectedBindings(schoolPath),
+    protectedFiles: protectedBindings(schoolPath, planId),
     publicSources: publicSourceBindings(schoolPath),
     changes,
   };
@@ -529,6 +602,7 @@ async function applyUpdate({ schoolPath, options, finish, portBusy }) {
   assertPlanReady(plan, schoolPath);
   assertUpdateAllowed(plan, schoolPath);
   assertBytesPresent(plan);
+  assertNamedLessonsRevised(plan, schoolPath);
   const previousLessons = lessonFileTexts(schoolPath);
   retargetRevisedLessons(plan, schoolPath);
   try {

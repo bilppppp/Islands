@@ -206,8 +206,10 @@ export function completionConditionText(text) {
       i += 1;
     }
     const instructions = unindentYaml(collected);
-    const at = instructions.indexOf('完成条件');
-    return at < 0 ? '' : instructions.slice(at);
+    const zh = instructions.indexOf('完成条件');
+    if (zh >= 0) return instructions.slice(zh);
+    const en = instructions.indexOf('Completion condition');
+    return en < 0 ? '' : instructions.slice(en);
   }
   return '';
 }
@@ -264,6 +266,9 @@ export function assertUpdateAllowed(plan, schoolPath, { allowLocalRevisionBody =
     if (lesson.slug !== recorded.slug || Number(lesson.order) !== Number(recorded.order)) {
       throw new Error(`Lesson ${recorded.file} slug or order changed.`);
     }
+    if (!completionConditionText(lesson.text)) {
+      throw new Error(`Lesson ${recorded.file} is missing 完成条件 or Completion condition.`);
+    }
     if (completionSha256(lesson.text) !== recorded.completionSha256) {
       throw new Error(`Lesson ${recorded.file} 完成条件 changed.`);
     }
@@ -285,6 +290,23 @@ export function assertUpdateAllowed(plan, schoolPath, { allowLocalRevisionBody =
     }
   }
   assertPublicSources(plan, schoolPath);
+  assertProtectedTrees(plan, schoolPath);
+}
+
+function assertProtectedTrees(plan, schoolPath) {
+  const recorded = new Set((plan.protectedFiles || []).map(item => item.path));
+  const skipPrefix = plan.planId ? `public/sources/snapshots/${plan.planId}/` : '';
+  for (const relRoot of ['public/activities', 'src/content/exercises', 'public/sources/snapshots']) {
+    const root = join(schoolPath, relRoot);
+    if (!existsSync(root)) continue;
+    for (const rel of listFiles(root, { ignore: false })) {
+      const path = `${relRoot}/${rel}`;
+      if (skipPrefix && path.startsWith(skipPrefix)) continue;
+      if (!recorded.has(path)) {
+        throw new Error(`${path} is not allowed to change during this update.`);
+      }
+    }
+  }
 }
 
 export function validateGeneration(inputPath) {

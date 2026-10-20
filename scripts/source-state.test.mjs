@@ -10,6 +10,7 @@ import {
   INCOMPLETE_CANDIDATE_REASON,
   UNOBSERVED_CRAWL_REASON,
   assertLessonHasSources,
+  buildLessonDeps,
   checkDocsMaterial,
   checkSchool,
   compareSources,
@@ -538,5 +539,106 @@ describe('docs crawl status', () => {
     });
     assert.equal(report.unobserved.some(item => item.path === 'material-1/pages/b.md'), true);
     assert.equal(report.deleted.length, 0);
+  });
+});
+
+describe('snapshot source paths', () => {
+  it('maps snapshots/<id>/material-N paths to the original material path', async () => {
+    const school = makeSchool({ shared: false });
+    write(join(school, 'public/sources/snapshots/PLAN/material-1/pages/a.md'), page('Alpha page changed'));
+    const file = join(school, 'src/content/lessons/01-a.md');
+    writeFileSync(file, readFileSync(file, 'utf8').replace(
+      'material-1/pages/a.md',
+      'snapshots/PLAN/material-1/pages/a.md',
+    ));
+    const { baseline, deps } = await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    const mapped = deps.lessons.find(item => item.slug === 'lesson-a').sources.find(item => item.path.endsWith('pages/a.md'));
+    assert.equal(mapped.path, 'material-1/pages/a.md');
+    assert.equal(mapped.status, 'reviewed');
+    assert.equal(deps.unresolved.some(item => String(item.path).includes('snapshots/')), false);
+    assert.equal(baseline.files.some(item => item.path === 'material-1/pages/a.md'), true);
+    assert.equal(baseline.files.some(item => String(item.path).startsWith('snapshots/')), false);
+    assert.equal(baseline.inventory.some(item => String(item.path).startsWith('snapshots/')), false);
+
+    const live = buildLessonDeps(school);
+    assert.equal(live.lessons.find(item => item.slug === 'lesson-a').sources.some(item => item.path === 'material-1/pages/a.md'), true);
+
+    const candidate = copySources(school);
+    write(join(candidate, 'material-1/pages/a.md'), page('Alpha page changed'));
+    const { report } = await checkSchool(school, {
+      source: candidate,
+      now: new Date('2026-10-20T01:00:00Z'),
+    });
+    assert.equal(report.deleted.some(item => item.path === 'material-1/pages/a.md'), false);
+    assert.equal(report.failed.some(item => item.path === 'material-1/pages/a.md'), false);
+    assert.equal(report.deleted.some(item => String(item.path).includes('snapshots/')), false);
+    assert.equal(report.candidateLessons.some(item => item.slug === 'lesson-a'), false);
+  });
+
+  it('lists only lessons whose adopted snapshot differs from the candidate', () => {
+    const baseline = {
+      files: [{ path: 'material-1/pages/a.md', sha256: 'aa', textFingerprint: 'old' }],
+    };
+    const deps = {
+      lessons: [{
+        slug: 'lesson-a',
+        sources: [{ path: 'snapshots/PLAN/material-1/pages/a.md' }],
+      }, {
+        slug: 'lesson-b',
+        sources: [{ path: 'material-1/pages/a.md' }],
+      }],
+    };
+    const same = compareSources({
+      baseline,
+      deps,
+      candidateFiles: { 'material-1/pages/a.md': { sha256: 'bb', textFingerprint: 'new' } },
+      lessonFingerprints: { 'lesson-a': { 'material-1/pages/a.md': 'new' } },
+    });
+    assert.equal(same.changed.length, 1);
+    assert.deepEqual(same.candidateLessons.map(item => item.slug), ['lesson-b']);
+
+    const next = compareSources({
+      baseline,
+      deps,
+      candidateFiles: { 'material-1/pages/a.md': { sha256: 'cc', textFingerprint: 'newer' } },
+      lessonFingerprints: { 'lesson-a': { 'material-1/pages/a.md': 'new' } },
+    });
+    assert.deepEqual(next.candidateLessons.map(item => item.slug), ['lesson-a', 'lesson-b']);
+
+    const reverted = compareSources({
+      baseline,
+      deps,
+      candidateFiles: { 'material-1/pages/a.md': { sha256: 'aa', textFingerprint: 'old' } },
+      lessonFingerprints: { 'lesson-a': { 'material-1/pages/a.md': 'new' } },
+    });
+    assert.equal(reverted.unchanged.some(item => item.path === 'material-1/pages/a.md'), false);
+    assert.equal(reverted.changed.some(item => item.path === 'material-1/pages/a.md'), true);
+    assert.deepEqual(reverted.candidateLessons.map(item => item.slug), ['lesson-a']);
+  });
+
+  it('lists only the adopting lesson when a candidate reverts from snapshot v2 to baseline v1', async () => {
+    const school = makeSchool({ shared: false });
+    write(join(school, 'public/sources/snapshots/PLAN/material-1/pages/a.md'), page('Alpha page changed'));
+    const fileA = join(school, 'src/content/lessons/01-a.md');
+    writeFileSync(fileA, readFileSync(fileA, 'utf8').replace(
+      'material-1/pages/a.md',
+      'snapshots/PLAN/material-1/pages/a.md',
+    ));
+    const fileB = join(school, 'src/content/lessons/02-b.md');
+    writeFileSync(fileB, readFileSync(fileB, 'utf8').replace(
+      'material-1/pages/b.md',
+      'material-1/pages/a.md',
+    ));
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    const candidate = copySources(school);
+    const { report, exitCode } = await checkSchool(school, {
+      source: candidate,
+      now: new Date('2026-10-20T01:00:00Z'),
+    });
+    assert.equal(exitCode, 2);
+    assert.deepEqual(report.candidateLessons.map(item => item.slug), ['lesson-a']);
+    assert.deepEqual(report.candidateLessons[0].paths, ['material-1/pages/a.md']);
+    assert.equal(report.deleted.length, 0);
+    assert.equal(report.failed.length, 0);
   });
 });
