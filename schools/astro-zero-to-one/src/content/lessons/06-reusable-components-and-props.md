@@ -5,6 +5,11 @@ description: "掌握 Astro 组件化思想，将重复的导航栏与页脚抽�
 order: 6
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/basics/astro-components/index.md
+  - material-1/pages/zh-cn/tutorial/3-components/1/index.md
+  - material-1/pages/zh-cn/tutorial/3-components/2/index.md
+  - material-1/pages/zh-cn/tutorial/3-components/3/index.md
 agentInstructions: |
   教学目标：
   1. 理解“不要自我重复（DRY - Don't Repeat Yourself）”的软件设计原则，学会将各个页面中重复书写的导航链接与页脚抽离为 `src/components/` 下的独立组件。

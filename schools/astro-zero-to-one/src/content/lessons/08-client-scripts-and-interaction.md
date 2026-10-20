@@ -5,6 +5,9 @@ description: "掌握 Astro 中客户端原生脚本的应用，理清代码围�
 order: 8
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/tutorial/3-components/4/index.md
+  - material-1/pages/zh-cn/tutorial/6-islands/2/index.md
 agentInstructions: |
   教学目标：
   1. 破除初学者“做交互必须引入庞大前端框架”的误区：理解很多常见的网页交互（如菜单折叠、弹窗提示、主题切换）用原生 JavaScript 标签就能轻量、高效地完成。

@@ -5,6 +5,11 @@ description: "掌握 Astro 动态路由参数语法与 getStaticPaths() 批量�
 order: 9
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/guides/routing/index.md
+  - material-1/pages/zh-cn/tutorial/5-astro-api/1/index.md
+  - material-1/pages/zh-cn/tutorial/5-astro-api/2/index.md
+  - material-1/pages/zh-cn/tutorial/5-astro-api/3/index.md
 agentInstructions: |
   教学目标：
   1. 理解动态路由解决的核心矛盾：真实网站不可能为成百上千个分类或文章手工新建 `.astro` 文件，必须通过单份模板结合参数动态批量产出页面。

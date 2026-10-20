@@ -11,7 +11,7 @@ const originalPath = process.env.PATH;
 const realPython = execFileSync('which', ['python3'], { encoding: 'utf8' }).trim();
 import {
   ASSETS, CRAWLER_VERSION, buildCrawlArgs, choosePrefix, crawlIsUseful, crawlPrefix, decideCrawl,
-  ensureCrawler, includeRegex, pagesFromCrawlJson, platformKey, proxyEndpoint, stripCopiedMarkers,
+  ensureCrawler, finalizePages, includeRegex, pagesFromCrawlJson, platformKey, proxyEndpoint, stripCopiedMarkers,
   versionAtLeast,
 } from './site-crawl.mjs';
 
@@ -113,6 +113,43 @@ describe('crawl scope and output cleanup', () => {
     });
     assert.equal(parsed.version, '2.5.1');
     assert.deepEqual(parsed.pages, [{ file: 'docs/latest.md', url: 'https://pi.dev/docs/latest' }]);
+    assert.deepEqual(parsed.failedUrls, ['https://pi.dev/missing']);
+  });
+
+  it('keeps first-line indent when finalizing crawled markdown', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'finalize-indent-'));
+    writeFileSync(join(dir, 'code.md'), '    print(1)\nnext\n');
+    const pages = finalizePages({
+      markdownDir: dir,
+      manifest: [{ file: 'code.md', url: 'https://example.com/code' }],
+      origin: 'https://example.com/',
+      retrieved: '2026-10-20',
+      version: '2.5.1',
+    });
+    assert.equal(pages.length, 1);
+    assert.match(pages[0].text, /\n\n    print\(1\)\n/);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('does not finalize markdown whose URL is failed or missing from the manifest', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'finalize-failed-'));
+    writeFileSync(join(dir, 'ok.md'), '# ok\n');
+    writeFileSync(join(dir, 'failed.md'), '# failed export\n');
+    writeFileSync(join(dir, 'orphan.md'), '# orphan\n');
+    const pages = finalizePages({
+      markdownDir: dir,
+      manifest: [
+        { file: 'ok.md', url: 'https://example.com/ok' },
+        { file: 'failed.md', url: 'https://example.com/failed' },
+      ],
+      origin: 'https://example.com/',
+      retrieved: '2026-10-20',
+      version: '2.5.1',
+      failedUrls: ['https://example.com/failed'],
+    });
+    assert.deepEqual(pages.map(page => page.file), ['pages/ok.md']);
+    assert.equal(pages.some(page => page.url === 'https://example.com/failed'), false);
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it('forwards proxy host and port, and pins platform archives', () => {

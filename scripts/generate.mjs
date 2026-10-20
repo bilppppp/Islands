@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, basename, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
+import { assertLessonHasSources } from './source-state.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -197,6 +198,8 @@ export function validateGeneration(inputPath) {
   if (!publicName || !shortName || publicName === internalName || shortName === internalName || publicName.includes('Learn Islands')) {
     throw new Error('Set school.config.ts publicName and shortName to the public course names from the generation protocol. The directory slug is not a title.');
   }
+  const settingsPath = join(output, 'school.settings.json');
+  const requireLessonSources = existsSync(settingsPath) && JSON.parse(readFileSync(settingsPath, 'utf8')).requireLessonSources === true;
   for (const name of lessons) {
     const text = readFileSync(join(output, 'src/content/lessons', name), 'utf8');
     if (!text.startsWith('---\n') || !/agentInstructions:\s*\|/.test(text) || /\bTODO\b|Coming soon\./.test(text)) {
@@ -209,6 +212,7 @@ export function validateGeneration(inputPath) {
       throw new Error(`Lesson title in ${name} must name what the learner studies, without the directory slug or the brand.`);
     }
     assertMathDelimiters(text, name);
+    if (requireLessonSources) assertLessonHasSources(text, name, join(output, 'public/sources'));
   }
   return lessons.length;
 }

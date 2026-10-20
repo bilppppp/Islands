@@ -171,6 +171,29 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
   return records;
 }
 
+export function docsSnapshotPath(materialsDir, materialFolder, date) {
+  if (!/^material-\d+$/.test(materialFolder)) throw new Error(`Snapshot folder must be material-N, got ${materialFolder}.`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Snapshot date must be YYYY-MM-DD.');
+  return join(materialsDir, `${materialFolder}.snapshots`, date);
+}
+
+export async function writeDocsSnapshot(record, materialsDir, date, { run = command } = {}) {
+  const dest = docsSnapshotPath(materialsDir, record.path, date);
+  mkdirSync(dest, { recursive: true });
+  const crawler = await ensureCrawler({ run });
+  const crawled = await runCrawl({
+    run,
+    executable: crawler.executable,
+    url: record.fetchedURL || record.url,
+    directory: dest,
+    prefix: record.crawl?.prefix ?? null,
+    maxPages: record.crawl?.maxPages || 500,
+    workers: record.crawl?.workers || 2,
+  });
+  writePages(dest, crawled.pages);
+  return { dest, pages: crawled.pages, failedUrls: crawled.failedUrls || [] };
+}
+
 export async function supplementMaterials(records, directory, { maxPages = 500, crawlPrefix, crawlWorkers = 2 } = {}) {
   const next = [];
   for (const record of records || []) {

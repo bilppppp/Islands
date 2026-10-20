@@ -5,6 +5,10 @@ description: "深入剖析 .astro 单文件结构，掌握代码栅栏（Frontma
 order: 4
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/basics/astro-components/index.md
+  - material-1/pages/zh-cn/reference/astro-syntax/index.md
+  - material-1/pages/zh-cn/tutorial/2-pages/3/index.md
 agentInstructions: |
   教学目标：
   1. 帮助初学者透彻理解 `.astro` 单文件组件的“双代码块”设计：顶部的“组件脚本（Component Script）”与下方的“组件模板（Component Template）”。

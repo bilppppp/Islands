@@ -248,15 +248,20 @@ export function crawlIsUseful(pages) {
 export function pagesFromCrawlJson(json) {
   const results = Array.isArray(json?.results) ? json.results : [];
   const pages = [];
+  const failedUrls = [];
   for (const row of results) {
-    if (!row || typeof row.markdownFilePath !== 'string' || typeof row.url !== 'string') continue;
+    if (!row || typeof row.url !== 'string') continue;
     const status = String(row.status ?? '');
-    if (status && !status.startsWith('2')) continue;
+    if (status && !status.startsWith('2')) {
+      failedUrls.push(row.url);
+      continue;
+    }
+    if (typeof row.markdownFilePath !== 'string') continue;
     const file = row.markdownFilePath.replace(/\\/g, '/').replace(/^\.\//, '');
     if (!file.endsWith('.md') || file.split('/').includes('..')) continue;
     pages.push({ file, url: row.url });
   }
-  return { version: parseVersion(json?.crawler?.version), pages };
+  return { version: parseVersion(json?.crawler?.version), pages, failedUrls };
 }
 
 export function guessPageUrl(file, origin) {
@@ -431,15 +436,26 @@ function listMarkdown(dir, base = dir, out = []) {
   return out;
 }
 
-export function finalizePages({ markdownDir, manifest, origin, retrieved, version, prefix }) {
+function normalizePageMarkdown(markdown) {
+  return String(markdown)
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/[ \t]*\[Copied\]\(#[^)\r\n]*\)[ \t]*/g, '')
+    .replace(/[ \t]+$/gm, '');
+}
+
+export function finalizePages({ markdownDir, manifest, origin, retrieved, version, prefix, failedUrls }) {
   const known = new Map((manifest || []).map(page => [page.file, page.url]));
+  const failed = new Set(failedUrls || []);
   const files = listMarkdown(markdownDir);
   const pages = [];
   for (const file of files) {
+    if (!known.has(file)) continue;
+    const url = known.get(file);
+    if (failed.has(url)) continue;
     const sourcePath = join(markdownDir, file);
-    const body = stripCopiedMarkers(readFileSync(sourcePath, 'utf8'));
+    const body = normalizePageMarkdown(readFileSync(sourcePath, 'utf8'));
     const chars = body.trim().length;
-    const url = known.get(file) || guessPageUrl(file, origin);
     const scope = prefix ? `prefix: ${prefix}` : 'scope: siteone-domain';
     const stamped = `<!-- source: ${url} -->\n<!-- retrieved: ${retrieved}; tool: siteone-crawler ${version}; ${scope} -->\n\n${body}`;
     pages.push({ file: `pages/${file}`, url, chars, text: stamped });
@@ -469,14 +485,16 @@ export async function runCrawl({ run, executable, url, directory, prefix, maxPag
   }
   let manifest = [];
   let version = null;
+  let failedUrls = [];
   if (existsSync(jsonFile)) {
     try {
       const parsed = pagesFromCrawlJson(JSON.parse(readFileSync(jsonFile, 'utf8')));
       manifest = parsed.pages;
       version = parsed.version;
+      failedUrls = parsed.failedUrls || [];
     } catch { /* markdown files remain usable without the JSON index */ }
   }
-  const pages = existsSync(markdownDir) ? finalizePages({ markdownDir, manifest, origin: url, retrieved: new Date().toISOString().slice(0, 10), version: version || CRAWLER_VERSION, prefix }) : [];
+  const pages = existsSync(markdownDir) ? finalizePages({ markdownDir, manifest, origin: url, retrieved: new Date().toISOString().slice(0, 10), version: version || CRAWLER_VERSION, prefix, failedUrls }) : [];
   rmSync(scratch, { recursive: true, force: true });
   if (!crawlIsUseful(pages)) {
     const chars = pages.reduce((sum, page) => sum + page.chars, 0);
@@ -484,7 +502,7 @@ export async function runCrawl({ run, executable, url, directory, prefix, maxPag
     throw new Error(`${reason}。可能是需要 JavaScript 渲染的站点，或同站没有足够的 HTML 页面。`);
   }
   if (failure) console.warn(`警告：爬虫退出异常，但已得到 ${pages.length} 页，仍保存这些页面。${failure.message.split('\n')[0]}`);
-  return { pages, version: version || CRAWLER_VERSION };
+  return { pages, version: version || CRAWLER_VERSION, failedUrls };
 }
 
 export function writePages(directory, pages) {

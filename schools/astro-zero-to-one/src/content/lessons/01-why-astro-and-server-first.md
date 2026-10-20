@@ -5,6 +5,8 @@ description: "面向零基础初学者建立现代 Web 框架心智模型，理�
 order: 1
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/concepts/why-astro/index.md
 agentInstructions: |
   教学目标：
   1. 帮助完全没有接触过现代前端框架的初学者建立清晰的心智模型：理解手工编写纯 HTML 的维护痛点，以及为什么传统的单页应用（SPA）在内容站点上会带来庞大的体积与白屏负担。
