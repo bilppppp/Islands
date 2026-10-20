@@ -1,8 +1,8 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { resolve, basename, join, dirname } from 'node:path';
+import { resolve, basename, join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
-import { assertLessonHasSources } from './source-state.mjs';
+import { assertLessonHasSources, listFiles, rawSha256, readLessons } from './source-state.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -183,6 +183,108 @@ export function assertMathDelimiters(text, fileName = 'lesson.md') {
   }
 
   if (displayOpen !== null) failMath(fileName, displayOpen, 'Unclosed display math');
+}
+
+function unindentYaml(lines) {
+  const nonempty = lines.filter(line => line.trim() !== '');
+  if (!nonempty.length) return lines.join('\n');
+  const indent = Math.min(...nonempty.map(line => (line.match(/^ */) || [''])[0].length));
+  return lines.map(line => line.slice(Math.min(indent, line.length))).join('\n');
+}
+
+export function completionConditionText(text) {
+  if (!String(text).startsWith('---\n')) return '';
+  const end = text.indexOf('\n---\n', 4);
+  if (end < 0) return '';
+  const lines = text.slice(4, end).split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^agentInstructions:\s*(\||>)\s*$/.test(lines[i])) continue;
+    const collected = [];
+    i += 1;
+    while (i < lines.length && (lines[i] === '' || /^\s/.test(lines[i]))) {
+      collected.push(lines[i]);
+      i += 1;
+    }
+    const instructions = unindentYaml(collected);
+    const at = instructions.indexOf('完成条件');
+    return at < 0 ? '' : instructions.slice(at);
+  }
+  return '';
+}
+
+export function completionSha256(text) {
+  return rawSha256(Buffer.from(completionConditionText(text), 'utf8'));
+}
+
+function posixRel(from, to) {
+  return relative(from, to).split(sep).join('/');
+}
+
+function localRevisionSlugs(plan) {
+  const slugs = new Set();
+  for (const change of plan.changes || []) {
+    if (change.verdict !== '局部修订') continue;
+    for (const slug of change.lessons || []) slugs.add(slug);
+  }
+  return slugs;
+}
+
+function assertPublicSources(plan, schoolPath) {
+  if (!plan.publicSources) throw new Error('Plan is missing public source fingerprints.');
+  const root = join(schoolPath, 'public/sources');
+  const recorded = new Map((plan.publicSources || []).map(item => [item.path, item.sha256]));
+  const current = existsSync(root)
+    ? listFiles(root).filter(path => !path.startsWith('snapshots/'))
+    : [];
+  for (const path of current) {
+    const expected = recorded.get(path);
+    if (!expected) {
+      throw new Error(`public/sources/${path} is not allowed to change during this update.`);
+    }
+    if (rawSha256(readFileSync(join(root, path))) !== expected) {
+      throw new Error(`public/sources/${path} is not allowed to change during this update.`);
+    }
+  }
+  for (const item of plan.publicSources) {
+    const full = join(root, item.path);
+    if (!existsSync(full)) throw new Error(`public/sources/${item.path} is missing.`);
+    if (rawSha256(readFileSync(full)) !== item.sha256) {
+      throw new Error(`public/sources/${item.path} is not allowed to change during this update.`);
+    }
+  }
+}
+
+export function assertUpdateAllowed(plan, schoolPath, { allowLocalRevisionBody = true } = {}) {
+  const allowed = allowLocalRevisionBody ? localRevisionSlugs(plan) : new Set();
+  const current = readLessons(schoolPath);
+  const byFile = new Map(current.map(lesson => [posixRel(schoolPath, lesson.file), lesson]));
+  for (const recorded of plan.lessons || []) {
+    const lesson = byFile.get(recorded.file);
+    if (!lesson) throw new Error(`Lesson ${recorded.file} is missing.`);
+    if (lesson.slug !== recorded.slug || Number(lesson.order) !== Number(recorded.order)) {
+      throw new Error(`Lesson ${recorded.file} slug or order changed.`);
+    }
+    if (completionSha256(lesson.text) !== recorded.completionSha256) {
+      throw new Error(`Lesson ${recorded.file} 完成条件 changed.`);
+    }
+    if (!allowed.has(recorded.slug) && rawSha256(readFileSync(lesson.file)) !== recorded.sha256) {
+      throw new Error(`Lesson ${recorded.file} is not allowed to change during this update.`);
+    }
+  }
+  for (const lesson of current) {
+    const rel = posixRel(schoolPath, lesson.file);
+    if (!(plan.lessons || []).some(item => item.file === rel)) {
+      throw new Error(`Lesson ${rel} is not allowed to change during this update.`);
+    }
+  }
+  for (const file of plan.protectedFiles || []) {
+    const full = join(schoolPath, file.path);
+    if (!existsSync(full)) throw new Error(`File ${file.path} is missing.`);
+    if (rawSha256(readFileSync(full)) !== file.sha256) {
+      throw new Error(`File ${file.path} is not allowed to change during this update.`);
+    }
+  }
+  assertPublicSources(plan, schoolPath);
 }
 
 export function validateGeneration(inputPath) {

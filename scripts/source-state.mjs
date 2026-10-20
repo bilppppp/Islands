@@ -93,12 +93,12 @@ function posixRel(from, to) {
   return relative(from, to).split(sep).join('/');
 }
 
-export function listFiles(root, { skipDir = SKIP_DIR } = {}) {
+export function listFiles(root, { skipDir = SKIP_DIR, ignore = true } = {}) {
   const files = [];
   if (!existsSync(root) || !statSync(root).isDirectory()) return files;
   const walk = dir => {
     for (const name of readdirSync(dir)) {
-      if (skipDir.has(name) || name === '.DS_Store') continue;
+      if (ignore && (skipDir.has(name) || name === '.DS_Store')) continue;
       const full = join(dir, name);
       const stat = statSync(full);
       if (stat.isDirectory()) walk(full);

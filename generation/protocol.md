@@ -16,3 +16,16 @@ If the saved materials do not support the learner's goal, fill the HTTP HTML sou
 8. Self-review the full route for goal coverage, source fidelity, learnability and unnecessary material. Correct problems before finishing. Return a concise explanation of what was generated, how it supports the goal, and what remains unverified. Do not claim real teaching or progress validation: another process will conduct that.
 
 Infrastructure is preconfigured. All teachers receive shared teaching, source-access, profile and completion instructions via llms.txt. Website progress belongs to the School and must never be seeded by the generator. Transport details belong to the current harness integration and are not part of curriculum content. TeachingMode may change during learning without changing the curriculum depth or regenerating the route.
+
+## 局部修订
+
+This section is for `npm run school -- update NAME` on an existing course. It is not create, retry, or supplement. Do not call Pi, do not deploy, do not run `retry`, and do not fetch sources if `evidence/updates/<run>/changes.json` is missing.
+
+Each source change has exactly one verdict. A new plan starts every change at `待判定`. `--prepare-only` and `--apply` reject any remaining `待判定`. The only final verdicts are:
+
+- `无教学影响`: the change does not affect teaching. Include a `reason`. Do not edit the related lessons, or any other lesson that is not named by a `局部修订` change.
+- `局部修订`: only the named lessons may be edited. Include a `lessons` array of slugs. Keep those lessons' slug, order, and the `agentInstructions` text from `完成条件` through the end of that field unchanged. Do not edit any other lesson.
+- `需要重排路线`: slugs, order, completion semantics, or the learning path would have to change. Include a `reason`. Do not edit any lesson. If `routeReview` is true, do not keep `局部修订` verdicts; reclassify them as `需要重排路线` or shrink the candidate set.
+- `暂无法判断`: include a `reason`. Do not edit any lesson.
+
+Allowed file edits are only the `局部修订` lesson files. `assertUpdateAllowed` in `scripts/generate.mjs` enforces that list; do not rely on this prompt alone. Do not change COURSE.md, school.config.ts, school.settings.json, existing `public/sources/` copies, slugs, order, or completion-condition text. Snapshots live under `public/sources/snapshots/<plan-id>/`. Apply retargets only the revised lessons' `sources` to those paths. Unrevised lessons keep their original copies. A new `lastSeenSnapshot` is not the same as adopting that snapshot for every lesson.
