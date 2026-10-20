@@ -1,10 +1,10 @@
 # 来源差分更新
 
-这份记录停在本地分支上，不进公开的 `island`。它描述接下来要做的事，本身还没有实现。
+这份记录停在本地分支上，不进公开的 `island`。阶段一、二已在本分支提交（`1181f98`、`655e0d8`）。阶段三还没开始。
 
 ## 目标
 
-对外要有一个课程站。站上的课有完整学习路径，按类别分开。七年级六门上册只作示例，留在原来的子域名，不进聚合站。真正上站的是文档站、教程站，以及另行给出的 AI agent 与框架清单。清单还没有定，不能用现有课或此前设想的 22 门课代替。
+对外要有一个课程站。站上的课有完整学习路径，按类别分开。七年级六门上册只作示例，留在原来的子域名，不进聚合站。真正上站的是下面这份清单。此前设想的 22 门课不作数。`astro-zero-to-one` 是 Astro 文档示例，不是清单里的 Astro Blog Tutorial。
 
 来源会变。文档站和 GitHub 仓库一样：某几页或某几个文件变了，只处理依据它们写成的那几关。地址、关卡 slug 和已记下的进度留在原地。
 
@@ -84,9 +84,89 @@ npm run school -- update astro-zero-to-one --apply --plan-id PLAN_ID
 
 协议仍是 `generation/protocol.md`，里面单列「局部修订」。`scripts/generate.mjs` 用允许修改的文件清单检查。应用前停止该校开发服务，再跑现有的 `finish NAME`。没有真实教师对话和网页进度同步时，不把构建通过写成教学闭环。
 
+## 公开课清单
+
+2026-10-20 定下。先做前 10 门。后 30 门留到前 10 门按同一套公开课模板走通之后。不扫描 `schools/` 自动纳入，也不把实验课和七年级六门写进登记。
+
+`group` 用下面六个方向。前 10 门里，Python、TypeScript 归语言，React、Astro 归 Web，Docker 归开发工具与部署，Claude Code、Codex CLI、n8n、Pi Agent 归 AI Agent，Godot 单独归游戏。后 30 门的方向按原表。
+
+### 先做（10）
+
+| # | School | 官方教程 / 文档 | group |
+| --- | --- | --- | --- |
+| 1 | Python | Python Tutorial | 编程语言、后端与开发环境 |
+| 2 | React | React Learn | Web 前端开发 |
+| 3 | TypeScript | TypeScript Handbook | 编程语言、后端与开发环境 |
+| 4 | Docker | Docker Get Started | 开发工具、云平台与部署 |
+| 5 | Claude Code | Claude Code Docs | AI Agent 与本地 AI |
+| 6 | Codex CLI | Codex CLI Docs | AI Agent 与本地 AI |
+| 7 | Astro | Astro Blog Tutorial | Web 前端开发 |
+| 8 | n8n | n8n First Workflow | AI Agent 与本地 AI |
+| 9 | Pi Agent | Pi Documentation | AI Agent 与本地 AI |
+| 10 | Godot | Godot Step by Step | 游戏开发 |
+
+### 后期：开发工具、云平台与部署（11）
+
+| # | School | 官方教程 / 文档 |
+| --- | --- | --- |
+| 11 | Git | Pro Git |
+| 12 | GitHub | GitHub Hello World |
+| 13 | GitHub Actions | Actions Tutorials |
+| 14 | Cloudflare Workers | Workers Tutorials |
+| 15 | Cloudflare Pages | Pages Tutorials |
+| 16 | Vercel | Vercel Documentation |
+| 17 | Netlify | Netlify Documentation |
+| 18 | Kubernetes | Kubernetes Tutorials |
+| 19 | Supabase | Supabase Getting Started |
+| 20 | Prisma | Prisma Docs |
+| 21 | PostgreSQL | PostgreSQL Tutorial |
+
+### 后期：Web 前端开发（5）
+
+| # | School | 官方教程 / 文档 |
+| --- | --- | --- |
+| 22 | HTML / CSS / JavaScript | MDN Learn Web Development |
+| 23 | Vue | Vue Interactive Tutorial |
+| 24 | Next.js | Learn Next.js |
+| 25 | Svelte | Svelte Interactive Tutorial |
+| 26 | Tailwind CSS | Tailwind Documentation |
+
+### 后期：编程语言、后端与开发环境（6）
+
+| # | School | 官方教程 / 文档 |
+| --- | --- | --- |
+| 27 | Node.js | Learn Node.js |
+| 28 | FastAPI | FastAPI Tutorial |
+| 29 | Django | Django First App Tutorial |
+| 30 | Rust | The Rust Programming Language |
+| 31 | Go | A Tour of Go |
+| 32 | uv | uv Getting Started |
+
+### 后期：AI Agent 与本地 AI（4）
+
+| # | School | 官方教程 / 文档 |
+| --- | --- | --- |
+| 33 | OpenCode | OpenCode Docs |
+| 34 | Ollama | Ollama Quickstart |
+| 35 | MCP | MCP Introduction |
+| 36 | Agent Skills | Agent Skills Specification |
+
+### 后期：数据科学、测试及其他应用（4）
+
+| # | School | 官方教程 / 文档 |
+| --- | --- | --- |
+| 37 | pandas | pandas Getting Started |
+| 38 | Jupyter | Try Jupyter |
+| 39 | pytest | pytest Getting Started |
+| 40 | Playwright | Playwright Introduction |
+
+来源 URL、目录名和子域名在创建那一门时再写死。这一节只定名称、教程和 `group`。
+
 ## 阶段三：一门真正要公开的课
 
-等清单。分类用清单里的 `group`。不把 `astro-zero-to-one` 和七年级六门算作公开课。
+先做清单第 1–10 门里的一门，不一次生成 40 门。分类用上面的 `group`。不把 `astro-zero-to-one` 和七年级六门算作公开课。
+
+阶段一、二还不能直接拿来给这些课做热更新。应用前要先补上复核结论里那几处会改错课文或把「已采用」记假的缺口：失败、未观测和删除行不能当成局部修订；应用时要核对课文确实按计划改过；下一轮检查要认得 `snapshots/` 路径，并以该关实际采用的版本作比较；局部修订只能改挂判定为局部修订的来源；入口、索引和前置关系变化要进入路线评审。补完之前可以创建和构建一门课，不用这套 `update` 去改它。
 
 创建仍用：
 
@@ -116,4 +196,4 @@ npm run school -- catalog --build
 
 ## 先做的一件事
 
-做阶段一。做完的标准是：相同输入没有候选关卡；受控地改一页，报告只列出引用它的关，并写明依据；抓取失败和页面消失没有混在一起；课文、slug 和进度都没有被碰到。
+先补阶段二里会改错课文或记假采用的缺口，再用清单第 1 门 Python Tutorial 做阶段三的第一门公开课。它有完整官方教程，文档也比 Claude Code、Codex CLI、Pi、n8n 稳。那四门留在前 10 门里，等更新流程补上再创建。
