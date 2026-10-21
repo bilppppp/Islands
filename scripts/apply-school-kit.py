@@ -27,6 +27,7 @@ OVERLAY_FILES = (
     Path("src/lib/teaching.ts"),
     Path("src/lib/deploy-target.ts"),
     Path("src/lib/public-origin.ts"),
+    Path("src/lib/publication.ts"),
     Path("src/lib/store.ts"),
     Path("src/lib/store-dev.ts"),
     Path("src/lib/store-node.ts"),
@@ -44,6 +45,9 @@ OVERLAY_FILES = (
     Path("src/pages/api/profile/[studentId].ts"),
     Path("src/pages/harness/pi.txt.ts"),
     Path("src/pages/llms.txt.ts"),
+    Path("src/pages/catalog.json.ts"),
+    Path("src/pages/sitemap.xml.ts"),
+    Path("src/pages/robots.txt.ts"),
     Path("script/serve"),
     Path("script/deploy-vercel"),
     Path("script/deploy-cloudflare"),
@@ -228,6 +232,75 @@ def ensure_public_title_fields(target: Path) -> bool:
     config_text = config_text[: match.end()] + insert + config_text[match.end() :]
     config_path.write_text(config_text)
     return True
+
+
+PUBLICATION_TYPE_FIELD = (
+    "\tpublication?: {\n"
+    '\t\tvisibility?: "public" | "experimental";\n'
+    "\t\torigin?: string;\n"
+    "\t\tgroup?: string;\n"
+    "\t\tprerequisites?: string;\n"
+    "\t\toutcomes?: string;\n"
+    "\t};\n"
+)
+
+
+def ensure_publication_config_type(school_ts: Path) -> bool:
+    """Add optional publication. Leave an existing field untouched."""
+    text = school_ts.read_text()
+    if re.search(r"\bpublication\?\s*:", text):
+        return False
+    marker = "export interface SchoolConfig {\n"
+    if marker not in text:
+        raise ValueError(f"{school_ts} has no SchoolConfig interface")
+    return write_if_changed(school_ts, text.replace(marker, marker + PUBLICATION_TYPE_FIELD, 1))
+
+
+LEGACY_CANONICAL = (
+    "const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.pathname;\n"
+)
+PUBLICATION_CANONICAL = (
+    "const canonicalUrl = pageCanonicalUrl(config, Astro.url.pathname, lessons);\n"
+    "const noindex = shouldNoindex(config);\n"
+)
+
+
+def patch_publication_head(base_path: Path) -> bool:
+    """Give non-island pages public absolute canonical URLs and experimental noindex."""
+    text = base_path.read_text()
+    original = text
+
+    if 'from "../lib/publication"' not in text:
+        marker = 'import config from "../../school.config";'
+        if marker not in text:
+            raise ValueError(f"{base_path} has no school.config import")
+        text = text.replace(
+            marker,
+            marker + '\nimport { pageCanonicalUrl, shouldNoindex } from "../lib/publication";',
+            1,
+        )
+
+    if "pageCanonicalUrl(config, Astro.url.pathname, lessons)" not in text:
+        lessons = (
+            "const lessons = (await getCollection(\"lessons\")).sort((a, b) => a.data.order - b.data.order);\n"
+        )
+        old = LEGACY_CANONICAL + "\n" + lessons
+        new = lessons + PUBLICATION_CANONICAL
+        if old not in text:
+            raise ValueError(f"{base_path} has no recognizable canonical URL")
+        text = text.replace(old, new, 1)
+
+    if 'name="robots"' not in text:
+        marker = '    <meta name="description" content={description} />'
+        if marker not in text:
+            raise ValueError(f"{base_path} has no description meta")
+        text = text.replace(
+            marker,
+            marker + '\n    {noindex && <meta name="robots" content="noindex" />}',
+            1,
+        )
+
+    return write_if_changed(base_path, text) if text != original else False
 
 
 def patch_base_layout(base_path: Path) -> bool:
@@ -582,15 +655,21 @@ def apply(target: Path) -> list[str]:
         if write_if_changed(destination, source.read_text()):
             changed.append(str(relative))
 
-    if patch_base_layout(target / "src/layouts/Base.astro"):
-        changed.append("src/layouts/Base.astro")
-    if patch_public_titles(target / "src/layouts/Base.astro"):
-        changed.append("src/layouts/Base.astro (public titles)")
+    if not island:
+        if patch_base_layout(target / "src/layouts/Base.astro"):
+            changed.append("src/layouts/Base.astro")
+        if patch_public_titles(target / "src/layouts/Base.astro"):
+            changed.append("src/layouts/Base.astro (public titles)")
+        homepage = target / "src/pages/index.astro"
+        if homepage.exists() and patch_homepage(homepage):
+            changed.append("src/pages/index.astro (removed synthetic enrollment completion)")
+        if patch_publication_head(target / "src/layouts/Base.astro"):
+            changed.append("src/layouts/Base.astro (publication head)")
     if ensure_public_title_fields(target):
         changed.append("public title fields")
-    homepage = target / "src/pages/index.astro"
-    if homepage.exists() and patch_homepage(homepage):
-        changed.append("src/pages/index.astro (removed synthetic enrollment completion)")
+    school_ts = target / "src/lib/school.ts"
+    if school_ts.exists() and ensure_publication_config_type(school_ts):
+        changed.append("src/lib/school.ts (publication type)")
     openapi = target / "src/pages/api/openapi.json.ts"
     if patch_openapi(openapi):
         changed.append("src/pages/api/openapi.json.ts")
