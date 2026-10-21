@@ -100,7 +100,7 @@ export function parsePublicationOrigin(value: string): string {
 }
 
 export function lessonPath(slug: string): string {
-	return `/lessons/${slug}`;
+	return `/lessons/${slug}/`;
 }
 
 export function lessonUrl(origin: string, slug: string): string {
@@ -108,7 +108,7 @@ export function lessonUrl(origin: string, slug: string): string {
 }
 
 export function exercisePath(slug: string): string {
-	return `/exercises/${slug}`;
+	return `/exercises/${slug}/`;
 }
 
 export function absolutePageUrl(origin: string, path: string): string {
@@ -239,16 +239,16 @@ export function listCourseHtmlPaths(input: {
 	pages: CourseHtmlPages;
 }): string[] {
 	const paths = ["/"];
-	if (input.pages.lessonList) paths.push("/lessons");
+	if (input.pages.lessonList) paths.push("/lessons/");
 	for (const lesson of sortByOrder(input.lessons)) {
 		paths.push(lessonPath(lesson.slug));
 	}
-	if (input.pages.exerciseList) paths.push("/exercises");
+	if (input.pages.exerciseList) paths.push("/exercises/");
 	for (const exercise of sortByOrder(input.exercises ?? [])) {
 		paths.push(exercisePath(exercise.slug));
 	}
-	if (input.pages.glossary) paths.push("/glossary");
-	if (input.pages.troubleshooting) paths.push("/troubleshooting");
+	if (input.pages.glossary) paths.push("/glossary/");
+	if (input.pages.troubleshooting) paths.push("/troubleshooting/");
 	return paths;
 }
 

@@ -213,8 +213,8 @@ describe('lesson order and URLs', () => {
   it('orders catalog lessons by order, not filename or slug', async () => {
     const catalog = await buildCatalog(PUBLIC_CONFIG, LESSONS);
     assert.deepEqual(catalog.lessons, [
-      { title: '第一关', url: 'https://python-official.learnislands.com/lessons/z-first' },
-      { title: '第二关', url: 'https://python-official.learnislands.com/lessons/a-second' },
+      { title: '第一关', url: 'https://python-official.learnislands.com/lessons/z-first/' },
+      { title: '第二关', url: 'https://python-official.learnislands.com/lessons/a-second/' },
     ]);
     assert.equal(lessonUrl(catalog.origin, 'z-first'), catalog.lessons[0].url);
   });
@@ -232,13 +232,13 @@ describe('lesson order and URLs', () => {
     });
     assert.deepEqual(paths, [
       '/',
-      '/lessons/z-first',
-      '/lessons/a-second',
-      '/exercises',
-      '/exercises/a-warmup',
-      '/exercises/z-drill',
-      '/glossary',
-      '/troubleshooting',
+      '/lessons/z-first/',
+      '/lessons/a-second/',
+      '/exercises/',
+      '/exercises/a-warmup/',
+      '/exercises/z-drill/',
+      '/glossary/',
+      '/troubleshooting/',
     ]);
     const xml = sitemapXml('https://python-official.learnislands.com', paths);
     assert.match(xml, /https:\/\/python-official\.learnislands\.com\/lessons\/z-first/);
