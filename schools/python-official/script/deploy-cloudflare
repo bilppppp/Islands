@@ -19,6 +19,13 @@ cat > wrangler.cloudflare.jsonc << EOF
   "assets": {
     "directory": "./dist/client"
   },
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "python-official.learnislands.com",
+      "custom_domain": true
+    }
+  ],
   "vars": {
     "DEPLOY_TARGET": "cloudflare"
   },
