@@ -1,6 +1,6 @@
 # 来源差分更新
 
-这份记录停在本地分支上，不进公开的 `island`。阶段一、二已在本分支提交（`1181f98`、`655e0d8`）。阶段二缺口已在 `a6b6a67` 修过。阶段三模板在本分支实现，第一门是 `python-official`，尚未部署。
+这份记录停在本地分支上，不进公开的 `island`。阶段一、二已在本分支提交（`1181f98`、`655e0d8`）。阶段二缺口已在 `a6b6a67` 修过。阶段三模板在本分支实现，第一门 `python-official` 已在 `https://python-official.learnislands.com` 上线。阶段四聚合站在本分支实现，尚未部署到主域名。
 
 ## 目标
 
@@ -196,4 +196,4 @@ npm run school -- catalog --build
 
 ## 先做的一件事
 
-阶段二缺口已在 `a6b6a67` 修过。阶段三模板在本分支实现，第一门是 `python-official`，尚未部署。它有完整官方教程，文档也比 Claude Code、Codex CLI、Pi、n8n 稳。那四门留在前 10 门里，等更新流程补上再创建。
+阶段二缺口已在 `a6b6a67` 修过。阶段三模板在本分支实现，第一门 `python-official` 已在 `https://python-official.learnislands.com` 上线。阶段四聚合站在本分支实现，尚未部署到主域名。它有完整官方教程，文档也比 Claude Code、Codex CLI、Pi、n8n 稳。那四门留在前 10 门里，等更新流程补上再创建。
