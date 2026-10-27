@@ -8,6 +8,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
+import { remarkSourceCite } from "./src/lib/source-cite.mjs";
 import { assertVercelBuildEnv, resolveDeployTarget } from "./src/lib/deploy-target";
 
 const deployTarget = resolveDeployTarget();
@@ -62,7 +63,7 @@ export default defineConfig({
 	adapter,
 	integrations: [mdx()],
 	markdown: {
-		remarkPlugins: [remarkMath],
+		remarkPlugins: [remarkMath, remarkSourceCite],
 		rehypePlugins: [
 			rehypeSlug,
 			[

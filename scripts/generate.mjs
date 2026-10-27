@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { resolve, basename, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
+import { assertSourceCites } from '../school-kit/overlay/src/lib/source-cite.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -209,6 +210,7 @@ export function validateGeneration(inputPath) {
       throw new Error(`Lesson title in ${name} must name what the learner studies, without the directory slug or the brand.`);
     }
     assertMathDelimiters(text, name);
+    assertSourceCites(text, name, join(output, 'public/sources'));
   }
   return lessons.length;
 }
