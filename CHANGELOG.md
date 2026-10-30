@@ -2,6 +2,12 @@
 
 这里只记使用方式上的变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [2026-10-31]
+
+### 新增
+
+- 关卡正文可用 `{{cite …}}` 标出一句保存来源里的原话。自读页上该短词带虚线下划线，悬停或聚焦打开来源卡。写法见 [generation/protocol.md](generation/protocol.md)。
+
 ## [2026-10-19]
 
 ### 新增

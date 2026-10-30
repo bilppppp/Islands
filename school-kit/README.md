@@ -59,10 +59,10 @@ island pages, island components, or island dependencies. Island schools take
 their page shell from `school-kit/island/`, not from `school-kit/overlay/`.
 Apply copies these complete files: `layouts/Base.astro`, `pages/index.astro`,
 `pages/lessons/[slug].astro`, `components/TeachingMode.astro`,
-`components/AgentPrompt.astro`, the island React components, `island.css`, and
-the role sprites. A second apply compares those files and writes nothing when
-they already match. This documents the install path only; it does not claim a
-verified teaching loop.
+`components/AgentPrompt.astro`, `components/SourceCite.astro`, the island React
+components, `island.css`, and the role sprites. A second apply compares those
+files and writes nothing when they already match. This documents the install
+path only; it does not claim a verified teaching loop.
 
 Island enrollment asks for a character instead of a theme color. The four
 walk cycles and completion seals (warrior, wizard, priest, ranger) live in
@@ -70,6 +70,18 @@ walk cycles and completion seals (warrior, wizard, priest, ranger) live in
 changes that picture and the seal shown on a finished lesson. The lower start
 button enrolls with that character. The choice is stored in this browser as
 `learningRole`. The student ID, progress, course, and page colors stay as they are.
+
+Lesson Markdown may mark a short, source-backed phrase with a plain-text
+`{{cite …}}` marker (see `generation/protocol.md`). The overlay ships
+`src/lib/source-cite.mjs` and wires it as a remark plugin in `astro.config.mjs`
+so the self-read page renders that phrase as a dashed underline; hovering or
+focusing opens a card with the exact saved sentence. Island chrome mounts
+`SourceCite.astro` on the lesson page for that card. Escape closes the card
+without immediately reopening it on the returned focus. `finish` / generation
+checks call `assertSourceCites` so a quote must exist in the listed
+`public/sources` file. Markers are optional; lessons without them stay valid.
+Teachers still read the saved file over `/sources/`; the card is not a
+substitute for `agentInstructions`.
 
 ## Website language
 

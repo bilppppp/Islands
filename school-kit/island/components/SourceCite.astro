@@ -26,6 +26,7 @@
     var pinned = false;
     var showTimer = 0;
     var hideTimer = 0;
+    var suppressFocusOpen = false;
     var hoverCapable = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
     function localHref(value) {
@@ -107,7 +108,13 @@
         window.clearTimeout(showTimer);
         scheduleClose();
       });
-      button.addEventListener("focus", function () { open(button, false); });
+      button.addEventListener("focus", function () {
+        if (suppressFocusOpen) {
+          suppressFocusOpen = false;
+          return;
+        }
+        open(button, false);
+      });
       button.addEventListener("click", function () {
         if (current === button && pinned) close();
         else open(button, true);
@@ -131,8 +138,10 @@
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && current) {
         var back = current;
+        suppressFocusOpen = true;
         close();
         back.focus();
+        suppressFocusOpen = false;
       }
     });
     document.addEventListener("pointerdown", function (event) {
