@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { Button, CodeBlock, Countdown, Loading, Title } from "animal-island-ui";
 import IslandPageIcon from "./IslandPageIcon";
+import IslandPredict from "./IslandPredict";
+import { parsePredictBlock } from "../../lib/predict-block.mjs";
 
 declare global {
 	interface Window {
@@ -65,7 +67,21 @@ export default function IslandLessonChrome() {
 		if (article && article.dataset.islandEnhanced !== "1") {
 			article.dataset.islandEnhanced = "1";
 			article.querySelectorAll("pre").forEach((pre) => {
+				const lang = pre.getAttribute("data-language") ?? pre.dataset.language;
+				if (lang === "mermaid") {
+					return;
+				}
 				const code = pre.textContent ?? "";
+				if (lang === "predict") {
+					const parsed = parsePredictBlock(code);
+					if (!("error" in parsed)) {
+						const host = document.createElement("div");
+						host.className = "island-predict-host";
+						pre.replaceWith(host);
+						createRoot(host).render(<IslandPredict block={parsed} />);
+						return;
+					}
+				}
 				const host = document.createElement("div");
 				host.className = "island-code-host";
 				pre.replaceWith(host);

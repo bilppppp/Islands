@@ -9,10 +9,17 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
+import { remarkSourceCite } from "./src/lib/source-cite.mjs";
 import { assertVercelBuildEnv, resolveDeployTarget } from "./src/lib/deploy-target";
 
 const deployTarget = resolveDeployTarget();
 assertVercelBuildEnv();
+
+const predictLang = {
+	name: "predict",
+	scopeName: "source.predict",
+	patterns: [],
+};
 
 const adapter =
 	deployTarget === "node"
@@ -63,7 +70,7 @@ export default defineConfig({
 	adapter,
 	integrations: [mdx(), react()],
 	markdown: {
-		remarkPlugins: [remarkMath],
+		remarkPlugins: [remarkMath, remarkSourceCite],
 		rehypePlugins: [
 			rehypeSlug,
 			[
@@ -74,6 +81,7 @@ export default defineConfig({
 		],
 		shikiConfig: {
 			theme: "github-light",
+			langs: [predictLang],
 		},
 	},
 	security: {

@@ -1307,3 +1307,266 @@ button.source-cite:focus-visible {
   border-left: 1px solid #e4d5b7;
   border-top: 1px solid #e4d5b7;
 }
+
+/* Island Predict Blocks */
+.island-predict-host {
+  margin: 1.5rem 0;
+}
+
+.island-predict-card {
+  background: #fffdf8;
+  border: 1.5px solid #e4d5b7;
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  box-shadow: 0 3px 12px rgba(114, 93, 66, 0.06);
+  color: #725d42;
+  box-sizing: border-box;
+}
+
+.island-predict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  background: #f7f3df;
+  border: 1px solid #dfcfad;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #794f27;
+  margin-bottom: 0.75rem;
+}
+
+.island-predict-badge-icon {
+  font-size: 0.95rem;
+}
+
+.island-predict-question {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #543d22;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.island-predict-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.island-predict-choice {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.6rem 0.95rem;
+  background: #fbf8ee;
+  border: 1.5px solid #dfcfad;
+  border-radius: 12px;
+  color: #725d42;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.island-predict-choice:not(:disabled):hover {
+  background: #f4eed9;
+  border-color: #c9b389;
+}
+
+.island-predict-choice:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+}
+
+.island-predict-choice-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c9b389;
+  margin-right: 0.65rem;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.island-predict-choice-text {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.island-predict-choice-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.island-predict-choice-tag.correct {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.island-predict-choice-tag.wrong {
+  background: #d32f2f;
+  color: #ffffff;
+}
+
+.island-predict-choice.is-answer {
+  background: #eaf6ea;
+  border-color: #2e7d32;
+  color: #1e5a22;
+  font-weight: 600;
+}
+
+.island-predict-choice.is-answer .island-predict-choice-dot {
+  background: #2e7d32;
+}
+
+.island-predict-choice.is-wrong {
+  background: #fdf0ed;
+  border-color: #d32f2f;
+  color: #9c2020;
+}
+
+.island-predict-choice.is-wrong .island-predict-choice-dot {
+  background: #d32f2f;
+}
+
+.island-predict-choice.is-dimmed {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.island-predict-action {
+  margin: 0.75rem 0;
+}
+
+.island-predict-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.5rem 1.35rem;
+  background: #11a89b;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: inherit;
+}
+
+.island-predict-submit-btn:hover {
+  background: #0d8a7f;
+}
+
+.island-predict-submit-btn:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+}
+
+.island-predict-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: rgba(114, 93, 66, 0.08);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.island-predict-reveal-wrap {
+  margin-top: 0.5rem;
+}
+
+.island-predict-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #e4d5b7;
+}
+
+.island-predict-feedback {
+  padding: 0.65rem 0.95rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.island-predict-feedback.feedback-correct {
+  background: #eaf6ea;
+  border: 1px solid #b7dfb8;
+  color: #1e5a22;
+}
+
+.island-predict-feedback.feedback-wrong {
+  background: #fdf0ed;
+  border: 1px solid #f2bdb5;
+  color: #9c2020;
+}
+
+.island-predict-feedback.feedback-info {
+  background: #eef7f6;
+  border: 1px solid #b2dedb;
+  color: #0d665f;
+}
+
+.island-predict-explain {
+  background: #fbf8ee;
+  border: 1px dashed #d8c7a5;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.island-predict-explain-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #8a6a45;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.island-predict-explain-body {
+  color: #725d42;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.island-predict-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.island-predict-reset-btn {
+  background: transparent;
+  border: 1px dashed #d8c7a5;
+  border-radius: 999px;
+  color: #8a6a45;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.island-predict-reset-btn:hover {
+  background: #f7f3df;
+  color: #543d22;
+  border-color: #c9b389;
+}
+
+.island-predict-reset-btn:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+}

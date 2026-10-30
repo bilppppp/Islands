@@ -14,6 +14,12 @@ import { assertVercelBuildEnv, resolveDeployTarget } from "./src/lib/deploy-targ
 const deployTarget = resolveDeployTarget();
 assertVercelBuildEnv();
 
+const predictLang = {
+	name: "predict",
+	scopeName: "source.predict",
+	patterns: [],
+};
+
 const adapter =
 	deployTarget === "node"
 		? node({ mode: "standalone" })
@@ -74,6 +80,7 @@ export default defineConfig({
 		],
 		shikiConfig: {
 			theme: "vesper",
+			langs: [predictLang],
 		},
 	},
 	security: {

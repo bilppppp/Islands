@@ -83,6 +83,18 @@ checks call `assertSourceCites` so a quote must exist in the listed
 Teachers still read the saved file over `/sources/`; the card is not a
 substitute for `agentInstructions`.
 
+Lesson Markdown may also include fenced ```predict blocks for "predict then
+reveal" cards (see `generation/protocol.md`). The overlay ships
+`src/lib/predict-block.mjs` (and `.d.mts`) and configures `predict` syntax in
+`astro.config.mjs`. Island chrome mounts `IslandPredict` cards in place of valid
+`pre[data-language="predict"]` blocks on the self-read page, allowing learners to
+predict (via multiple-choice buttons or "I'm ready") before revealing the answer
+and explanation with keyboard navigation and `aria-live` announcements. If parsing
+fails, the raw code block is preserved without breaking the page. Generation
+checks call `assertPredictBlocks` to validate required fields and choice
+consistency. The block remains fully readable as plain text for AI teachers
+without querying any backend or recording progress.
+
 ## Website language
 
 Fixed UI copy uses `school.settings.json.language`: `zh` (default) or `en`

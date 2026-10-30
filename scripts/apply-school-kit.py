@@ -36,6 +36,8 @@ OVERLAY_FILES = (
     Path("src/lib/progress.ts"),
     Path("src/lib/source-cite.mjs"),
     Path("src/lib/source-cite.d.mts"),
+    Path("src/lib/predict-block.mjs"),
+    Path("src/lib/predict-block.d.mts"),
     Path("src/lib/student-id.ts"),
     Path("src/pages/api/enroll.ts"),
     Path("src/pages/api/lessons/index.ts"),

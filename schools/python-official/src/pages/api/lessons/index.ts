@@ -1,6 +1,7 @@
 import { getCollection } from "astro:content";
 import type { APIRoute } from "astro";
 import { mdxToProse } from "../../../lib/mdx-to-prose";
+import { sourceCiteProse } from "../../../lib/source-cite.mjs";
 import { QUIZ_INSTRUCTIONS } from "../../../lib/quiz-instructions";
 import { publicOrigin } from "../../../lib/public-origin";
 
@@ -34,7 +35,7 @@ export const GET: APIRoute = async ({ request }) => {
 			description: lesson.data.description,
 			agentOnly: lesson.data.agentOnly,
 			agentInstructions,
-			content: mdxToProse(lesson.body),
+			content: mdxToProse(sourceCiteProse(lesson.body)),
 		};
 	});
 
