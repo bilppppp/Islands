@@ -1211,3 +1211,99 @@ div.prose samp {
     transform: scaleY(1.23);
   }
 }
+
+button.source-cite {
+  all: unset;
+  display: inline;
+  padding: 0 0 3px;
+  background-color: transparent;
+  background-image: linear-gradient(to right, #c4b89e 50%, transparent 50%);
+  background-position: left bottom;
+  background-size: 12px 2px;
+  background-repeat: repeat-x;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: help;
+}
+
+button.source-cite:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.source-cite-pop {
+  position: fixed;
+  z-index: 40;
+  width: min(22rem, calc(100vw - 1.5rem));
+  padding: 0.85rem 0.95rem 0.75rem;
+  border: 1px solid #e4d5b7;
+  border-radius: 12px;
+  background: #fffdf7;
+  box-shadow: 0 12px 32px rgba(114, 93, 66, 0.16);
+  color: #725d42;
+}
+
+.source-cite-pop[hidden] {
+  display: none;
+}
+
+.source-cite-kicker,
+.source-cite-title,
+.source-cite-quote {
+  margin: 0;
+}
+
+.source-cite-kicker {
+  color: #11a89b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.source-cite-title {
+  margin: 0.2rem 0 0.45rem;
+  color: #794f27;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.source-cite-quote {
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.source-cite-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #e4d5b7;
+  font-size: 0.78rem;
+}
+
+.source-cite-meta a {
+  color: #11a89b;
+  text-decoration: none;
+}
+
+.source-cite-meta a:hover,
+.source-cite-meta a:focus-visible {
+  text-decoration: underline;
+}
+
+.source-cite-path {
+  color: #8a6d4b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.source-cite-arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fffdf7;
+  border-left: 1px solid #e4d5b7;
+  border-top: 1px solid #e4d5b7;
+}

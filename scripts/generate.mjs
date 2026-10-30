@@ -3,6 +3,7 @@ import { resolve, basename, join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
 import { assertLessonHasSources, listFiles, rawSha256, readLessons } from './source-state.mjs';
+import { assertSourceCites } from '../school-kit/overlay/src/lib/source-cite.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -336,6 +337,7 @@ export function validateGeneration(inputPath) {
       throw new Error(`Lesson title in ${name} must name what the learner studies, without the directory slug or the brand.`);
     }
     assertMathDelimiters(text, name);
+    assertSourceCites(text, name, join(output, 'public/sources'));
     if (requireLessonSources) assertLessonHasSources(text, name, join(output, 'public/sources'));
   }
   return lessons.length;

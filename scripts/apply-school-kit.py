@@ -34,6 +34,8 @@ OVERLAY_FILES = (
     Path("src/lib/store-vercel.ts"),
     Path("src/lib/store-r2.ts"),
     Path("src/lib/progress.ts"),
+    Path("src/lib/source-cite.mjs"),
+    Path("src/lib/source-cite.d.mts"),
     Path("src/lib/student-id.ts"),
     Path("src/pages/api/enroll.ts"),
     Path("src/pages/api/lessons/index.ts"),

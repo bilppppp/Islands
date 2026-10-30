@@ -27,6 +27,7 @@ ISLAND_ASTRO_FILES = (
     (ISLAND / "pages" / "lessons" / "[slug].astro", Path("src/pages/lessons/[slug].astro")),
     (ISLAND / "components" / "TeachingMode.astro", Path("src/components/TeachingMode.astro")),
     (ISLAND / "components" / "AgentPrompt.astro", Path("src/components/AgentPrompt.astro")),
+    (ISLAND / "components" / "SourceCite.astro", Path("src/components/SourceCite.astro")),
 )
 
 ISLAND_RUNTIME_FILES = (

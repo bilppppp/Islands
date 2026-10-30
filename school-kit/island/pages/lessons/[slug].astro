@@ -6,6 +6,7 @@ export const prerender = true;
 
 import Base from "../../layouts/Base.astro";
 import AgentPrompt from "../../components/AgentPrompt.astro";
+import SourceCite from "../../components/SourceCite.astro";
 import IslandMark from "../../components/island/IslandMark";
 import LessonTabs from "../../components/island/LessonTabs";
 import IslandTypewriter from "../../components/island/IslandTypewriter";
@@ -67,6 +68,7 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
     <Content />
     <MermaidDiagrams />
   </article>
+  <SourceCite />
   <div data-lesson-panel="teach" hidden>
       {lesson.data.agentOnly && (
         <div id="lesson-agent-only" class="mt-10 pt-6 border-t border-gray-200 dark:border-stone-800 hidden">
