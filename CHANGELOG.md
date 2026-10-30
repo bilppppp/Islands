@@ -17,7 +17,7 @@
 ### 变更
 
 - 项目名称改为 Islands。网站页头和 `learnislands.com` 上的课程地址不变。
-- 默认分支改为 `island`。`master` 保留在仓库里，不再作为默认分支。
+- 默认分支改为 `island`。随后已删除仓库里的 `master` 与 `feat/island-ui`；以 `island` 为准。
 - 仓库里的 Astro 示例改为岛屿页面，课程从 10 关换成沿官方中文文档编排的 12 关。较早的页面仍留在 [schools/math-grade7](schools/math-grade7/)。
 
 ## [2026-10-17]
