@@ -44,7 +44,7 @@ The same school directory runs as:
 - local `start` with `DEPLOY_TARGET=dev`
 - `./script/serve` on a self-hosted Node process
 - Vercel via `./script/deploy-vercel`, which sets `DEPLOY_TARGET=vercel` and connects a private Blob store (`BLOB_STORE_ID`)
-- Cloudflare Workers via `./script/deploy-cloudflare`, which sets `DEPLOY_TARGET=cloudflare` and stores progress in a private R2 bucket
+- Cloudflare Workers via `./script/deploy-cloudflare`, which sets `DEPLOY_TARGET=cloudflare` and stores progress in a private R2 bucket. If `school.settings.json` provides an optional `"customDomain": "<hostname>"`, the script sets `"workers_dev": false` and attaches custom domain `routes` in `wrangler.cloudflare.jsonc`. Pass `--config-only` to generate this config file without building or deploying.
 
 Applying the kit merges those dependencies into the school's `package.json`,
 writes `.npmrc` (`legacy-peer-deps=true`), and runs `npm install` only when the

@@ -2,16 +2,32 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+config_only=0
+for arg in "$@"; do
+	if [ "$arg" = "--config-only" ]; then
+		config_only=1
+	fi
+done
+
 name="$(basename "$PWD")"
 short="${name%-7a}"
 bucket="learnislands-${short}-progress"
 worker="$(node -e 'const fs=require("fs"); process.stdout.write(JSON.parse(fs.readFileSync("wrangler.jsonc","utf8")).name)')"
+custom_domain="$(node -e '
+const fs = require("fs");
+if (!fs.existsSync("school.settings.json")) process.exit(0);
+const s = JSON.parse(fs.readFileSync("school.settings.json", "utf8"));
+if (s.customDomain === undefined || s.customDomain === null) process.exit(0);
+const d = s.customDomain;
+if (typeof d !== "string" || d.length === 0 || d.includes("/") || d.includes(":") || /\s/.test(d) || !/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(d)) {
+  console.error("Invalid customDomain in school.settings.json: " + JSON.stringify(d));
+  process.exit(1);
+}
+process.stdout.write(d);
+')"
 
-if ! npx wrangler r2 bucket info "$bucket" >/dev/null 2>&1; then
-	npx wrangler r2 bucket create "$bucket"
-fi
-
-cat > wrangler.cloudflare.jsonc << EOF
+if [ -n "$custom_domain" ]; then
+	cat > wrangler.cloudflare.jsonc << EOF
 {
   "name": "${worker}",
   "compatibility_date": "2026-03-12",
@@ -22,7 +38,7 @@ cat > wrangler.cloudflare.jsonc << EOF
   "workers_dev": false,
   "routes": [
     {
-      "pattern": "python-official.learnislands.com",
+      "pattern": "${custom_domain}",
       "custom_domain": true
     }
   ],
@@ -37,6 +53,35 @@ cat > wrangler.cloudflare.jsonc << EOF
   ]
 }
 EOF
+else
+	cat > wrangler.cloudflare.jsonc << EOF
+{
+  "name": "${worker}",
+  "compatibility_date": "2026-03-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist/client"
+  },
+  "vars": {
+    "DEPLOY_TARGET": "cloudflare"
+  },
+  "r2_buckets": [
+    {
+      "binding": "PROGRESS_BUCKET",
+      "bucket_name": "${bucket}"
+    }
+  ]
+}
+EOF
+fi
+
+if [ "$config_only" -eq 1 ]; then
+	exit 0
+fi
+
+if ! npx wrangler r2 bucket info "$bucket" >/dev/null 2>&1; then
+	npx wrangler r2 bucket create "$bucket"
+fi
 
 DEPLOY_TARGET=cloudflare npm run build
 npx wrangler deploy
