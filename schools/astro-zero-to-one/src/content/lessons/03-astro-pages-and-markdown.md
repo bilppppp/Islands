@@ -5,6 +5,11 @@ description: "掌握 Astro 基于文件系统的路由机制，学会编写 .ast
 order: 3
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/basics/astro-pages/index.md
+  - material-1/pages/zh-cn/guides/routing/index.md
+  - material-1/pages/zh-cn/tutorial/2-pages/1/index.md
+  - material-1/pages/zh-cn/tutorial/2-pages/2/index.md
 agentInstructions: |
   教学目标：
   1. 指导学员透彻掌握 Astro“基于文件系统路由（File-based routing）”的核心规律：文件在 `src/pages/` 里的相对路径直接决定了浏览器中的访问 URL。

@@ -5,6 +5,11 @@ description: "配置 Node.js 运行环境，使用 Astro 官方向导从零创�
 order: 2
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/install-and-setup/index.md
+  - material-1/pages/zh-cn/basics/project-structure/index.md
+  - material-1/pages/zh-cn/tutorial/1-setup/1/index.md
+  - material-1/pages/zh-cn/tutorial/1-setup/2/index.md
 agentInstructions: |
   教学目标：
   1. 指导零基础学员在本地安装并验证 Node.js 偶数版本运行环境，理解什么是终端与包管理器。

@@ -7,21 +7,24 @@ import { spawn } from 'node:child_process';
 import { command, prepareMaterials, supplementMaterials } from './materials.mjs';
 import { piPrint, defaultModel } from './pi.mjs';
 import { generate, generationPrompt, validateGeneration } from './generate.mjs';
+import { runSources } from './source-state.mjs';
+import { runUpdate } from './source-update.mjs';
 import { resolveTeachOrigin, teachAccessError, teachModeWriteError } from './teach-origin.mjs';
+import { defaultCatalogPaths, runCatalog } from './catalog.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const originalCwd = process.cwd();
 const args = process.argv.slice(2);
 const operation = args.shift();
 const options = {}, positionals = [];
-const allowed = new Set(['source', 'goal', 'name', 'depth', 'background', 'style', 'mode', 'language', 'model', 'port', 'origin', 'ref', 'student', 'lesson', 'help', 'prepare-only', 'prompt-only', 'crawl', 'no-crawl', 'max-pages', 'crawl-prefix', 'crawl-workers']);
+const allowed = new Set(['source', 'goal', 'name', 'depth', 'background', 'style', 'mode', 'language', 'model', 'port', 'origin', 'ref', 'student', 'lesson', 'help', 'prepare-only', 'prompt-only', 'crawl', 'no-crawl', 'baseline', 'check', 'build', 'plan', 'apply', 'plan-id', 'run', 'max-pages', 'crawl-prefix', 'crawl-workers']);
 function parse() {
   while (args.length) {
     const arg = args.shift();
     if (!arg.startsWith('--')) { positionals.push(arg); continue; }
     const [key, inline] = arg.slice(2).split(/=(.*)/s);
     if (!allowed.has(key)) throw new Error(`Unknown option --${key}. Use --help.`);
-    if (['help', 'prepare-only', 'prompt-only', 'crawl', 'no-crawl'].includes(key)) {
+    if (['help', 'prepare-only', 'prompt-only', 'crawl', 'no-crawl', 'baseline', 'check', 'build', 'plan', 'apply'].includes(key)) {
       if (inline !== undefined) throw new Error(`--${key} does not take a value.`);
       options[key] = true; continue;
     }
@@ -57,6 +60,16 @@ function help() {
   npm run school -- deploy NAME      # 部署到 Vercel：写入 DEPLOY_TARGET，连接私有 Blob，发布生产环境
   npm run school -- deploy-cloudflare NAME  # 部署到 Cloudflare Workers，进度写入该校私有 R2，发布 workers.dev
   npm run school -- retry NAME       # 检查保留文件后重新生成；可能修改课程，不重置进度
+  npm run school -- sources NAME --baseline
+  npm run school -- sources NAME --check
+  npm run school -- sources NAME --check --source 本地候选目录
+  npm run school -- update NAME --plan [--source 候选目录] [--run RUN_ID]
+  npm run school -- update NAME --prepare-only --plan-id PLAN_ID
+  npm run school -- update NAME --apply --plan-id PLAN_ID
+  update 不调用 Pi、不部署。--plan 根据已有 changes.json 写计划；--prepare-only 写出 UPDATE.md；--apply 检查后改 frontmatter sources。
+  npm run school -- catalog --check
+  npm run school -- catalog --build
+  catalog 不是 School。--check 只拉取并校验各课 catalog.json；--build 全部成功后才替换聚合站，失败则保留上一份。两个标志必须恰好给一个。
   npm run school -- setup            # 安装模板依赖；PDF提取还需要pypdf
 
 网页可选择教学模式、复制通用教师启动Prompt。teach 默认启动 Pi。课程和进度属于School；Pi接入独立于课程。
@@ -155,6 +168,7 @@ async function create() {
     learningStyle: options.style || interpreted.learningStyle || 'Concrete examples with explanations and appropriate practice.',
     teachingMode: mode(options.mode || interpreted.teachingMode || 'simple'),
     language: options.language || interpreted.language || 'zh',
+    requireLessonSources: true,
     port: port(options.port || pickPort()),
     request: description || goal, sources, ref: options.ref,
     ...limits,
@@ -189,12 +203,27 @@ async function create() {
 async function main() {
   parse();
   if (!operation || options.help || ['help', '--help', '-h'].includes(operation)) { help(); return; }
-  if (options['prepare-only'] && operation !== 'create') throw new Error('--prepare-only is only valid with create.');
+  if (options['prepare-only'] && !['create', 'update'].includes(operation)) throw new Error('--prepare-only is only valid with create or update.');
   if (options['prompt-only'] && operation !== 'teach') throw new Error('--prompt-only is only valid with teach.');
-  if (!['setup', 'create', 'list', 'start', 'build', 'deploy', 'deploy-cloudflare', 'retry', 'teach', 'finish', 'supplement'].includes(operation)) throw new Error(`Unknown command ${operation}. Use --help.`);
+  if (options.baseline && operation !== 'sources') throw new Error('--baseline is only valid with sources.');
+  if (options.check && operation !== 'sources' && operation !== 'catalog') throw new Error('--check is only valid with sources or catalog.');
+  if (options.build && operation !== 'catalog') throw new Error('--build is only valid with catalog.');
+  if ((options.plan || options.apply || options['plan-id'] || options.run) && operation !== 'update') throw new Error('--plan, --apply, --plan-id, and --run are only valid with update.');
+  if (!['setup', 'create', 'list', 'start', 'build', 'deploy', 'deploy-cloudflare', 'retry', 'teach', 'finish', 'supplement', 'sources', 'update', 'catalog'].includes(operation)) throw new Error(`Unknown command ${operation}. Use --help.`);
   if (operation === 'setup') { await setup(); return; }
   if (operation === 'create') { await create(); return; }
   process.chdir(root);
+  if (operation === 'catalog') {
+    const paths = defaultCatalogPaths(root);
+    process.exitCode = await runCatalog({
+      check: options.check,
+      build: options.build,
+      extra: positionals,
+      registryPath: paths.registryPath,
+      distPath: paths.distPath,
+    });
+    return;
+  }
   if (operation === 'list') {
     for (const name of readdirSync('schools')) {
       try {
@@ -297,6 +326,10 @@ async function main() {
         '--system-prompt', `You are a teacher. Your configured model is ${model}. Read the School harness instructions and shared teaching policy.`, prompt], { stdio: 'inherit', cwd: path });
       child.on('error', reject); child.on('close', code => code === 0 ? accept() : reject(new Error(`Pi exited ${code}`)));
     });
+  } else if (operation === 'sources') {
+    process.exitCode = await runSources({ schoolPath: path, options, originalCwd });
+  } else if (operation === 'update') {
+    process.exitCode = await runUpdate({ schoolPath: path, options, originalCwd });
   } else throw new Error(`Unknown command ${operation}. Use --help.`);
 }
 main().catch(error => { console.error(`\n未完成：${error.message}`); process.exitCode = 1; });

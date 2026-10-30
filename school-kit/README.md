@@ -99,6 +99,38 @@ Reapply the overlay to existing Schools, then restart development or rebuild
 after changing their language setting. Keep internal mode values, routes,
 API fields, and progress semantics unchanged when editing UI copy.
 
+## Public and experimental courses
+
+A school opts into the public catalog by setting `publication` on
+`school.config.ts`. Schools without this field stay experimental. The kit
+does not scan `schools/` to decide visibility.
+
+A public course must set `visibility: "public"`, an `https` origin with no
+username, password, path, query, or hash, one of these six `group` values,
+non-empty `prerequisites` and `outcomes`, non-empty `publicName` and
+`description`, and at least one lesson. Missing any of these fails the
+build.
+
+- 编程语言、后端与开发环境
+- Web 前端开发
+- 开发工具、云平台与部署
+- AI Agent 与本地 AI
+- 数据科学、测试及其他应用
+- 游戏开发
+
+Public courses emit `/catalog.json` with `name` (the public name),
+`origin`, `group`, `intro` (the description), `prerequisites`, `outcomes`,
+lesson titles and absolute `/lessons/{slug}` URLs in `order`, and a
+fingerprint of those fields only. They also emit `/sitemap.xml` for course
+HTML pages and a `robots.txt` that includes `Sitemap: {origin}/sitemap.xml`.
+Each HTML page uses `{origin}{pathname}` for canonical and `og:url`.
+
+Experimental courses add `<meta name="robots" content="noindex">`.
+`/catalog.json` and `/sitemap.xml` return 404. `robots.txt` does not
+advertise a sitemap. Canonical URLs may stay relative.
+
+This documents the template. It does not claim a public deployment.
+
 ## Teachers and generators
 
 The HTTP teaching contract (`/llms.txt`), lesson/source access, profiles, and

@@ -5,6 +5,9 @@ description: "掌握 Astro 内容集合（Content Collections）核心机制，�
 order: 11
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/guides/content-collections/index.md
+  - material-1/pages/zh-cn/tutorial/6-islands/4/index.md
 agentInstructions: |
   教学目标：
   1. 理解从“散乱文件路由”演进到“内容集合（Content Collections）”的技术必要性：解决团队协作或大型站点中 Markdown frontmatter 拼错字段、漏写属性导致线上崩溃的痛点。

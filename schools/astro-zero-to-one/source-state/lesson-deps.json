@@ -1,0 +1,311 @@
+{
+  "schemaVersion": 1,
+  "lessons": [
+    {
+      "slug": "why-astro-and-server-first",
+      "order": 1,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/concepts/why-astro/index.md",
+          "claim": "内容驱动、服务器优先、默认 0 JS、MPA 心智模型",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "project-setup-and-structure",
+      "order": 2,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/install-and-setup/index.md",
+          "claim": "Node.js 偶数版本要求、CLI 向导安装命令",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/basics/project-structure/index.md",
+          "claim": "`src/pages/` 唯一保留目录、`src/` 自由目录与 `public/` 原样复制规范",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/1-setup/1/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/1-setup/2/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "astro-pages-and-markdown",
+      "order": 3,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/basics/astro-pages/index.md",
+          "claim": "基于文件系统的路由机制、Markdown 自动转换、站内绝对路径规范",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/guides/routing/index.md",
+          "claim": "基于文件系统的路由机制、Markdown 自动转换、站内绝对路径规范",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/2-pages/1/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/2-pages/2/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "astro-components-and-syntax",
+      "order": 4,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/basics/astro-components/index.md",
+          "claim": ".astro 单文件结构、代码围栏（`---`）服务端执行、Astro.props 参数接口",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/reference/astro-syntax/index.md",
+          "claim": "模板表达式、原生 `class` 支持、条件渲染与 `.map()` 列表映射",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/2-pages/3/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "scoped-styles-and-assets",
+      "order": 5,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/guides/styling/index.md",
+          "claim": "作用域 CSS（`data-astro-cid-*`）、`define:vars` CSS 变量、全局样式导入",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/guides/images/index.md",
+          "claim": "静态资源双轨制、`<Image />` 组件防 CLS 布局偏移与格式转换",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/2-pages/4/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/2-pages/5/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "reusable-components-and-props",
+      "order": 6,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/basics/astro-components/index.md",
+          "claim": ".astro 单文件结构、代码围栏（`---`）服务端执行、Astro.props 参数接口",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/3-components/1/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/3-components/2/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/3-components/3/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "layouts-and-slots",
+      "order": 7,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/basics/layouts/index.md",
+          "claim": "布局（Layout）组件封装、`<slot />` 默认与具名插槽体系",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/4-layouts/1/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/4-layouts/2/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/4-layouts/3/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "client-scripts-and-interaction",
+      "order": 8,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/tutorial/3-components/4/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/6-islands/2/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "dynamic-routes-and-astro-api",
+      "order": 9,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/guides/routing/index.md",
+          "claim": "基于文件系统的路由机制、Markdown 自动转换、站内绝对路径规范",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/5-astro-api/1/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/5-astro-api/2/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/5-astro-api/3/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "islands-and-client-directives",
+      "order": 10,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/concepts/islands/index.md",
+          "claim": "群岛架构定义、静态 HTML 海洋与交互孤岛",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/guides/framework-components/index.md",
+          "claim": "UI 框架集成、默认 0 JS 表现、客户端水合指令（`client:*`）加载时机与权衡",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/reference/directives-reference/index.md",
+          "claim": "UI 框架集成、默认 0 JS 表现、客户端水合指令（`client:*`）加载时机与权衡",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/6-islands/1/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "content-collections",
+      "order": 11,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/guides/content-collections/index.md",
+          "claim": "内容集合（Content Collections）、`src/content.config.ts`、Zod 模式校验、`getCollection()` 与 `render()`",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/tutorial/6-islands/4/index.md",
+          "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+          "status": "reviewed"
+        }
+      ]
+    },
+    {
+      "slug": "develop-build-and-deploy",
+      "order": 12,
+      "sources": [
+        {
+          "path": "material-1/pages/zh-cn/develop-and-build/index.md",
+          "claim": "`astro dev` 开发监听、`astro build` 打包输出到 `dist/`、`astro preview` 静态预览机制与通用静态部署",
+          "status": "reviewed"
+        },
+        {
+          "path": "material-1/pages/zh-cn/guides/deploy/index.md",
+          "claim": "`astro dev` 开发监听、`astro build` 打包输出到 `dist/`、`astro preview` 静态预览机制与通用静态部署",
+          "status": "reviewed"
+        }
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "path": "material-1/pages/zh-cn/getting-started/index.md",
+      "claim": "入门入口结构、官方导览、教程导航",
+      "status": "unresolved",
+      "reason": "账本有此路径，但与各关已写入的 sources 对不上，未编入 frontmatter"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/3/index.md",
+      "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+      "status": "unresolved",
+      "reason": "账本有此路径，但与各关已写入的 sources 对不上，未编入 frontmatter"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/4/index.md",
+      "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+      "status": "unresolved",
+      "reason": "账本有此路径，但与各关已写入的 sources 对不上，未编入 frontmatter"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/5/index.md",
+      "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+      "status": "unresolved",
+      "reason": "账本有此路径，但与各关已写入的 sources 对不上，未编入 frontmatter"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/4/index.md",
+      "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+      "status": "unresolved",
+      "reason": "账本有此路径，但与各关已写入的 sources 对不上，未编入 frontmatter"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/3/index.md",
+      "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+      "status": "unresolved",
+      "reason": "账本有此路径，但与各关已写入的 sources 对不上，未编入 frontmatter"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/0-introduction/index.md",
+      "claim": "官方构建博客教程完整单元（Unit 0 至 Unit 6 循序渐进示例与操作步骤）",
+      "status": "unresolved",
+      "reason": "通配 pages/zh-cn/tutorial/*/*/index.md 展不开该真实文件"
+    }
+  ]
+}

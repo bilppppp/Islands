@@ -5,6 +5,11 @@ description: "深入理解 Astro 核心灵魂——群岛架构（Islands Archit
 order: 10
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/concepts/islands/index.md
+  - material-1/pages/zh-cn/guides/framework-components/index.md
+  - material-1/pages/zh-cn/reference/directives-reference/index.md
+  - material-1/pages/zh-cn/tutorial/6-islands/1/index.md
 agentInstructions: |
   教学目标：
   1. 掌握 Astro 最具开创性的架构核心——群岛架构（Islands Architecture）：理解“纯静态 HTML 的广袤海洋”与“高度独立的局部动态小岛”的心智模型。

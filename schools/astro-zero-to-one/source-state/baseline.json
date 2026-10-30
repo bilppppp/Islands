@@ -1,0 +1,2554 @@
+{
+  "schemaVersion": 1,
+  "extractorVersion": "1",
+  "generatedAt": "2026-10-20T03:54:17.089Z",
+  "files": [
+    {
+      "path": "material-1/pages/zh-cn/basics/astro-components/index.md",
+      "sha256": "fcc11f389749cfd1f15e1ae32712fff963f505e80a7b27778b28c5c4245589a7",
+      "textFingerprint": "3af1e5a13acae643c03618c0a03476c77be94bc1b546b7b6b07cfcb6a200e85e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/basics/astro-pages/index.md",
+      "sha256": "0dc9311a993deae9b395c2a2dd8790b6c2ddab1ae8aa97eb8fd6cc5b1c19f677",
+      "textFingerprint": "d50ea6cc2b304d243777ce73459a206c20e3e5adca6973e168e5b9b1ebd9f7cc"
+    },
+    {
+      "path": "material-1/pages/zh-cn/basics/layouts/index.md",
+      "sha256": "b65392926d16c1383f027cca5d736f45792e753788b6f5e173706fc65252230d",
+      "textFingerprint": "00c78983e790f834b60df6b1186ea66fe12a59f6420974a00927b63270525841"
+    },
+    {
+      "path": "material-1/pages/zh-cn/basics/project-structure/index.md",
+      "sha256": "708306ddf4581e7287d5cb2dc4bf7ca13691b6beb36814a5eebc2aa1600046a1",
+      "textFingerprint": "d8595f093a48837eda8b13a0358005619c0e51b557f1a00a6ca954589f733190"
+    },
+    {
+      "path": "material-1/pages/zh-cn/concepts/islands/index.md",
+      "sha256": "53d49e15c4d492dda0aabc1e972d5fe668a87ee42b2e34f09114c1ccb40c4715",
+      "textFingerprint": "4acbc14c77bcaee1506cbd716cac4ed4f65a37874807492189185fad12a5b3f4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/concepts/why-astro/index.md",
+      "sha256": "75349cbc46e30c86be159e4eec167d51a19e80742faee7e956d61cfe6a175f32",
+      "textFingerprint": "2479fbb503fb7dc063ca9a0dc5c032ee66f0c0b067bf665fe74e0715e9c44509"
+    },
+    {
+      "path": "material-1/pages/zh-cn/develop-and-build/index.md",
+      "sha256": "231510a0db2b9f346780e321464e9d3e1897e02c9411aac6adcce8d8cec690d6",
+      "textFingerprint": "cdb88f6f4eabb768d3f732359e602299f8ec6cd8d64cd32845b227563763b51c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/content-collections/index.md",
+      "sha256": "f6ed4fb28226c60fadd22eb06f9d52bfcc436fee00722d62e2a377c09145bddb",
+      "textFingerprint": "4a6b22e6dd7397135baaff03426fa93515b7292b648257a470989069a6071b3b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/index.md",
+      "sha256": "470870885842f1fa826adc11edaf41f6a8172d4a9a95994542f6070e7104e93d",
+      "textFingerprint": "49a859ca9f19330f051e1f7de05eea21a3a5d7f2b7e7de7bab7aff570ff47a7a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/framework-components/index.md",
+      "sha256": "5ce88fc23a6c43f5380e5cd320600ca7843c0e09bcf79d1feb25635968abcce7",
+      "textFingerprint": "b3f63fc781633a3e619721a540e7e8c4aeb82eacb5cbee492faa52a3b84d9c13"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/images/index.md",
+      "sha256": "432b4438b71db21ca6016f7a6f76effb54c19280c33e5ce9e6b2bacf4104802e",
+      "textFingerprint": "20da0ee88971032267f74ce12f25436d2bd0f8681450390dcc33b6a455b3ba74"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/routing/index.md",
+      "sha256": "1726084fe6e62e6e32d5da3ee03a30296867d9e78dd9f3a0bdb8bb399d57b995",
+      "textFingerprint": "7e7554152f832a52691133d15fa87fe975b2fe9cb4bef80837682ed6e8e53ca9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/styling/index.md",
+      "sha256": "b49fce4d1ce39b33f2057ebd9afa1a2eca71347f130d4b951fc92f1b21b8617e",
+      "textFingerprint": "a54b3e4599c5c89a90a3e7a409571ae862c1e535459fa951bb67e5ff2c2c5ae6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/install-and-setup/index.md",
+      "sha256": "678cf58f3ec3bb802a3be1cf4860c600666b34a57b0ce551ccdbf69ba1ab2dae",
+      "textFingerprint": "ddd42c46f9f733ae9754169d2a6675081b3330f63ecf29c85502ae71a295baf4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/astro-syntax/index.md",
+      "sha256": "e06f0af8680b09c4b660669bb2b0d22d90527b8775a24a98fdb1944ac7279472",
+      "textFingerprint": "dbe9fc70c65a49b0593e12c0324dacd8fa91555cfbc0c17263ca01295f597093"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/directives-reference/index.md",
+      "sha256": "46d8061efc48831b7406bede6bb3fb90c64de51127867c297875574ac971b235",
+      "textFingerprint": "c231cc0b137ba094f1d957f0242c887a4a189afff290a2e5eba18f71cc834012"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/1/index.md",
+      "sha256": "8c3cb5a7476e2a3c4c1260fa922f25e5a3c7771b2bd8f1d733e62746b335bcf7",
+      "textFingerprint": "c309240f9994931990dc0007d3f53e7132defcdb626e11e151797b98ae221ec5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/2/index.md",
+      "sha256": "a3449f349586002588c6ca6e3e8a47fd1473da0affa56c4eaae922c2d019b950",
+      "textFingerprint": "12abc8e425a52a3d1b9570d5500854c998b7302444ed2301f2aed65f507bceef"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/1/index.md",
+      "sha256": "c3c518a309fcf3ac5c7b1f03d5f7d88839e9d5d9171cc22ae4882cf1994aaa53",
+      "textFingerprint": "b9c8968b67cc0bd83ccc9c62d5d4210878deaa01b57def71fa9235688fe12d19"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/2/index.md",
+      "sha256": "6fa3d7a28fc80d9c152a75189eb54995527c9acd75b4705c253531785fce1e9c",
+      "textFingerprint": "80a63323fd34d321d58d6c84dbf854e2c14455a0a282883d72bfafa6d529adda"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/3/index.md",
+      "sha256": "eebdb5b8d9f7ea4246bcfa8ab24d4a61f3298c4be2da4a3f020c131a2d8e8c72",
+      "textFingerprint": "5862c634d334e2084166d96f2dce6a265d2f994a46009a636016a08eca69e0cb"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/4/index.md",
+      "sha256": "690defe860bd42e5b5348179a80814e437304c664e1d68ac04d4b88969087fc3",
+      "textFingerprint": "6ee20d721b3d72de904a6caa3542a0392a9911cf882a7567aa8c9cf428086a65"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/5/index.md",
+      "sha256": "6e5768c8d74c8f63b00f3df145d99e2f205d370440ca8f369101223bd758d779",
+      "textFingerprint": "202063fe5cbab658f9f0060787ef0856289ec487acc5c05b5d786bc7f8d63421"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/1/index.md",
+      "sha256": "19491c37bf856a2080d181cd5bde046c8b6a8fecba883edd569fd1f23abfe582",
+      "textFingerprint": "131a8fc5ebecd1d35403b73f40d833c2107846b0a15be7d9e720c826100c4647"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/2/index.md",
+      "sha256": "6250effacaf7c24c4e3426fd02567c5ff03df812eaef9dc9cd27531eb75caed7",
+      "textFingerprint": "87ce4415c4e5e433283c94bd846b9ee891279eda2f3436808eae8ef280d49cd0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/3/index.md",
+      "sha256": "5f605033715d6fe80a6311b723245addb5038a83179f7e3642a4c13a38febfae",
+      "textFingerprint": "4b005ab4cfdc4db913291b39bc91731fcab57da3be83cb51ab7e185ebea883a1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/4/index.md",
+      "sha256": "5181331d94c5bcdcf948193107a000624b9a48ffbd2b70a6df5fcec4c61ba642",
+      "textFingerprint": "bba176d8ee7334364921628f0902049effa0e0b51d0ea2d766c67dbf51041ae9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/4-layouts/1/index.md",
+      "sha256": "c6a02ed0ea2ddfacd884460019651cdeb3721aca36e9146b5b9b0611891491af",
+      "textFingerprint": "69167e32e650c3e17dd858c0778c07b788abd8a1e7ce536af4646c6690018a31"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/4-layouts/2/index.md",
+      "sha256": "0fcd531699d8037c95f95c0ae7cd92565c00ee989a45c347972dd75854dc340e",
+      "textFingerprint": "a68bdcea22ec73c687ac43931e0186f07efb31a896660cfc9807f7e955ebe018"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/4-layouts/3/index.md",
+      "sha256": "df3e81f1e553571e3ccf602d8c47e5e9e9becbed0065296a3916b4f9c0886c41",
+      "textFingerprint": "1b9c8c61353e416ed9bc0209aa33aa3bd9eaf4655fac4cd15088caac53ecf529"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/1/index.md",
+      "sha256": "535eeaa9061f37306f3d5677fa5f69100ea0b9e09631e3b68ecd1cc9694141ab",
+      "textFingerprint": "aa78019777e6e63720b48d351e5e20faac115f3fed4e30fd14b939cf49bcb1ed"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/2/index.md",
+      "sha256": "fdc4294989d0d18438abfdcbf301ae22abbb9a39b3814a83b84b7c500aa9a084",
+      "textFingerprint": "b6f867441089cc2e9f2d92c9dd8d9c05d3dca9b91ae18ecbd934c9180b05b33b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/3/index.md",
+      "sha256": "b10d1b30c3988ea8f5d5229fda7267116bce759dd32aa37c024ffe38b32e0304",
+      "textFingerprint": "34fce475c87fd6d7c0a17bba0f041973658e876946e520f56a8b0366ce42db60"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/1/index.md",
+      "sha256": "380e5f6d5dcf9ba1f995156c94c9a0e8aabe68bdce9be0ef5010732d9973bd18",
+      "textFingerprint": "eb0a5f54464526b1eb96c36d1139435c4e7e10797efbc3a103c33ff73733de90"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/2/index.md",
+      "sha256": "3850615986e2a865f22b6d52dc676e57a405956ae801517363c38d5e0280a2ba",
+      "textFingerprint": "8953fd4452f4dc7ef8d32bf6689c95713899f3eb897493891a8a711fa72f100e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/4/index.md",
+      "sha256": "2913a75e2480438f22f38fb0ba692379efdb6fcccb531d9c4d454900e1b65a5c",
+      "textFingerprint": "dbf42b44e5691f4f8b5eee8ab90e4de43adb87895d416e13341469a5f725ffa0"
+    }
+  ],
+  "inventory": [
+    {
+      "path": "material-1/entry.html",
+      "sha256": "e9078c308029ac8e0ed513e314030a39a3629728bd915ed9b0919918da7e797d",
+      "textFingerprint": "383c98f992bf7b87e471db711a9494f59610a69561a67641656be49fff844baf"
+    },
+    {
+      "path": "material-1/pages/en/basics/astro-components/index.md",
+      "sha256": "7aff9c33f53e5a366394f399d32473f7640d5d4d1c88dad808de2842bc30aca9",
+      "textFingerprint": "8e0f595112e9a28e7254adec9880d5d134e44ef0cb64b2ee98c252a262ec87b2"
+    },
+    {
+      "path": "material-1/pages/en/basics/astro-pages/index.md",
+      "sha256": "96774d27dc2e0e4f44eee0263796876ff5723460457ecfc1bf32734d0a2e79c9",
+      "textFingerprint": "8c317d5b86e6a4401929850ea5339b5a1eedd56dc2f41c0634efea1265412d40"
+    },
+    {
+      "path": "material-1/pages/en/basics/layouts/index.md",
+      "sha256": "aff511f207705c8e02d75174737165a83a6a36e5cd003ee72bf7818b618100a9",
+      "textFingerprint": "0c592621b8e998e0afc0e44649d4ea85d8ccc3a69ea6114efca3fd806f863483"
+    },
+    {
+      "path": "material-1/pages/en/basics/project-structure/index.md",
+      "sha256": "b02445f8a36c4276d8d873b4750bb667f521499174e890fdf17055eab4905a44",
+      "textFingerprint": "f066efbbfbf497c3e9803721c19b70391a9a6960335b98f37b88de5c22d91d89"
+    },
+    {
+      "path": "material-1/pages/en/develop-and-build/index.md",
+      "sha256": "9a77e956552cd9f0900cf46325830c5a2848bd83742c0f590a15304980e25ede",
+      "textFingerprint": "b584164427147f17a303113e1bb0d5ad8913bf68a767a1ce5f5b7caae8c5d0ab"
+    },
+    {
+      "path": "material-1/pages/en/guides/actions/index.md",
+      "sha256": "84dba6767d1028f77cd5e84914ba548b420fab7851ad7b249b1467e2dcb7e9ba",
+      "textFingerprint": "082e4a5b0045754cff3dcba31670add8dfd9cb1c7616f441e9e9123451e54500"
+    },
+    {
+      "path": "material-1/pages/en/guides/caching/index.md",
+      "sha256": "0e173e3c3537e6d6210472fa7a665ab395f7af90364ed24f8fd4b2c0c7b892a9",
+      "textFingerprint": "af6c6f12d586d6b3a994a55960d5cb166b70429131f0be5531aa0b81748d942d"
+    },
+    {
+      "path": "material-1/pages/en/guides/client-side-scripts/index.md",
+      "sha256": "45174efbebd52a8237fbdf453a6a69e4311b7edc70288ed69124595321994932",
+      "textFingerprint": "b5ee5053d5eef25a033333f9ddcd218c029200d1d8c1226c286a99f2aca6bcb7"
+    },
+    {
+      "path": "material-1/pages/en/guides/configuring-astro/index.md",
+      "sha256": "62b84a812bb9cb14b5ecad3d65c9d8d35f5e5eb2d5f78a9b8593f7eff6220dcb",
+      "textFingerprint": "5bab4d6b667b5f8ad763b1efd26abff4697d50bd53253c199a37557a3b37b11f"
+    },
+    {
+      "path": "material-1/pages/en/guides/content-collections/index.md",
+      "sha256": "b207b021eb47967aec11a7371d187f851d9acfd5558bd24c4a2cb21a6983d0f5",
+      "textFingerprint": "203aa155df089a3e585a3e4fe2300a449c961b2bad2383db01ddeb53555a6461"
+    },
+    {
+      "path": "material-1/pages/en/guides/deploy/clever-cloud/index.md",
+      "sha256": "6fda7b167f9952ec6bbd3d9335b1ead9cd8110c04d9e62e91d1daa25fe75d78b",
+      "textFingerprint": "0afb54070db3037b0047475a61875675023fc4a4b3d093d0907b573ef7f10b16"
+    },
+    {
+      "path": "material-1/pages/en/guides/deploy/index.md",
+      "sha256": "bd4786b43e8733974911e17c0e0b77be5cc0e9cdf71b0e5d260858615cca5e42",
+      "textFingerprint": "e17d39f6035498fcee4d2a1385ff9790e26183bc71c3e47859b651052fb2c9b4"
+    },
+    {
+      "path": "material-1/pages/en/guides/endpoints/index.md",
+      "sha256": "74e00af387fd9f3ca2b24bf1c25863a7346f210b71bf48689e3a702efc633c61",
+      "textFingerprint": "c58d163943b11983de60c210e7caf7c9577c27bb640724ce9763b1dae846594e"
+    },
+    {
+      "path": "material-1/pages/en/guides/environment-variables/index.md",
+      "sha256": "4d9482ae46d257543dd5ed08b6e276e1a6c76fa8b727aafe24cc75337d09c32c",
+      "textFingerprint": "d7b332080d480d82ca7374f2925af1789a8b9b873f4402149683d1a688fc8ca3"
+    },
+    {
+      "path": "material-1/pages/en/guides/fonts/index.md",
+      "sha256": "1f914447660b2dfe7e9a68ea06118368674efb4724c8ab8af8f4e3b4791d8e07",
+      "textFingerprint": "76e843940abfb4b77094fe8f1867e4d43696097db238a6298fe27b89c80b1654"
+    },
+    {
+      "path": "material-1/pages/en/guides/framework-components/index.md",
+      "sha256": "149398f40ff09eecafb50d081a6498d2aa8172bd487bc00da970ad9851a9a8c1",
+      "textFingerprint": "49be24cce2b232072e91de48a62fe2767a2c3294000ef89e690dbd48c6618213"
+    },
+    {
+      "path": "material-1/pages/en/guides/images/index.md",
+      "sha256": "aea729d033c30b29f0f232f09f1d49882d67b47610ea2edaea22a5fce6ad713d",
+      "textFingerprint": "156877c8a89249af9bfeb2d601afa1433a3408eb5351035e797de89961654d09"
+    },
+    {
+      "path": "material-1/pages/en/guides/imports/index.md",
+      "sha256": "9f5673beb819e2b4a4028ba2f0e4aa819673cadaf626032dfd3a8a0d06ddf8b2",
+      "textFingerprint": "ac962485bc67bdecf08b7e514c851d5f520d3946a2ab19b1db903b1c13efe3e9"
+    },
+    {
+      "path": "material-1/pages/en/guides/integrations-guide/cloudflare/index.md",
+      "sha256": "37d4d736721884ecf50d1bb82ebdbf7a8014a9ba2f8cd47b86cf44346e47bf12",
+      "textFingerprint": "0f9425f862eef7f06e355d549ef9edd7d8a5b7fb8f0517b861134a2678506ac2"
+    },
+    {
+      "path": "material-1/pages/en/guides/integrations-guide/mdx/index.md",
+      "sha256": "85595311396115d915d89df4bdde8c6733daba54da00e9a20c113a996757c8a3",
+      "textFingerprint": "b3b0f991ae3acc1d04323ee9b4ae396e26c3a7883e9c6838b3457ae2e843e4fb"
+    },
+    {
+      "path": "material-1/pages/en/guides/integrations-guide/node/index.md",
+      "sha256": "c1a52e358dec3b52115ab71ce3b52805192880173f8a860cbbea8d6709de2e0c",
+      "textFingerprint": "11249e26f8461fd429b289e78a0d1e1d6dd86b9f14da637e3f997d88b996cc04"
+    },
+    {
+      "path": "material-1/pages/en/guides/integrations/index.md",
+      "sha256": "cdc7d72237c779d0c9f38b01ff801e55d971b8fd8356fc8e56a0d2afb2324617",
+      "textFingerprint": "6ff3fe47f7ce19e88c734d358c9d65727b2e8c6e16e1c4192eb96e48474dd13e"
+    },
+    {
+      "path": "material-1/pages/en/guides/internationalization/index.md",
+      "sha256": "f4c02c464e26bf1d5eabb62b0e4049c0c5b84dd9ab3e5707121e0dea259afdbf",
+      "textFingerprint": "e7ffeeff2f1034478c0ccb5637699befa035ff605437f023b1d48a4ae980fbec"
+    },
+    {
+      "path": "material-1/pages/en/guides/markdown-content/index.md",
+      "sha256": "14c2baa746506879d35327cfe3b3b161ab6cbc4615c57164a24e6fe3541051a7",
+      "textFingerprint": "7b7d6b2ddf2af8463b4967c46b2d3edb26b064253c80938dbcf236e4fce87864"
+    },
+    {
+      "path": "material-1/pages/en/guides/middleware/index.md",
+      "sha256": "9f3c5ad7fec257fd3a146d89b1d2dc50a12644826b8f3664df991b012c8494c6",
+      "textFingerprint": "7b1a96f7bc7aa5bec71099e2b1e67b6ef2d03879ffd600a45bcea57d8e177549"
+    },
+    {
+      "path": "material-1/pages/en/guides/on-demand-rendering/index.md",
+      "sha256": "62a9ad043499cb9b5ee988608e4843fd611b801f8805a865f8c0c1f81627584d",
+      "textFingerprint": "e6edfe0e705622dc43c796598d78bde06e4186a36d76a57f7e95b92fbd20549f"
+    },
+    {
+      "path": "material-1/pages/en/guides/prefetch/index.md",
+      "sha256": "52b55eab8a07af72b3531af67cb12dc6924de39c7e3b78aa6eacb6dc306b9032",
+      "textFingerprint": "1a1013857bb9e5bf6443cfb7ca45364612434ac20f4f137707090f0631cff1bc"
+    },
+    {
+      "path": "material-1/pages/en/guides/routing/index.md",
+      "sha256": "17e2fef52a70e0fae4da970cf2fb5c7a20b048245507345ad5e4b3823f039e0f",
+      "textFingerprint": "25b08a4169939d3019976943367fae8a0c68892f6ca1c6ce9f2141cccdc5a13f"
+    },
+    {
+      "path": "material-1/pages/en/guides/server-islands/index.md",
+      "sha256": "cec5bb205845d695d7d119207cd8a516d4ea94ab6afdb64e2a0a94b5f7166964",
+      "textFingerprint": "c04707bf69429488e8bf6d7acd44708997dd5501f3f5c2366ab5e404d4ee40ff"
+    },
+    {
+      "path": "material-1/pages/en/guides/sessions/index.md",
+      "sha256": "6f671c6955a1fef1469197d5d9c283bfdfd3ca888c0b555f5bfeb7023e05acc3",
+      "textFingerprint": "76d9d3e4da9d3bff6481850752c3965adc3220e432ce4c8de900bb690927ba6a"
+    },
+    {
+      "path": "material-1/pages/en/guides/styling/index.md",
+      "sha256": "7be773f84042c11a4948b546c0d538ecbac7e16f9a1d9d33c388eefb4b45374a",
+      "textFingerprint": "264addb1fed5b3aa22f73e09f7e776e595e68387f5224db31988d5e41a726d1f"
+    },
+    {
+      "path": "material-1/pages/en/guides/syntax-highlighting/index.md",
+      "sha256": "dbc5801c75a65a30f2211bd11c860f5f7720d6831c197d929c756e38564a8af9",
+      "textFingerprint": "1f6de548fa7a143ed98074fb2a4d21c0cf75d32ed90a0bca1e31df272ec4fc75"
+    },
+    {
+      "path": "material-1/pages/en/guides/testing/index.md",
+      "sha256": "892e4198e95413e2aa5eff3e8d8c608c5f1016dcaf2caec0e21e09990d9b88c5",
+      "textFingerprint": "79864e17ac86836ddc9fb84be0f4e9c339df048243b69d62c7630e9e41feecc4"
+    },
+    {
+      "path": "material-1/pages/en/guides/troubleshooting/index.md",
+      "sha256": "a23664c6321d39c5633464dd6c00a02945283c3d728b4c05889e8dd247eca67e",
+      "textFingerprint": "60b578dd3fff305e72910ebd8b9b0489169aa7586a383b43f42045fe369db865"
+    },
+    {
+      "path": "material-1/pages/en/guides/typescript/index.md",
+      "sha256": "c2bf052b5ade40e94658b8a6d85a6a0d331767ee8ef972d831c8addbd3272ee4",
+      "textFingerprint": "0fc6e9b74df86656889135bc0dbbe0fce6011d19b3a6baba1a36cb51dfa6a15c"
+    },
+    {
+      "path": "material-1/pages/en/guides/upgrade-to/v5/index.md",
+      "sha256": "24d6dcfba755c91c7e3344b46f0ef803834496baf5f281abf9d284b3b0a87dbe",
+      "textFingerprint": "b7d7a71142317dc628a93bd091c0f6f14ae030f6c9ffd25ed1493e001d20ee60"
+    },
+    {
+      "path": "material-1/pages/en/guides/upgrade-to/v6/index.md",
+      "sha256": "1482fd922f3aa1a63c857f224f276122374cc8cf9d349a2b42e74b659baa33fe",
+      "textFingerprint": "9ef4b7ed2b937f17b38d6b08647352b3a1c0714543e4245733d4b144deb06132"
+    },
+    {
+      "path": "material-1/pages/en/guides/view-transitions/index.md",
+      "sha256": "35362a815c6907a602a5e005c2b0ce90ac6cc4a32a382cc7b3bc7c138136ef4d",
+      "textFingerprint": "ce012f7b22fe19d920fc439a3f354f9bbcaf6ccf2524aac204428d1a55bc7dd8"
+    },
+    {
+      "path": "material-1/pages/en/install-and-setup/index.md",
+      "sha256": "b49486eb9d235f9848a7a8047cb1ff2495c77ec7a082471bca78b484907e31b3",
+      "textFingerprint": "e17d9b1eb381a7d298d257049ceafc0ef5a6665f7439e0d0a0422ecdf86f3905"
+    },
+    {
+      "path": "material-1/pages/en/recipes/rss/index.md",
+      "sha256": "a7c277b35a02578eb35517e510dabaed19fbbab01c9cfdb6d4999d46c3da4064",
+      "textFingerprint": "955378d2377b9bdf5decd381fc9a1a1f86c5d016c7905c484849c26eb09ca2c5"
+    },
+    {
+      "path": "material-1/pages/en/reference/adapter-reference/index.md",
+      "sha256": "577934365747915845167adbfd88d59a05c41830d78b628eac428cdb5a4ca097",
+      "textFingerprint": "11d64a552bde75ce88369a77060def065222a250360d08932cb77e4c6a5abc75"
+    },
+    {
+      "path": "material-1/pages/en/reference/api-reference/index.md",
+      "sha256": "c934ed17a51c84d329b4bcdc952b6bbc604639170a5655e30d162b4aa5148d5a",
+      "textFingerprint": "ca4e30808ccc74e5ab0851b0e1230a3b0c85a16930a905275df2f39950a1ea22"
+    },
+    {
+      "path": "material-1/pages/en/reference/cache-provider-reference/index.md",
+      "sha256": "52dfdd2c1ec7187ef8acbe637ed7d94267de89560133cef135cb76505a431c4e",
+      "textFingerprint": "d9cf210062402831ce451a92060d190e8b6773d8ceef111776e41165e8db5642"
+    },
+    {
+      "path": "material-1/pages/en/reference/cli-reference/index.md",
+      "sha256": "a7ca2c5b085f22cb1915f46f6437ed4893ac26dc5c34528860b1089bc025bb1d",
+      "textFingerprint": "26ada4e98c10dc22e79fbaf61f12f9c8878dd2e1adcab1667a8f5db55ffa7109"
+    },
+    {
+      "path": "material-1/pages/en/reference/configuration-reference/index.md",
+      "sha256": "6e05e1eff1405dfbbd7c5289a0d218ec7876c3e6998160370560ec2dd35cab89",
+      "textFingerprint": "4a659b51399e9030d90f1d4961a6a9e720944b26bd194357d0de561749784bfe"
+    },
+    {
+      "path": "material-1/pages/en/reference/container-reference/index.md",
+      "sha256": "4740d360dd3b3c6c3ae18bf0718cf082b845ff124c30dc713ff4673e09f56a9c",
+      "textFingerprint": "82d611564429b37f7697679af4868a4d900be6a40a9bd433d961cea7e6627e04"
+    },
+    {
+      "path": "material-1/pages/en/reference/content-loader-reference/index.md",
+      "sha256": "4428451d4cf852f56ff4bfe3fd1c2675acbf0f6c4e11c30171f366448a86ade0",
+      "textFingerprint": "98c3e23214fc6efd2f3fd75fa6bc3cd7e0d6924a19808cd14ba109ce9f0ff66d"
+    },
+    {
+      "path": "material-1/pages/en/reference/directives-reference/index.md",
+      "sha256": "4c469f49a80ce4643c3e8e4616ae124e20e55b0cff21a11ed0149e9202d6c7f5",
+      "textFingerprint": "7378ba86580adc7863f5b272109f80f5b6c424499494698497a6bfd09c003092"
+    },
+    {
+      "path": "material-1/pages/en/reference/error-reference/index.md",
+      "sha256": "ec5c4dd53efd0497a893af617b5f852d37daa582ce6fc9b73c7e42e756000c11",
+      "textFingerprint": "e6401da8c9114c7840d5d072cfc1b8d6010469efe44db53af73d122954d7ad80"
+    },
+    {
+      "path": "material-1/pages/en/reference/errors/content-collection-invalid-type/index.md",
+      "sha256": "ae0d4c5baffa19f2abd0f8e061ecfec1529aed3d7e09d4109d5c867c58d563fc",
+      "textFingerprint": "3af3a215b32f57f2b79dac23383ce06287d8323c5d5a07e4499cff07edd5a01d"
+    },
+    {
+      "path": "material-1/pages/en/reference/errors/content-collection-missing-loader/index.md",
+      "sha256": "d05f00085da2e8579aa23aaebe8c04c39320771e54edae8cc67c4107a6da2d0f",
+      "textFingerprint": "db4cd872d1e6bcd8bd2f8b2d42f287d18d4e23e44f580928e84df1874c87ee49"
+    },
+    {
+      "path": "material-1/pages/en/reference/errors/content-schema-contains-slug-error/index.md",
+      "sha256": "2831f3133b8b813f2d1e7b8e11bc0ab8421eee9a27d2c5c44725d3d6c50268d1",
+      "textFingerprint": "00b6490fb4064012969b8df1ead13bac0070b233df6bf6a6952025a9fae2d65c"
+    },
+    {
+      "path": "material-1/pages/en/reference/errors/get-entry-deprecation-error/index.md",
+      "sha256": "07dde4be0ddd5f0f0b1717407d5f09a36e41155a92950d027048a9a6d84d2c56",
+      "textFingerprint": "960cd9fdd7a9a7de917532137453cf50421877a4eaeb028dca31e213904bd9ce"
+    },
+    {
+      "path": "material-1/pages/en/reference/errors/legacy-content-config-error/index.md",
+      "sha256": "f1d356e1f3fe63d44e2cd049927f74285e737e87e6a5bcaefda5f3928b60dd88",
+      "textFingerprint": "22f60c2668967e4433c8aff2c4e487d609014087aeb6c8ecbbec3b6696e17633"
+    },
+    {
+      "path": "material-1/pages/en/reference/font-provider-reference/index.md",
+      "sha256": "48a49fe1070b2d09a4b3907a228769fc59b236c6fc5fc404b3f439fb003f527d",
+      "textFingerprint": "95eb793c350aceb1f14e651444ec4dab0d1dd2ff96760f8d8919bab669356ef0"
+    },
+    {
+      "path": "material-1/pages/en/reference/image-service-reference/index.md",
+      "sha256": "b941a27c5339a70ac96875942e7aa0382747a53f5088bef0b918b9f635465c40",
+      "textFingerprint": "c68334a11547f3f7049f240477861e3e6bc88d42902653a3be1f7864d1415652"
+    },
+    {
+      "path": "material-1/pages/en/reference/integrations-reference/index.md",
+      "sha256": "64f00d89bddea47bcf6eddcfdd7cdfc8fcd632a99a9f65e2435d8146445ab045",
+      "textFingerprint": "12d6f6fbaf430002b266a32ffffd8a85b839693208530452c4bf16d284d1e585"
+    },
+    {
+      "path": "material-1/pages/en/reference/legacy-flags/index.md",
+      "sha256": "618542093521c7db3cdf3c2edbbef22deebdbe9a06037a6e0a7568687fea0ea2",
+      "textFingerprint": "859b1325306fab4817e41615cf7a01e457a0146fd717ce6ccbf04152af7393de"
+    },
+    {
+      "path": "material-1/pages/en/reference/logger-reference/index.md",
+      "sha256": "0998aa393bc757fa6de8930164814e883abb28706347f21ec3820bcb09875213",
+      "textFingerprint": "7ae21dea35e7efaca9129c810bede56c9dd76c41055dad6c067882049f459afc"
+    },
+    {
+      "path": "material-1/pages/en/reference/markdown-processors/unified/index.md",
+      "sha256": "ef625562cad813293215771b92258f27370dc00e11c13d108406eddff091ba2c",
+      "textFingerprint": "9185d645db0bc72534ebda1dd7a32b73f9f4f6c34311a4e65a51ac034855d053"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-actions/index.md",
+      "sha256": "0fdfad5db1559088019af0919d56222e1139208865c2f6b149c585e067b47743",
+      "textFingerprint": "e800b9980613b778e1a6698438e8144a4057485eb37bd79fc98542ceb811a096"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-app/index.md",
+      "sha256": "090cde9c0de429797d91fc2e0d205c4c04ae14eead978220ec83910ce0568a59",
+      "textFingerprint": "d9d85462d467cd45ae6d42780a3579861974158d90e3853da00563319950b612"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-assets/index.md",
+      "sha256": "476d6f46f985acf52a1520fe435f45b0a4403d8b927f47588ee93726f7a78b69",
+      "textFingerprint": "912a2df3ee17ce81b23c4d89475cdaccdaa4f2d49ed42aa1981f452c07322349"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-config/index.md",
+      "sha256": "fd38a561d6b696cd9b9eac764a478056d9a7f9f04252b8c8b60be2cd3bcfce93",
+      "textFingerprint": "f796205cdaf14a3ecf776609f1675d2061dbb50afb1dabf6f6e7f689da6b148e"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-content/index.md",
+      "sha256": "60b7e3e75c0ba3d290d7bb018a4b6bee7c6096376dc170937920b4c754e22fb6",
+      "textFingerprint": "4898569658473f2caff9f2558a59b75ee6dbc665ade9f6d4f9143e3b598a522f"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-fetch/index.md",
+      "sha256": "5946291ccf21f89c2bd785dd999e20ea117aac9c24c97ebd272fbc8a37bf5243",
+      "textFingerprint": "ab508d120ff8c35c8ee28dac7e08b9e7f5ece71623dd85561adeff15339f5c23"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-middleware/index.md",
+      "sha256": "57c469708b185d712a5ea6d3089677602d2bcb544b15b4bf3b727dd6c65cc44a",
+      "textFingerprint": "d6055f414c88e1a81afadc59494704bce260d8b698d13052e38dd4d1cab0d307"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-transitions/index.md",
+      "sha256": "905fe0d1cdd17a8e8bc6c265fbe584ca7bdccf6c961d1a4837de1c871d0e2794",
+      "textFingerprint": "796a417411350e11ca8d9549eea7f464d713b9542100fcbec02631ff7e7ea591"
+    },
+    {
+      "path": "material-1/pages/en/reference/modules/astro-zod/index.md",
+      "sha256": "c83c97fdf759e52ea2a451f1a845598612321d3eb4d9967f9eb47db461cf5705",
+      "textFingerprint": "f97a7cc96eb54e729cd67eb7eccb0cccbfa37e8ea254379907c23283693f528d"
+    },
+    {
+      "path": "material-1/pages/en/reference/routing-reference/index.md",
+      "sha256": "c857abcb0ddfcaaccb74b84d046cd6e54e01592579288d0a621a79c03e80b4b2",
+      "textFingerprint": "1c04450cbad94598a1953833e456289192c4be186cc81dd575ef335a5f53f97b"
+    },
+    {
+      "path": "material-1/pages/en/reference/session-driver-reference/index.md",
+      "sha256": "2d88d7e76892d3cc15014c2b8db407266cc29b2028c73c379d06e91c77f3ddfd",
+      "textFingerprint": "6048a05a0900e8169a1636c72c0b55a5e6b606187d5b15703cddadf70cd4f54b"
+    },
+    {
+      "path": "material-1/pages/en/upgrade-astro/index.md",
+      "sha256": "be5fa5204fd3b74106e44c850695e28976ddd53ef04406dfde52ace8b0c7ef62",
+      "textFingerprint": "c5e95c537fef2a58d98a0f367aa3abe1987239b82ce61d5244dc42a29262357c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/astro-courses/index.md",
+      "sha256": "93f4d2c91063f6e09ab729a43b6dbe906b16ddda83b11bae5c347269233264a1",
+      "textFingerprint": "ad90c40ba9d7b1b92e7af461863ca23256e4322cc1028186531b4543fa7257ed"
+    },
+    {
+      "path": "material-1/pages/zh-cn/basics/astro-components/index.md",
+      "sha256": "fcc11f389749cfd1f15e1ae32712fff963f505e80a7b27778b28c5c4245589a7",
+      "textFingerprint": "3af1e5a13acae643c03618c0a03476c77be94bc1b546b7b6b07cfcb6a200e85e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/basics/astro-pages/index.md",
+      "sha256": "0dc9311a993deae9b395c2a2dd8790b6c2ddab1ae8aa97eb8fd6cc5b1c19f677",
+      "textFingerprint": "d50ea6cc2b304d243777ce73459a206c20e3e5adca6973e168e5b9b1ebd9f7cc"
+    },
+    {
+      "path": "material-1/pages/zh-cn/basics/layouts/index.md",
+      "sha256": "b65392926d16c1383f027cca5d736f45792e753788b6f5e173706fc65252230d",
+      "textFingerprint": "00c78983e790f834b60df6b1186ea66fe12a59f6420974a00927b63270525841"
+    },
+    {
+      "path": "material-1/pages/zh-cn/basics/project-structure/index.md",
+      "sha256": "708306ddf4581e7287d5cb2dc4bf7ca13691b6beb36814a5eebc2aa1600046a1",
+      "textFingerprint": "d8595f093a48837eda8b13a0358005619c0e51b557f1a00a6ca954589f733190"
+    },
+    {
+      "path": "material-1/pages/zh-cn/concepts/islands/index.md",
+      "sha256": "53d49e15c4d492dda0aabc1e972d5fe668a87ee42b2e34f09114c1ccb40c4715",
+      "textFingerprint": "4acbc14c77bcaee1506cbd716cac4ed4f65a37874807492189185fad12a5b3f4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/concepts/why-astro/index.md",
+      "sha256": "75349cbc46e30c86be159e4eec167d51a19e80742faee7e956d61cfe6a175f32",
+      "textFingerprint": "2479fbb503fb7dc063ca9a0dc5c032ee66f0c0b067bf665fe74e0715e9c44509"
+    },
+    {
+      "path": "material-1/pages/zh-cn/contribute/index.md",
+      "sha256": "8c6fba966022115c5943572ca4074894f23fdf3141353dacae763853172648b5",
+      "textFingerprint": "d9f387885dbadc4500ac2cc8d456c6f98e2f67c053e8501c32848179b7414ae4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/develop-and-build/index.md",
+      "sha256": "231510a0db2b9f346780e321464e9d3e1897e02c9411aac6adcce8d8cec690d6",
+      "textFingerprint": "cdb88f6f4eabb768d3f732359e602299f8ec6cd8d64cd32845b227563763b51c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/editor-setup/index.md",
+      "sha256": "871bf7bb1f9d6ad8174a2c6b984c9a389ee422ed5af593cc126ecf8adc48b790",
+      "textFingerprint": "58eef864f38e6d0dc6cb8d108b87acbc4b0cdc9579acb69b3e276b24a0299fe1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/getting-started/index.md",
+      "sha256": "6b25aa252861e3d9dd13599fd5b8e13a9b4841bcc98db84fa5f47757869c8125",
+      "textFingerprint": "b89b0b5d6c635eac539339a62330419c7c19fa17048a48460ae3bd3f436fe3c1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/actions/index.md",
+      "sha256": "4dbd02b824c00cd1fb399a7f96d152799f60c01312c422abc67ed2325a929868",
+      "textFingerprint": "b4d4beae300d6984b450c197ed2d7aaafc04e13a592a3fdd1bf18bc361c25e5a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/authentication/index.md",
+      "sha256": "3e2b1e02e252c3e32a23bef37dab2ee1ea1d7d73d2f35022c0cd1d48297a4880",
+      "textFingerprint": "ff29ec40af3af20547239fdd6dcd29c7c8327aa0de7f53f56f9c9eaa0564518c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/appwrite/index.md",
+      "sha256": "19cc62d82d4aeb30320d4c8d6d00ca553024d5ef54efb826b5acaf874d47b6f4",
+      "textFingerprint": "248853619669ad79951375771a704efb59b74509379e93463660fd72b5476afd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/firebase/index.md",
+      "sha256": "8f0592c667b560ff79c8775d4afc48bff2181a4a4180e0912b55a7f076a716d0",
+      "textFingerprint": "b39ec073cbbcb28f2e7af96facde7febada767a2de1c071aa6ca524211e19a4d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/index.md",
+      "sha256": "85160f5627203249b8bbb9bd22000b31ca96ea4b3d137c79822fb45926097f4b",
+      "textFingerprint": "1962d052ccf6ccd77f14380f468079321d68a29734ce8f09a0631d5d5570d3cd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/neon/index.md",
+      "sha256": "aa338fd98db8804642441b33b9a9ac265007d1dca855d7cef28a7bfffe37e36b",
+      "textFingerprint": "f5361df4ffaf3dd2cb7b9dd6c0ebb33e1ec03762196e6ec3324ce6a49d9f0655"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/prisma-postgres/index.md",
+      "sha256": "5c0f53d1eb4bc79240bdf9b110a2147ef2036e95297d46da8f47bd6d4651766b",
+      "textFingerprint": "11f646435b5de4d588d456ee06def2df7545af7c960383cb5bbc5d0c3c3f5f0a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/scalekit/index.md",
+      "sha256": "a4e1cc1a89ed299273a87abe2b2cac211c8e313fdf0a22dfd28c8b26064836a6",
+      "textFingerprint": "6c384fbf57da66ef133922e4ea4bbe26da091922d3dd37df51dda0c226c02e4e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/sentry/index.md",
+      "sha256": "4051fe2cd3adb0fd2ab74347c8d06d5a4030ad5e5c9e18e404ff4275eaf36822",
+      "textFingerprint": "4de29f7cd93b8926d9d084b0958e1d3964b22e7c53700c905a8a6905bf5fef97"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/supabase/index.md",
+      "sha256": "3bc421adbaedcee1cc57ea671d77ff3875c31325400e6ae09a122495ae6c53cc",
+      "textFingerprint": "989a81dadc85c81335abe907afbf32049bddb89872a61317c24fcbb84d99d970"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/turso/index.md",
+      "sha256": "80985ee164dc72731f5510f09a82a252375657219b94c699177fa83dc6a28f06",
+      "textFingerprint": "7ecea3efc2eb9608466d3714de0566b6faf2bedab4c3ece6b3e8e26f112e36d2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/backend/xata/index.md",
+      "sha256": "7521a875a27d950a5fef1fe2340de45e4215641ce4013f38cf66cd50f8f442b8",
+      "textFingerprint": "2519412970eaf91426155867b2b343f9df03a410f32d3ee66614863e39bcae25"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/build-with-ai/index.md",
+      "sha256": "12757f225b377d3993e85cb4a0628b47ac790c645ef7c636379248d804e12955",
+      "textFingerprint": "4aec87c0e40bda300141917ebaac4343f1c3c5fb156514b77371faba02e7bb6f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/caching/index.md",
+      "sha256": "1de47c69d4a7686ad607c0051db803b4a8edbf370be3eb44594ccf289a776001",
+      "textFingerprint": "60d9c0c9491b7c5af72832efe74ba2a778f41d024f5c786154a40fa219477fa1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/client-side-scripts/index.md",
+      "sha256": "eb1402482c1f3d8b8dc4ce8b497c8455f84092c87e7857d81b092d50419578da",
+      "textFingerprint": "e262c63e2ddd0046be69ae762055b8d703a5784ce71803601dffd0199d3fe54d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/apostrophecms/index.md",
+      "sha256": "2a09d4ffda7b9c5166a6784a9312660a9f547a0fba28ef3b0dc2bfea9cda1493",
+      "textFingerprint": "66207068f52f4193be82ee6f245826183841867632d937a2425daa975da847f1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/builderio/index.md",
+      "sha256": "273732c4eb3569404d76f6f50c5e0726cbf65b8606eb5ac55e515ce500c85d72",
+      "textFingerprint": "266dd1c4bf4b557df64ded5946b3418eb04c90e902a327891e7e81951b29009c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/buttercms/index.md",
+      "sha256": "35fd4002c2970618734939ebfda3a66394d7d5d3302ce8c8f11b729977f5539e",
+      "textFingerprint": "67c37f8038e515e57e9283d191f1b696bd1c575754e07da8a6c7da8b14f343a5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/caisy/index.md",
+      "sha256": "9cf876beb27b75140808294019870a2b915a588ed4a381586bb7f512a0aa70d5",
+      "textFingerprint": "e6d43f43a039c989819bf03df062940c34a86be15772a8e972f1323a9d7571b5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/cloudcannon/index.md",
+      "sha256": "b4e9e52ffb66bfd98609ec9a4aa0a82522623cb22467ee2fc045c8103e4e1f35",
+      "textFingerprint": "32de88653f8427062e7daf199c06504b64a6e39e764fb0092a7a9d2e058a70f1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/contentful/index.md",
+      "sha256": "6c5fa398eac09883dd557fa998dcc9ab44ab96b47ee22d596f34f0619d9d7c9a",
+      "textFingerprint": "801923b15c234be87e9b28842ad6e18c5826f7abfd5452f8b78e70e67279fa71"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/cosmic/index.md",
+      "sha256": "ce8bb3142cf4b047bd65d88f6f9960d32157f926dd1bfa5fb56a448724446f20",
+      "textFingerprint": "0eeb2d0f3140967279d6ba6d9f61afe18c3c1db8a1fcf5a12a28fcf5e216d1b0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/craft-cms/index.md",
+      "sha256": "b01cf2e77f87515fc322b3fde9a0bafc7f984ed1cea53327d3120d8998977eb4",
+      "textFingerprint": "f41a5f22c9dd8934f5917e5b6695108efcc2513c13601bd351d4fe52987aae5a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/craft-cross-cms/index.md",
+      "sha256": "b4989c268004d85753b3e29c9c5a4304736be088f89e1147952b495724d000a6",
+      "textFingerprint": "5de063f29a06ac89b0b1b0de4827b54972275720e3a989257be376838e2eee43"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/crystallize/index.md",
+      "sha256": "25f22f244e7e074e2a9e307b2fc5efcfa370b2bf669538022a07c7a0ae46fcfa",
+      "textFingerprint": "d66668d2deb790952d6efff882e87f6c956c89de5e2c1c3056b9dcc3fa518ece"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/datocms/index.md",
+      "sha256": "b458f3d7dbb63281932c06da32c9a88c28788d4b6740f63c7e9062aba9b99846",
+      "textFingerprint": "3c4e38f027cb53d7aef645249fc6f74498f97782f16152abfdca347958da12cd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/decap-cms/index.md",
+      "sha256": "4fd7ca239d33781a1a8cbe4e1662803a786dc0487adbe468caf19e4745ea83a8",
+      "textFingerprint": "c1f40509977ef3e62674c408a9dc3abbc398330d8d12d5c24c97eef3d9584344"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/directus/index.md",
+      "sha256": "a03dec4bdac592f4d450b1a20825277db0630b0d55235979062e1fc18568200b",
+      "textFingerprint": "3ba4fb34931b8f65b5bf6b58a4ac597cdc785ab95ae0b3e8f935ade5f7a592c2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/drupal/index.md",
+      "sha256": "ed12b41578c9da160a8f2c4c8a73308627fad1eba0a428a6ab5769e70e266093",
+      "textFingerprint": "b7c0aea76ec047fb4b8edde356210cbd36d235617d2719749da3594c27dc5916"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/emdash/index.md",
+      "sha256": "7dd17253a3399d10105b68eb095f40600ab5311c2dae6dabf3091ed8e3a6f949",
+      "textFingerprint": "2350e51744d0bd5a39af07007391ff2d44394155c55d5aba41b5e87fae5fcd50"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/flotiq/index.md",
+      "sha256": "cd0acf890b6e899ac74df48c03881a01f7225342e0cbb54f59f5bb72e922457c",
+      "textFingerprint": "91b86c8f2ce495a64969f8b5e749e57728281c9f5c29f5ff4b6d0d5d95df6928"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/frontmatter-cms/index.md",
+      "sha256": "baab9b13dfb3da949ecf01e6d8d6e74cdc57fb10e60eec25715274c529c050c8",
+      "textFingerprint": "1b65453b0149aa5312e86e51d050bb0c3dcc87271d9a74b0d517c995df3f85b0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/ghost/index.md",
+      "sha256": "6d8ed9aab9a3fdb7dcf530bb39d908f5037bcbd33dfda798aa3de305dbf9ce32",
+      "textFingerprint": "c7a10add4a271182cb9882fc78a50a450dfd27a14dd3411d89849c913bff4848"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/gitcms/index.md",
+      "sha256": "b781c8de5dc4bd2a94cfac1ead1d67a08f412be0578c141ef001f143615e760c",
+      "textFingerprint": "deb76453825cd35d3ac02173166f4f577495994822986fbfcdc0ec3238c2e94f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/hackmd/index.md",
+      "sha256": "2323ecf7418251511b5a824f56820dcb744fed958373e4677441cd64a9f164fa",
+      "textFingerprint": "dab153a2951f6a54827094f498c9da99ea820819cb304c538415eec37bc3152d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/hashnode/index.md",
+      "sha256": "829a12a953ab6590326c7b0d060100ab93821bc19becc27535bcb4ce3989b4f5",
+      "textFingerprint": "2438a42772c459530b7b2158add2e688de3ddb4d63deea25cb5eb5d66ccd127d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/hygraph/index.md",
+      "sha256": "4af25ff2999d2a6adc5347ac720e677be16fa2875abeafd3f3b58363e9cb0d81",
+      "textFingerprint": "31381d20497fa8bab3e502c29e7c8ce8d541fa0c0dc45287fd7ad57898b590bd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/index.md",
+      "sha256": "5e62afe70a010f757690a5b47e103506f31b1681f188ceb7a271eb106e6ab168",
+      "textFingerprint": "fa694bf8d4cc0b6bb97c2c0e9914cfaca76e98ccb34be7f2a401d481a61f2d89"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/jekyllpad/index.md",
+      "sha256": "e7885592b2f800fc88d005290ccfccf063e9162a2d125f40fbbb55259e1a91eb",
+      "textFingerprint": "94bdb1238134230126f77bcf0978eec1bad9f1fbef25f6182e610d6a2f244d70"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/keystatic/index.md",
+      "sha256": "1daff50d9599889fc3289fa3ac1055042735864821e350b6e24668101c90c548",
+      "textFingerprint": "d499f3e00382fce0aad5a7d991b590c5fb990f7224dcf4f20ff0be3da8bacb49"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/keystonejs/index.md",
+      "sha256": "50fb0897b3e01e23d0c8fcb3f1010424478d5bad87e7590331ea1c1389354daa",
+      "textFingerprint": "aabcbba729631e10d817ace59187d92199550deb193993a0b15e92960100ede2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/kontent-ai/index.md",
+      "sha256": "2c7f3d28317ea0a2d1047a066d09c2967baf32a09b254e041844169a9475f7e4",
+      "textFingerprint": "ac9e0499590ec6883f1c606219e26114f6f9ab160760296a791e1a97d5008b5b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/microcms/index.md",
+      "sha256": "2b2d2cf87fe1a890f40d47aacf0d032c42c9385c84974999c3a1adb9d7cd713a",
+      "textFingerprint": "83ee5d85fa66047a45efd63f061702c37c1f99b563b679e0f23f060f440be095"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/optimizely/index.md",
+      "sha256": "2000e329bb0d4aae2923e01db583dd86e641dec39df0da912384ca5386d777b4",
+      "textFingerprint": "06449d35efd2304728db7d8b01f484d595e0923ee23fedbd6b542c5a476d7807"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/pages-cms/index.md",
+      "sha256": "435b99b5fa171f7bef9da763bc97a61e6a905755fa12e46a9d40a64d810d5d69",
+      "textFingerprint": "819621feb8ffb2ab423e8ca88cdfad3826666d3c266481f33d80b44ee7d6fd3e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/payload/index.md",
+      "sha256": "f4420078a8ba17f46f80a4903f9c368983de314de779df5f8c8f8ae8dc8d2e68",
+      "textFingerprint": "152e5f9b66580988f827d7fee53f615dfaf63bbe5ffe47c7b09b839b90a467fa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/preprcms/index.md",
+      "sha256": "ae6a5bf8ebbc0a30adb653662e0fdf3226037bce05e54f3eceb88bca56bb62b2",
+      "textFingerprint": "121d2900245f5003bcf126cc52f076d96d7c8cadc4e98a74d125dcdf6903f320"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/prismic/index.md",
+      "sha256": "93b175cc1d31a7c0610ffe1e8028aaa87a2ec139bd7375c0cc6ae2296f18a2eb",
+      "textFingerprint": "f84ce5da88a8819b54bab6a2304433ef39a02548598a7bed2461da474136a0ae"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/sanity/index.md",
+      "sha256": "239677b04288340f53d3ab065f70153ba4c56c71d36e5130782143d2fafcf189",
+      "textFingerprint": "ccc85076f343c5f9317d2612e39cf1bb0f0cc136ff7a7db981612de25dd7bb91"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/sitecore/index.md",
+      "sha256": "cd93a96aaa36fa83e0e795c6856a2ef935e83e470db06ddbdd44f7bdf7b8bfb7",
+      "textFingerprint": "3b5ba41041cfe22c13a35a062ee48d0f3df23c7cd2d2bdaf0f2ee2b30926e1a1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/sitepins/index.md",
+      "sha256": "9edb645676ff162c84a010f716a382b061f51001bad38b1a9f3b599dcb060112",
+      "textFingerprint": "9fe79128bcea5e2356dcf7953de6b920bc66f0f2ba6260cf5ce009f588045c88"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/spinal/index.md",
+      "sha256": "090f8071aee588c85bd5610410d5098125e925b1182ef715298d2e838fb886e4",
+      "textFingerprint": "4c4bda159607bba604c9719aaaa70e3ca0fadf3786b72b596135f49dfd7cb5e0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/statamic/index.md",
+      "sha256": "740f27dbf6574d0051ac19a73310b43299703741333d8184ed48d3eee81b9972",
+      "textFingerprint": "49da1338e8af852061b9b5cf9e194d48717e2c001fd0d595afa3dd07cce54f3b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/storyblok/index.md",
+      "sha256": "a7cf98282c4ce22ac899242008d6c8f7442b6537c2303f8d03712dc3764f117b",
+      "textFingerprint": "680d0ac7504d7b5cc70bccf92c77d001ce831e1962e3df461aa0be73a602c568"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/strapi/index.md",
+      "sha256": "462b4680fa51577c3d68c1952408bdbc58023ba92b23ca868c5483a0f985cb23",
+      "textFingerprint": "bd83943f1f45bd90348dd1b1f6b81c4a931c9a328f50d047a2dd56341337c7f1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/studiocms/index.md",
+      "sha256": "90988c81d9c1b2dfea9cb9a1215d8c3cf938823edb3b559e4344062cad29997c",
+      "textFingerprint": "17ffc49814c052e965e100c75760401c5129a78db83a6757761db7022d7231fa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/tina-cms/index.md",
+      "sha256": "54b6eb7d529229e708e59423359441c98a304d5012b8832a15eeed83c95d999d",
+      "textFingerprint": "b3c499c3f07e3138ea88c0a8a5cd6c6f6e06e5d60bded838cfe7f89fe18a5ed9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/umbraco/index.md",
+      "sha256": "29ce3f3488918bc1eebc6c4cbdccb7f597debdb6da5b3adbcb6051b54fc24702",
+      "textFingerprint": "0e95ec838490d6603cf752ddb9e199c6bf8c498f5b2b35d542f6ec3bb01189dd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/vault-cms/index.md",
+      "sha256": "13041c508fa61872349174d31e02ab711066b2d07f4f994e295129453529f87d",
+      "textFingerprint": "13a2ce82993364d2c1c9e0b88599f35790a0657b0adc59615ca725d8844d6aac"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/wordpress/index.md",
+      "sha256": "3fba500e01851173c3f9c1d4a408bee25b72195db534c3baf6cf7acb76170a7a",
+      "textFingerprint": "05a37108e0bf622dbe76fe260676c631a139948f7fe7ca52d7a57249920fda6f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/cms/zero/index.md",
+      "sha256": "5348d7c346d4fa77c952ce874bfc702f2c73fae52fed9cdee143c2c8bfd68f7c",
+      "textFingerprint": "3e41cff2dcf12aa78d2263fddd80b2a1b56ff3fe4506c4accd1d4655eb0648a4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/configuring-astro/index.md",
+      "sha256": "2c1efdd26a3b92e9152675e763497a97396240568c83e43514faae37dc7a91fb",
+      "textFingerprint": "847ddbacd1215fb7a4d321ac43d827c8a2f0349e806f86c6cd76fea02cf32af0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/content-collections/index.md",
+      "sha256": "f6ed4fb28226c60fadd22eb06f9d52bfcc436fee00722d62e2a377c09145bddb",
+      "textFingerprint": "4a6b22e6dd7397135baaff03426fa93515b7292b648257a470989069a6071b3b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/data-fetching/index.md",
+      "sha256": "06a0bc6477204a91ec92dca0a32a28ab54eeb5916232c5812b00a04c135fccc7",
+      "textFingerprint": "ed9fe2314a32dc9b41afbae973e02ba0df1973db0e1ec18fa38737ff7e051b31"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/aws-via-flightcontrol/index.md",
+      "sha256": "2bfe9682aac7a122ae6099acd904f21f508551547ad26cc976b13c773392950a",
+      "textFingerprint": "e6dfd4cd13fc22f16472910b8f2c8ac822e70b7c62db7de39e4ab6d1703d1794"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/aws-via-sst/index.md",
+      "sha256": "e7f824f7391ea13f0ab7f493a713efb3ddf8a97b6dd2c54d9f386ca772764bd9",
+      "textFingerprint": "4d1379f14b7fbb3d3de6e81deece55849e12a9cf473d504d25bf71fca7284f10"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/aws/index.md",
+      "sha256": "aacaa7fa91b75964eea7b5ab475b154cdcc195158ec26390100e5ca2f6801a24",
+      "textFingerprint": "405be5cae79b25b0567d20704bf12282feff27398f1d7ce8c5c48d814f50ebbb"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/azion/index.md",
+      "sha256": "a2c84922aea15df8f337e504c7ddae9035a60b3805f4b17e47d923ea4e9e5980",
+      "textFingerprint": "760ad3b25c6d15096830dba35e0d9058d8f03213a2f44dca4ae6ce4a9212945a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/buddy/index.md",
+      "sha256": "62ab837ea1267e7a264c6df4f998f22afbdff21f9e0a1fb3d1ac535f08b3a081",
+      "textFingerprint": "3fe2ea71b581f04f4359552db30c7bce6ff82882d086636ada46231afc3912aa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/cleavr/index.md",
+      "sha256": "5239e4be8f7005461f6215f7e8d7cc9b4f958e4140377d0ffe8d9be2daaffa32",
+      "textFingerprint": "0feb1f7deb8778d004ae00b6f79b81fb22140a5672467dbb0e717ec464a68a61"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/clever-cloud/index.md",
+      "sha256": "bad2d017a4d83ea41bc939b677695165f2a671f33fac464a7db9cd8fbbea1f0b",
+      "textFingerprint": "32e6b76d77a0e1d44ca33bd4ec68d742c006912a9270ce9682c62997b6facc48"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/cloudflare/index.md",
+      "sha256": "ecff62a08a9ff698e3787c065b78b8ca6f65fe4ffc7cf18354af2fa4dec4a238",
+      "textFingerprint": "b108b25067e68fdee219dfec5cbc1e1fa4061d65092ffa56d0d6e76b2df8b885"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/cloudray/index.md",
+      "sha256": "258f063b5829b88cffa845edcd5f8745cc589bc249a5a49dca35643ec6cd8433",
+      "textFingerprint": "a615826bc3cfd19d80d5bed3ad6004e17aaa37844620cd1a9fd84e5454d033ab"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/deno/index.md",
+      "sha256": "0ac2e230b067ef89478faa626fdc2c0ab75765711b9e485ef29869b548fef0a5",
+      "textFingerprint": "00d6e56052c324e21210a67c1d03768f177b014b4f7f116e2d9a723283b15fca"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/deployhq/index.md",
+      "sha256": "082183d83bf6b7483e937c1177b81e8dce47b7e2dde22b9cf5b447c42d4d8efd",
+      "textFingerprint": "82d080c2d71e6db0c05d9a319d82af1a8df4c400961eeae0fe1b17414370f979"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/edgeone-pages/index.md",
+      "sha256": "033412785e51140e38dc3fd165d9dafe28c3943ed4a1fa3fa5f264e91f770a7b",
+      "textFingerprint": "da0312ef8564dd6823bf2b209dce8ce2c026e153fb4cab928ed1fa6b6225fe56"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/firebase/index.md",
+      "sha256": "72eb44666fc6a4fc2d07513dfaddce927fc12712fcf7f3af75bc55e6c74b47a7",
+      "textFingerprint": "dff6e300169d49d91a7bae0a5d078086b2cfae39f17a2e0f229d020c948c89cb"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/fleek/index.md",
+      "sha256": "d229dbc64e93e7669bc965db6730bb3c4fb222503069a7fd117a31f8917c49ac",
+      "textFingerprint": "d66be2949b5251e61257dc37f5620ff64de40b5d7a93c84416d8eafad0b0e54a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/flyio/index.md",
+      "sha256": "11c52ca93969124cf59fd1f0dd630a8302d956bcc17f9f5a62ab94fbbbae0f28",
+      "textFingerprint": "73194bd01b9d38766e24847a3e8d9d4f1418da0e51e97e188a27a35cb73680ec"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/github/index.md",
+      "sha256": "e4e9eabdec1582e30f9c09805751ca8bf2d1831fd8496997d9761924ec3fe75f",
+      "textFingerprint": "f3ddac57f66a88979da3abbf559dbb96443c7b6fe869c06e29357b90162edf5a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/gitlab/index.md",
+      "sha256": "cd24739f108eb6219b2aa883d8d30593975485bfbbefec35d14821883ec6f45f",
+      "textFingerprint": "4a71cf62cb0720b62c5d04aa030c5cc54d342b5def8d0edeface190d931c1313"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/google-cloud/index.md",
+      "sha256": "bdac755709306e5654dfb4de8ca520b6a71f7c6fce390a4263de8e693bf4137e",
+      "textFingerprint": "588e576790d0e64599194599730441d1fb4837d19afc9b95afad51b103e876e6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/heroku/index.md",
+      "sha256": "0a3df8e3dd9f0f5c0aa892c2a2113dfe64f0f16b76776857893f860cbab3da58",
+      "textFingerprint": "e2fb558182a2262680fba2c31a15f13584dd4ed3b9e3c4608f531eeb5e854b64"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/hostinger/index.md",
+      "sha256": "17f0af828c79295a034d04e68618b984db6cbcba880ff3f8c945f1e1ebe6bff0",
+      "textFingerprint": "b367b3143c5feca070b95a96fb74d0560cd798ad3fbdf897bbf7bdef0ea2b21f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/index.md",
+      "sha256": "470870885842f1fa826adc11edaf41f6a8172d4a9a95994542f6070e7104e93d",
+      "textFingerprint": "49a859ca9f19330f051e1f7de05eea21a3a5d7f2b7e7de7bab7aff570ff47a7a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/ishosting/index.md",
+      "sha256": "40d261e8f6494d696166e7a7dbe3223fb6e57acc7206587a0d3160035a0de5e8",
+      "textFingerprint": "2fb61773475c89909971480b6083889964bc3b6a7adaac2a6fe8e815652eb254"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/microsoft-azure/index.md",
+      "sha256": "3510ad9f8b3e545bfe968346c1dcd819d8ec7724920860fc10542e44001cbb77",
+      "textFingerprint": "4992a5af7d5df52acb976700b8422df4ad54466a010db8a4b4be0e7b532482e6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/netlify/index.md",
+      "sha256": "21fd89134a86cd7684b151436c826196a235f3d234861f87fafb6e53a6e00091",
+      "textFingerprint": "bbd6f931a7e44077aaef9c2d54dc2710a0c1199ff8a23a7d6d664784fb08ea03"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/railway/index.md",
+      "sha256": "caeb8fca33cd6151a94aaa6e680f184a333d0760847bf13edebe5849d443e082",
+      "textFingerprint": "de5beddb56d157f0b20b4b37f28cf0261a83b1763cce302399d826aa44bdf86a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/render/index.md",
+      "sha256": "c69871eeaf0091e856f87f6a3d2fb901502b30c2f0a63780a3133a2632fcb133",
+      "textFingerprint": "63147a2f896b9e5ecb481238323a68aa1bdb6c5ccc8a2ac5bc1c2f4098cd52d9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/seenode/index.md",
+      "sha256": "f1d5ecc9db849855bc23836a6d000c2e6b83b545f5bfde82d8e5eb083fb605c4",
+      "textFingerprint": "6ae6431f5e57bd22e0e707063891a28b592b6443efb28d47c98aa13c16bc2400"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/sevalla/index.md",
+      "sha256": "a0509a3aa8e87453859012b59d203cb2ed93637155cd3242e97b84a0702358ae",
+      "textFingerprint": "7f1fb30cf908538c64f335dab3d8833739fcaf3458c064cb5e43ed85ce116165"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/stormkit/index.md",
+      "sha256": "c94629a9d8c7add092439dc8534ba50f4ecc9710d66f0d00998e6c745fa25872",
+      "textFingerprint": "e659bfadb5944128824d7001ade83d151859ba81d396ca56c8e4c8a84ec40fc3"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/surge/index.md",
+      "sha256": "85feca5b573f86ceabd27008513e17613b11f787fa20387cacfcf13f72928d99",
+      "textFingerprint": "a9e983511d507198164d801859c7baae9e38815b790f56cc82cd0b2e277ab11f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/vercel/index.md",
+      "sha256": "d98c7f2840f49ddd7445ae08ebf8354690bba743c033f2718b0da4b1994aecc9",
+      "textFingerprint": "18495ea23e87b42cc44b9a3b774905b3d6f9989d0b6aa8c40a019f57a9da5233"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/zeabur/index.md",
+      "sha256": "73a2c2a6d42fa21361449b164e0a0bb3fd5cad1e1f6edd05770ec1283f17533e",
+      "textFingerprint": "65c80f00ca1ebc548f56f8b4700ec897fa8bcee69256be1be1d2e4ca9fd66979"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/zephyr/index.md",
+      "sha256": "b9eba62809bccacd28e7a71370a6761b15c9b254c6560edbdd5877ee1e11a5c3",
+      "textFingerprint": "0c8ef8215385ce4b80bd09d3a4c36915954d4d764c1330e895bcd96ea57d55e4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/deploy/zerops/index.md",
+      "sha256": "3e94e39d2cf2d1dbff8a670e491b94c39f4f09d109afab0da1731a7b00d0e451",
+      "textFingerprint": "b651ad51c2b2bb977afa1abc93612a2a45669310444c512f60f9c84fb84f8eba"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/dev-toolbar/index.md",
+      "sha256": "c79b4bdf82f32a15ee438803607c6affa8aae339db16c2aac1ea99879801ff19",
+      "textFingerprint": "ff4141a771142ecac18b6ec572d72faa09abae493478044c85f07b032a775d9f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/ecommerce/index.md",
+      "sha256": "b0e9765006dcf6a47a6ada4331241ed04085026712c14a0624df83868c251589",
+      "textFingerprint": "68d7060cc63ab80da2b50b739bb843ea8b1befa7176719dba6e12766bd09da57"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/endpoints/index.md",
+      "sha256": "840e047fbf319bf683277d409b90b81c39101c051ab6e251e896975f273e1695",
+      "textFingerprint": "95edf929a07f2c972c1315e1ce2c8a87c4c4ce84f7a4090c64219caec384699e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/environment-variables/index.md",
+      "sha256": "fe2a9868f641229ae29053a31f0f20ea17025a0109d4a4f95493cea7bf464b55",
+      "textFingerprint": "248b69dd32d08fef8003126ab4ff9d9ddfb9c62772fdad56e7e301335227d2cc"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/fonts/index.md",
+      "sha256": "e3dfcd2ae9b27cbe59317367d080db912640abcedb485b6366ac462d5df7b918",
+      "textFingerprint": "95cdbca1ca818b042adb4a3bb06fa09e022e730df91bd9c26af86c3e95a14b0a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/framework-components/index.md",
+      "sha256": "5ce88fc23a6c43f5380e5cd320600ca7843c0e09bcf79d1feb25635968abcce7",
+      "textFingerprint": "b3f63fc781633a3e619721a540e7e8c4aeb82eacb5cbee492faa52a3b84d9c13"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/images/index.md",
+      "sha256": "432b4438b71db21ca6016f7a6f76effb54c19280c33e5ce9e6b2bacf4104802e",
+      "textFingerprint": "20da0ee88971032267f74ce12f25436d2bd0f8681450390dcc33b6a455b3ba74"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/imports/index.md",
+      "sha256": "68406e1cb74fe88a163197f8147038d800083c922937d746ecdb6c4b4221bc2f",
+      "textFingerprint": "bc4dca00df318124e64ecaf6532ab0f5756b6b60a93febd67bc4d50b1eef0082"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/alpinejs/index.md",
+      "sha256": "48bc15d193afe9a822352cbcb43bd10c04051f8ac60f60bb76341a1dc1c15772",
+      "textFingerprint": "810f3836e6a055842a9e6c471f7a134a30246b9d32f0ab5c02fa85809614636a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/cloudflare/index.md",
+      "sha256": "96b7daa7a6a9ccfa00fa0b450783202d265a1cb3d7620add091f6451d10c50ba",
+      "textFingerprint": "8b3bc832b43211e18098a99e2b16f75a1eaa767c2faeb12b52a06401b62f2d8f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/markdoc/index.md",
+      "sha256": "a9c8400fcd78ab4f27827ab330d026485d973fb41c80abdc16b8b4fba521a890",
+      "textFingerprint": "aa0163bed429d300b746ba368be75e30cd2054df1b107b2445c1b0d0868b267d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/mdx/index.md",
+      "sha256": "f9ba258c40eacb5f214c20c949a102e90eadb143ecfad12395e0baf5085a1c62",
+      "textFingerprint": "7a7dfc9d0ae85936d454c7bd624f628062cb865cc919dd22fd98b661cbfc2aaf"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/netlify/index.md",
+      "sha256": "78f4138d98d488dd6f7bb3801550950acfee3d69e42c1c190a791da99d38444f",
+      "textFingerprint": "fac8552831018976e108ff9cb8e13145fdbd3bbca43ae9ca6aa4e83560aa0c74"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/node/index.md",
+      "sha256": "0d6d75c99a2daedc2baf9a8e67b5f226e9b950cd62c48ae48e822b182adf3790",
+      "textFingerprint": "176a856265633fe9a1feffdd39ee7c1b07e168dec2d463aed2d81498504eae20"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/partytown/index.md",
+      "sha256": "33ecc4fcf14028ef5312929ee7c1ed8b5cb34c6ec66852f3a48f0a7ddfad4dda",
+      "textFingerprint": "9929ac714780c54e689d7e41b6a065046207ca10eb63da5426f935f08ed4c8f2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/preact/index.md",
+      "sha256": "f0f60797ee610dfc738d563976bbaacc95dae7c2ad56ffb409a8878d756a2b8a",
+      "textFingerprint": "d184dd4630f3af94cf07575021edd49dfc1c31dca2d55b7ba7b3faf546055921"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/react/index.md",
+      "sha256": "857441f1632038800039b7b79519157b0179889d8c16991538091baece0bfcb3",
+      "textFingerprint": "002a1e237ffda5ad3dbc0cde8d5f76f9ef55ec7061963d4aa960ae4f842b5a8b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/sitemap/index.md",
+      "sha256": "82066f7b631334f3aa4db6b8c4d3b45b5338abf57797569af66ec633cd0c33ce",
+      "textFingerprint": "db317123d32dea233edbcdffed6eea9da35a0e8b5c1e1867e5df0fc1e3c70065"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/solid-js/index.md",
+      "sha256": "3bfb5dd6a9a0addbc98fc83423ed80bb99733d71fa4019c522b932855c4ef4a3",
+      "textFingerprint": "45a77bde894f57a9fe104988279c562b4962633a69531297074e4c823d9bc2ed"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/svelte/index.md",
+      "sha256": "91c0f51c75c1fac8534095d6e1fde3ba967cfc0ad626de2570b9c66caeffa7ae",
+      "textFingerprint": "2ced0c060bc0ea626bfa3da0ba8eef303b5619ae1efac5df401b76a02580957b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/vercel/index.md",
+      "sha256": "3f4f9e0e5466459ca4b18c10c999694e96678084b963997e699b838b731338bb",
+      "textFingerprint": "7d5bd05a01c709a75d0ce6fc214f49d61b2ec5856473e84ddd5dce68a84ebbb1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations-guide/vue/index.md",
+      "sha256": "e6dc7faec093911f60d8dfc5b4c7d09795ebf777cce82293e10d738dea5c7c11",
+      "textFingerprint": "eb17f1d71a1b27529c9ab991f55946637186346befd48f3e6a2c68288fe61b9e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/integrations/index.md",
+      "sha256": "37c533c7cef6d22e54f9f62296552eab3cc539bd850930b1014027ce089c0332",
+      "textFingerprint": "375c161c2677e8298da59ce570a39b211810dab38cb7f73bd033c182ae5e78c6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/internationalization/index.md",
+      "sha256": "5c151cce3e1c264082e5f3e7d0057f757c7372a0a4de52c15e656cd7dcac6714",
+      "textFingerprint": "9fc14b02c5a47eac6eee4190e1bc2d7d135ebfb1ae8580fbffb2b36f24d105a5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/markdown-content/index.md",
+      "sha256": "ec79e62cad3727b5e5b252728a6dcf5447701bc81f06be8eb5f3ba60d5de0800",
+      "textFingerprint": "40ec0d90b6032cdb1c43c51485b04628aa50a70d4796882aef52ddd19c9df81a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/media/cloudinary/index.md",
+      "sha256": "6b574af471cf5343a05b7e8023a5ea8bca898c360ca27fa3f1e965ba86df5587",
+      "textFingerprint": "f036f146fa52117112202f216b61faeabc68bbe316eae402008b7c4dd5d3071a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/media/imagekit/index.md",
+      "sha256": "6758ce67397a38f1c35f9fdd994df88f15858b4d999dc457f683468fdc6dfb84",
+      "textFingerprint": "7c42c34171256aa507c0a938dd89ed90da2d86507507ab0eb536147398b5cf07"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/media/index.md",
+      "sha256": "df37daa710c491b17afeb59b1c70cb1436eed51f58288f0a34f2ad5794de68d4",
+      "textFingerprint": "7137385689444542e3c3eafd172bed5d4a8dfa12839f74b53b39efc99229f263"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/media/mux/index.md",
+      "sha256": "f4f7e6ce143cfac9458ae910b2494fe8fdee0456853fec0bb38072fa94df90c0",
+      "textFingerprint": "94443fdae6c1c2790f7a0fb6537cc9b1f9fe9882b53f9e0e18f0e22859aac044"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/middleware/index.md",
+      "sha256": "bfd1568bc14f93b1b77e6b669408a27f91473ef1c83cd30124e1320f640d4c60",
+      "textFingerprint": "5a542cb42b67bd32d56649fe8b67e31642365caf4b9b571791064581553e203e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-create-react-app/index.md",
+      "sha256": "feeaa9c65e99d631e256a54edee6aade886bdaf59a6eca1f4c10c9f509fdeba3",
+      "textFingerprint": "a14347139b679e08afd0583512946f7d9413e879f0fcd347819c839a90acfc24"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-docusaurus/index.md",
+      "sha256": "eec9022795487d90bb6e39efaf01986ca4c6427d5923a771903864c105c8d78c",
+      "textFingerprint": "0c3a960930b1c1a229fd2f00737916f29a2b90947ee0f7aa2fb2f978a441ce78"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-eleventy/index.md",
+      "sha256": "07df5e8d1102754ce15f6fe94b6c36a1753139b4ae6571421e0ae67e3a9f82e3",
+      "textFingerprint": "62ad1ff478f0a08186a2a0bea849e8655bb25ebd79ea958cf67417350622a626"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-gatsby/index.md",
+      "sha256": "2c9b9835a903e9af0ab9656566c69ce56a0eabb5aaafcc877b4b161447e05dba",
+      "textFingerprint": "f3e21ba50459787163b74e6d101a691abe1f7315d5ef5d6223c8a898e061bcdd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-gitbook/index.md",
+      "sha256": "377d26bbc01e878f0dbcf1510157cad64ed52a9cbcf3a92372b1cb71fe2609fd",
+      "textFingerprint": "cdbe04b660bb324166a88b3cc23afebe8a9afea4b426ae7e62a3227b31006efe"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-gridsome/index.md",
+      "sha256": "626644e29798831793680a28d160e66f16f1ff46b4654ddf5b4c0e8f5a1bd34c",
+      "textFingerprint": "17cfc6594f9fdd0f659da361b82c5704dbf72be949462a59f5bceb3ff5404ac5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-hugo/index.md",
+      "sha256": "e062d3d18184b2c96c733258332a21f9886cc90b45f3837b6528ed430d8376bc",
+      "textFingerprint": "af7cd36c2cab51a2bcc9bb000af7e420666a9048eff4aed75c143ce0cdf7a211"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-jekyll/index.md",
+      "sha256": "9ef312e4c1733755a09a326a913a44ed002e6c27c958199c9776e9bce03689c9",
+      "textFingerprint": "45a526a8d60be8ae5c795333d20430645cd3aaa65599cf49cd105a860232ff39"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-nextjs/index.md",
+      "sha256": "32db8756489e8769e9decc234171ee53ab448ca553c9aaa03eb3a2c1cfe3144e",
+      "textFingerprint": "4083c0cc94d3c560f10586c28adcda5c1ed548ec50e25430a1e055611ccc1f0d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-nuxtjs/index.md",
+      "sha256": "78f7702aed3c469495939a4b4cbad3299713b6c7ae5052127fef7b9ccebbb7a6",
+      "textFingerprint": "743a679794d100baf71e026e1b176f93eec4ba0015517b9f9226571e9c1ae2f2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-pelican/index.md",
+      "sha256": "7478abda4349ccde50452a9736f11307d2b14b9a14f56e67e57d995e7e2ea1e5",
+      "textFingerprint": "772cb0c253d5295ccb09f10e2bcad626483b986c09742a537dc3181140e088b0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-sveltekit/index.md",
+      "sha256": "64fae756afd29726452d43a163169e88e3606dba9f3797802ed45bb5196195ae",
+      "textFingerprint": "34f158e78790c6e2bcab8f0657bcf95461736146288bda06003d381c55a35083"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-vuepress/index.md",
+      "sha256": "0cb96d284a28f59c0dac06b8335a71ea2787500b39e6a2ded01d19d2ba7fa521",
+      "textFingerprint": "ac10c23b4ca1eb652de442283f2a860ce6a3b51841c918231186f360135f8cac"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/from-wordpress/index.md",
+      "sha256": "675b4b5716e05e9bf5947a555ac9cc90e55e40bebbbac8ec7a8f89b50622a9d8",
+      "textFingerprint": "ada00eb75894d59c98a7add7a399219b387f190f5b1d90529aa3c4c26a8c3b35"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/migrate-to-astro/index.md",
+      "sha256": "ed092ad8f19cf072e72ab26acec907eea01b9d0c27241638ef1b0b3c53210bf3",
+      "textFingerprint": "44567cb76aa4e850124a35277ff22035ccdd90c75f8ced73b932e372ad2cb747"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/on-demand-rendering/index.md",
+      "sha256": "77d6343359e6bd1c79c4d5a274b013566759bb770532ec4df46e6ccb34a99ae5",
+      "textFingerprint": "adef8916d2e752367231db66aed9e299065a5844c2d5b405e60e45248a77b0ac"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/prefetch/index.md",
+      "sha256": "6001133a428c171a2281718d78f987fe067b771ab52e54a1e39435794acb6fe1",
+      "textFingerprint": "cbeb930810facb33b3d400c45f3558610ecc46b25df43d84cf1a58255b19ebd6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/routing/index.md",
+      "sha256": "1726084fe6e62e6e32d5da3ee03a30296867d9e78dd9f3a0bdb8bb399d57b995",
+      "textFingerprint": "7e7554152f832a52691133d15fa87fe975b2fe9cb4bef80837682ed6e8e53ca9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/server-islands/index.md",
+      "sha256": "72a4d20bdd35c46c9789031a4deaae3f8bfdb219628b05736ddbe062739207bd",
+      "textFingerprint": "c572b775b23320f3825d343ae03a1e31abe77f3fff40c50a237100cb80a7029f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/sessions/index.md",
+      "sha256": "0656d19c97cb86594b6cae0bad187ae7694c4db41f021ea106fab575a31b5a82",
+      "textFingerprint": "2b894d264c8392436dcf483e6ecb18239bd1b1c8bdb11e9cc75b4039239335f8"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/styling/index.md",
+      "sha256": "b49fce4d1ce39b33f2057ebd9afa1a2eca71347f130d4b951fc92f1b21b8617e",
+      "textFingerprint": "a54b3e4599c5c89a90a3e7a409571ae862c1e535459fa951bb67e5ff2c2c5ae6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/syntax-highlighting/index.md",
+      "sha256": "c8a8fccd35e9f15849dfaa26f013eac0d1a0d968b929749935e8b4d40e453fb6",
+      "textFingerprint": "7072b116d26c893eb8a7dddbc85270505c8cb6d047e8e40452855047e942126a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/testing/index.md",
+      "sha256": "e646734edc48ba64f4245a8bd07787f8f32a8417e82a700139ef0d718ad0e68c",
+      "textFingerprint": "c9509e47c35571023b111dbb3667767a72ab71e511cd9064e331002f81ab7a1c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/troubleshooting/index.md",
+      "sha256": "eab9c3f5b7c10e6d4e6d0d02fab15c8e3001dacbd439da69c44e7f4afaa2185e",
+      "textFingerprint": "333860e9b6b64300b89f7d6e2a7fe5377720153b7b9171c23273e5d1afda0a62"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/typescript/index.md",
+      "sha256": "ec75524d8dd498c8d52c62144619a6912cb2b08a93aa1f78b421a57db9700010",
+      "textFingerprint": "a6f1d5f0142550eff69a1db77b148deaab178e75be82555d01d9f8b561099fd1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/upgrade-to/v1/index.md",
+      "sha256": "1f18a73d79f60fcb365b5869566be2d6f33414262cf6f6d898b61a6617b15a95",
+      "textFingerprint": "07ad212b7bd7ff387cbb2cb26eac31e2cf8e4caf6c1cd8efcef419076ed416c5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/upgrade-to/v2/index.md",
+      "sha256": "9789f3df8cbee210fd14dd773e1a14abfac86fc428562197a1b071a463f04e53",
+      "textFingerprint": "c22124f77b41cfb598e066f7f3ab9eeacc1e8653e441847e5683bb346284b8b6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/upgrade-to/v3/index.md",
+      "sha256": "e9f4f29a70204cd3d0b34f994447971db103c714bae9694c014919f42967194d",
+      "textFingerprint": "5a17bbaeb1a5f8146485ae9ead3d47184609079564458b87322dacedaae4af25"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/upgrade-to/v4/index.md",
+      "sha256": "38a5e5ca92dc2e2d7bcee97178100dd02cdbb0b0293c3f3b537cb2d63d912b76",
+      "textFingerprint": "8cd7df3921d0feaa614d9209ee436a8f763a13a97761840ef380c44e438215f4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/upgrade-to/v5/index.md",
+      "sha256": "22b6c52c42296ba2034ed17a4c5f344661c01479cdf2a4c16fa4dafe3774e9cc",
+      "textFingerprint": "275709af6081fc30be498a1d19f885bda30e5a9b5314f378568940fd40651369"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/upgrade-to/v6/index.md",
+      "sha256": "0efb783cfc2c695ac7c879a2c55d36b10b100e741d643f49b1276df677aab611",
+      "textFingerprint": "a8c48ea62b999e738bedd1db76adbad2f95c77d20e0217aabf2bbbb3dae136b6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/upgrade-to/v7/index.md",
+      "sha256": "5a724daba15026502690b5381eae9c91a717cd7fd78fa3f66b5474c4230ff3d2",
+      "textFingerprint": "ef7a1bd677ce5cf8daea0a9daf1626ddd9c3cd54424350511edf068b64734786"
+    },
+    {
+      "path": "material-1/pages/zh-cn/guides/view-transitions/index.md",
+      "sha256": "9db46cc1347e0e1a6b1f73fd1b54ce3fc99232c453903cabee7f0ac75978f6d3",
+      "textFingerprint": "3e13a3629773c2620647b587a3410a93edd58b81a3795e2a7bf9d5a1bcf73ea0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/install-and-setup/index.md",
+      "sha256": "678cf58f3ec3bb802a3be1cf4860c600666b34a57b0ce551ccdbf69ba1ab2dae",
+      "textFingerprint": "ddd42c46f9f733ae9754169d2a6675081b3330f63ecf29c85502ae71a295baf4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/add-yaml-support/index.md",
+      "sha256": "d8860b28421c0a4bf475674f3767680fd8adfddff2909e2677760c180ca4d053",
+      "textFingerprint": "d44cc7086b10d8ce008efaba009d2cc09ed280abb4562408979fbd9fd6039db0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/analyze-bundle-size/index.md",
+      "sha256": "461ab7552e822b3feb0eb17f70a435d7112e62ea5a8880b56ad3dbe1d23edfa9",
+      "textFingerprint": "690b8d9faf3974dbcc8dea2ec98d37529b8b4b8ab684efe83da8ba1991e2c4f2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/build-custom-img-component/index.md",
+      "sha256": "372bde0c9cd075e7f3a8b93609dc09c56ff8e7bf7c97154561a34b29a6782e3a",
+      "textFingerprint": "f93860cf0bce6282ac6f24acdd8f0d19c578701013769d96dd7a3cab8750cd5a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/build-forms-api/index.md",
+      "sha256": "31cb3c88bd55a51150c1ff16f672d26ced7d49c507b499a1651b0e95d57f3507",
+      "textFingerprint": "1a5843de5a6fe2954fab52efda22744aed5c96afbce42cf673aa41e399e129f6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/build-forms/index.md",
+      "sha256": "658c09ad0deeeb03c76e7e3323718fa6806cc30763585d83201da402e3c64ded",
+      "textFingerprint": "f02f6cfa4555a302095dc9fbb0ccc1e4021756bbcb27d9612619cfd53c5c6c23"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/bun/index.md",
+      "sha256": "a039bcf1d49990f5933b1e5cedfd4a34f76c27281d6eed85b3a63ee70a509644",
+      "textFingerprint": "a5b8949e47932ed9fe5ea0a55ff5876cd279069acba9ccc9cdac02f7604050d4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/call-endpoints/index.md",
+      "sha256": "fd55e2cb5f46f9fdcc4078d14cd715aa941931398742d49c05439cb1c9c5f95d",
+      "textFingerprint": "aa9cd33f73f113e8bce51534e226f594affac3ed86f642f1750e1034d32a4b7f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/captcha/index.md",
+      "sha256": "157cc4be1e32cee2cbc31a4a5875e563fb6e52560691b83a4b08716664f5f43d",
+      "textFingerprint": "aec8f524c96d40a0db312968d99a6f360bb8c80798ed6378b6ac1ff2d708d2cb"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/customizing-output-filenames/index.md",
+      "sha256": "e352c86be9bd0c2bd48871556e2a11e21f1a86e6fbd88ed02e55caa1c358bf64",
+      "textFingerprint": "ffb53730011083439e71f29e82682dcdc14f5485d52bdceaf0d8188dc11f2313"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/docker/index.md",
+      "sha256": "9157382f8843b50f812e4d0248e18efd96644c2b7b89861e4255708f8c655f72",
+      "textFingerprint": "15d4427b81d9d0f19fe786dc229c0510e97d83b23dfd4a487e006d73d1f45274"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/dynamically-importing-images/index.md",
+      "sha256": "6454cf08683163cb5a228c503bf74123353d9eb91210ab78672c38ff4ebcfb2a",
+      "textFingerprint": "ad1083ab42cdbffae3ba35a8ebba8485edb64ae3fa3a9f3b13b490afc585377b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/external-links/index.md",
+      "sha256": "dd06bb09784cd7af0841c2d8afebdc83427e6a95475144864a83d87155316899",
+      "textFingerprint": "54f964f747e5c1e232272aa2acd6854686d27022d2980f23969fb3ac2f95f1dc"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/i18n/index.md",
+      "sha256": "a79abc7abf78cf3af999a2fce4e7a19990f6b2e3215fe5823db78bc4087e9ca1",
+      "textFingerprint": "f7a228974777093479b34816ca8a6a9dee87908cb588966d8bea2710717527c9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/index.md",
+      "sha256": "6c9602d2f6890e7f68081f986080254d58579907e8e39108fa11fe3f71b71bb7",
+      "textFingerprint": "015508224a23f1a255ceb438c8a65cd403d71596d6d4b3853186223dacc0d1a7"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/making-toolbar-apps/index.md",
+      "sha256": "798aca81ca9759de7ccb94ff18fa89c844385e3cd8492df614546fec4e9087f8",
+      "textFingerprint": "46c5dea681d217feeeaa5da48e0277bb223844ee5da73fd3363eca44ddd865f6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/modified-time/index.md",
+      "sha256": "6740b9153d9c63a2a1e03310aa99d853c6b250add254281a42dcdee3dcb6363c",
+      "textFingerprint": "d3f242aafd5c624002491823f67a30960763174f09263320830132892ffb7e45"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/reading-time/index.md",
+      "sha256": "f463b44fa371900546f9729538afb92a2f49fd40c168515893efd10e701c86ba",
+      "textFingerprint": "b718a3ebdfd81d0896385b4c6d707c3862ef9126f0e5b2862748ffee94b6b1de"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/rss/index.md",
+      "sha256": "f21e40c8db4d2910d8904ebbb104448d454da26db43d1b7ca326083758d5c912",
+      "textFingerprint": "5525242699a94b1d8de8854426cdb367d41e41378879a8485280262e2b824ed3"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/sharing-state-islands/index.md",
+      "sha256": "d49f2e740b09bf4742b85ec6f8133d6f70d96104633e6bf193998fd43dbe6479",
+      "textFingerprint": "57a272911702b3ecee2de54d9aacad7805fd1a172210cf242dee3ae2d3d28471"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/sharing-state/index.md",
+      "sha256": "494577321a32422d35891c0925503b26569cc6660187cffc8abad4a8fc188853",
+      "textFingerprint": "c64d159670e04747e84afd8a8d77b6503b3012f282e74ffff95964b412268695"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/streaming-improve-page-performance/index.md",
+      "sha256": "f7d5e163daaa56a356c563b8bda2eed76ff39650b8390670e3891112b5f0c467",
+      "textFingerprint": "b3cd98aa3fdf40363d672d62672fbf8d86198af304a22752a309625eb1ff4bac"
+    },
+    {
+      "path": "material-1/pages/zh-cn/recipes/tailwind-rendered-markdown/index.md",
+      "sha256": "8b459d377b63697228923afaa0e8159f99c0c772965e49fb4e3ab76d8bd4d861",
+      "textFingerprint": "dad637a47e20649edb132c51ac23c9236e201c96fa333318bcb5fb6cda084d79"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/adapter-reference/index.md",
+      "sha256": "858292264233535b614aefc980393e87949b1d8726703581dc1f17d7983e83de",
+      "textFingerprint": "6bf3306a2d84149f2ddea6160b77b7cc58a295a5a0252ec17c45797303ed9876"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/api-reference/index.md",
+      "sha256": "b738c0212f11d170f9fa9a67e6f3dd9a874e8bb2cf84e127b03676cd12216499",
+      "textFingerprint": "33346dabe4d071edc785cb33fa52d1beb096ba933097f542b720e7dee4b76515"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/astro-syntax/index.md",
+      "sha256": "e06f0af8680b09c4b660669bb2b0d22d90527b8775a24a98fdb1944ac7279472",
+      "textFingerprint": "dbe9fc70c65a49b0593e12c0324dacd8fa91555cfbc0c17263ca01295f597093"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/cache-provider-reference/index.md",
+      "sha256": "8cc71e03e3894f7ca5e43cbfb67c498ddc226c0adc7688dac474039d447c568c",
+      "textFingerprint": "b29b451c032faca95d7aca9b2b4fc9f39cecde587796fb89b7c806a214a533ac"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/cli-reference/index.md",
+      "sha256": "ec52f34f7475e95c9762083edd81df5fbd1e5c98af1053c07f0ed8a4822b1b09",
+      "textFingerprint": "9f351fd087a55340bc0b9b47c5a983c5203a09c2afda6ac6cead87df525a319a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/configuration-reference/index.md",
+      "sha256": "93b7fc7ce8dbd4e3da153e843ba6b08e5931e8fdfa52d21a9802c863c674fdba",
+      "textFingerprint": "7fcbebe5d5a7bff11d26ab973847dd891d6e12aed355398be7fdca7ec9d5b3f3"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/container-reference/index.md",
+      "sha256": "c04b802b355285bc8004e02f1e223e31e59ea845f5ab292768696b0d0f9a62d9",
+      "textFingerprint": "58e42a2d77bc71d59327d523a2f3595198f41fa7dd12de929651c1361c322b6b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/content-loader-reference/index.md",
+      "sha256": "71e5b44b3b6f76e121a04eebc435a6f978691fa22bfd30f19b87081d6dac2c3d",
+      "textFingerprint": "f06ee1a01de2047626c7155c4a6d74141ce94a987f0a2dcd4b4f7a6be22c2212"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/dev-toolbar-app-reference/index.md",
+      "sha256": "da75b065bc3c54774663a120051417b2f2fed99b718e5ed2354e11f34495aed6",
+      "textFingerprint": "bdffe6cac2057e0c4c1cabdc804b8729b38268f6506c90edeee18b7c7f7415de"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/directives-reference/index.md",
+      "sha256": "46d8061efc48831b7406bede6bb3fb90c64de51127867c297875574ac971b235",
+      "textFingerprint": "c231cc0b137ba094f1d957f0242c887a4a189afff290a2e5eba18f71cc834012"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/error-reference/index.md",
+      "sha256": "37ffa88cf7d3fe46f451c395df2e17f8bde05555589af67b382d9b4faafbef50",
+      "textFingerprint": "c6a803a86f35cafc32471f3b093884c0446cba98bb5a482e93a42844f2f9ca8e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/action-called-from-server-error/index.md",
+      "sha256": "b9cbb85fd927336bd8781c177079e460a3dee65c7585fc2c779923cd48353191",
+      "textFingerprint": "55b3a87c493b1f9bebc04fb4c8c451ba7a40a58a8de0220da1c864bfdba8704e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/action-not-found-error/index.md",
+      "sha256": "cddaaa50e2d0f52799b66aa2d8eb670857b097d2859233a4619ce564c6017eaf",
+      "textFingerprint": "7de77d4ba379726811ff1b38237e05909336f14a8adf29133bcd9bffbd7d3ad4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/actions-cant-be-loaded/index.md",
+      "sha256": "cbd5f7bc52690fadf2091ee6b873ca3efd6bc7659464d9ada0957f70230863b8",
+      "textFingerprint": "4cae5180db691e7014a6590898a802ab52f1efc79fb7a9e9e7ee775537cd55ec"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/actions-returned-invalid-data-error/index.md",
+      "sha256": "86cfb227e08e7f777e6aa0145959da7463601c45a711a735c44dfb3efe28ee2c",
+      "textFingerprint": "b3a0395982666c3b2144acdb29c0d3b290cb666330aa1bc11f3ea3a7d1541d5c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/actions-without-server-output-error/index.md",
+      "sha256": "225113f73bfb0686f05d4648f82212f5fc3baeab1d2b96537e739edf21ee08cc",
+      "textFingerprint": "9314d2f02ce723ec619ed54f79f2eda5b5b682bcff919c516d8e4eecb30b7324"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/adapter-support-output-mismatch/index.md",
+      "sha256": "c88f0a06a18f81af8dcf2cd93a4f386953f642a1fd89744a756c2631b2bc9852",
+      "textFingerprint": "7871c26cad2e494410ed9c0bf6a81d3c69e4d8a589b5dd042719107f0342ea1a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/astro-glob-no-match/index.md",
+      "sha256": "805554a095fa4b09cced4f7416b72e381181207e94f6cf0f26ca0a1c3865b770",
+      "textFingerprint": "3973d20093d8ac5f2d1e7ba71bd74e0f9b2d22083cc66682c2958fc19d73c116"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/astro-glob-used-outside/index.md",
+      "sha256": "7bc3cfd6631dd56defdd7c223c1b8b9ebd41971f9a7cb748c93167f2bc90d4e3",
+      "textFingerprint": "ba65eab96ddf66460b05c72fb0b1c53419e5def166e2f090d43d04770b239a39"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/astro-response-headers-reassigned/index.md",
+      "sha256": "d43c5a680abe02dc6f451ee05962eeb893d4cdc392bca2c70284b697a2eaac32",
+      "textFingerprint": "36d35127786103f50810b354de16df4e2f2e3c2a227c722445026b8a80bd670c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cache-not-enabled/index.md",
+      "sha256": "2e0201bd302b974a487f8d9ac46b083ee0b3e5f01d81ba725c2a7b0bdee00b32",
+      "textFingerprint": "4e80ce3e6d3308beb6a318416a23c3dc8825c28cad9ed8077bcbd05f3ec2c192"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cache-provider-not-found/index.md",
+      "sha256": "dc81e4fec02aa54844651c48baae8c24ebb758cb6c17c99ffaedfb565952260c",
+      "textFingerprint": "6b3fbbff0ed68a9dc85e95d3e2a154144b0bf46e344fec8f5188910c54b71b8f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cache-query-config-conflict/index.md",
+      "sha256": "cf7bd40cde07a603ef72a08454b7b441d79455e4c61151850b64413b6c3ba13a",
+      "textFingerprint": "6511a2103bb33bbd8300d7ae63e32e046cb0ccaa2ed3806374f1b6fe75a49359"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cannot-determine-weight-and-style-from-font-file/index.md",
+      "sha256": "ca1a8cbfcbc76984c4d9ea1ad637b65ecf2784de5cc61d2e14a906838371ab9b",
+      "textFingerprint": "282277bce5091cf886bcf455b685ff6ede7ab252b171adc49bc95b8ce251027b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cannot-extract-font-type/index.md",
+      "sha256": "88dd3d89b66410d6d676200c82721a4ef67adb26d7572bb099b98a07575e19d3",
+      "textFingerprint": "02317b05e349e8f15dfdcfdf365c898000bdee18a28a52c07aa6f85b20e32df3"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cannot-fetch-font-file/index.md",
+      "sha256": "97e1d7fca69a22bd4cbe09bafea029c812f825a185b4901debe86b7b3b4d8f68",
+      "textFingerprint": "d311680b6be78e6c5968109f1191c22070caaf0797dc8f63bb8070ee0ed60f62"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cannot-optimize-svg/index.md",
+      "sha256": "2cbbd94538472ae9129065103f9cc4d4f18bd964f454cff31c5325019001070c",
+      "textFingerprint": "d3a8b9728e92c92d49f672b9396e279009d016c2873ab87488b4cf91e51e62f5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/cant-render-page/index.md",
+      "sha256": "e413ffa5681b5779fa7d00cfee87d89e1f3cddb6206418b72b76ca67732c037f",
+      "textFingerprint": "ad266096d966fb5b3f7ca7aa885acbe9ec80463f4c18d8ecb87a861bd143d117"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/client-address-not-available/index.md",
+      "sha256": "d9978b0ea4f267dd985ba51366f06c2e39321bbaac31962c03a1cdbeaa81087f",
+      "textFingerprint": "77b2c69b99ae96ec2791ecac8cb7131ef6919b7134a9c09f4701d08d135d09e9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/config-legacy-key/index.md",
+      "sha256": "710b65cb59961e22f11d8251d99b34b67db351ffa3206f55f45e17ee288d5eeb",
+      "textFingerprint": "dff695ef14b09a43a22651884093141d3e1c2e0b339d935a69a2760c39411089"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/config-not-found/index.md",
+      "sha256": "506e281a62540bb408a51bc5a7b95352b0082262580e1772f4c5735945598595",
+      "textFingerprint": "e9732c3da6a3fa46fdbb1f0b2526d05da18764e80412479cba1bc3c18955e8aa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/content-collection-invalid-type/index.md",
+      "sha256": "41da4ea85c91694d2a919724f7009d4d24a9acb188fb585d74c3a3f55b4ad351",
+      "textFingerprint": "fe49554ea5ff8e13ee8683f9b076dae32d7d05ac0f1dcf3fd6f077fbcfb11636"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/content-collection-missing-loader/index.md",
+      "sha256": "798055a946b6909c95b9b2905267b55fb94497b1476500ba1aa6b606dd3d10ea",
+      "textFingerprint": "c60c4800b2be9fd4737b551b6865ed25f1af5c7082e6a947b1285988e9467725"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/content-collection-type-mismatch-error/index.md",
+      "sha256": "a8b2d20e499cdbb9a632403fd656dac9c775c75b7a0ec1f8b03cde46d079083c",
+      "textFingerprint": "094404cf8d38199654760155449f06882c36049d36a2a7de072f51f8714974eb"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/content-entry-data-error/index.md",
+      "sha256": "d0b22aa3d5a2fab93998e0b173bfb699d30ccd4dd83dc51411ba3df52cd43e19",
+      "textFingerprint": "dd4d4b9ce6e00cded0846273e9655339657b85f531584691ea3812e1819ff7dc"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/content-loader-invalid-data-error/index.md",
+      "sha256": "cd80669eab8c979ccaf77642760d95616f632f80e495390b09c87c1559ed5980",
+      "textFingerprint": "d7e30d6232fbb87a8d6ff7c3bb7cee12c60c654afaecc40200c6f089b7abb71c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/content-loader-returns-invalid-id/index.md",
+      "sha256": "75cb2304284dd15896050b2d079d56c9c1a6510cc9a8ba09247ea3614b5073ce",
+      "textFingerprint": "176cbccc885bb1c2eab4df4321fca5700e4adf3b3356a1124e7cac92b95e1151"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/content-schema-contains-slug-error/index.md",
+      "sha256": "5f621c595e017a9de5220e511ea3d0046a2ff6d10bcd2be4a0e7c67c59790fd3",
+      "textFingerprint": "29e6d388a5cbd3a134fa91f12459263af56c3ce2c706d70278fb7759ffd14ce1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/could-not-transform-image/index.md",
+      "sha256": "7a01fdee3bdfd1bcca4a1cd09c170d5fd8dd183da26d05460ba387606faa92d9",
+      "textFingerprint": "311400a1f8a7354be99faee3285466c4231adb35a23d56a03e6f702b69274c9e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/csssyntax-error/index.md",
+      "sha256": "9b9bcdb79483ce39b42e701ccd8387083d8bac4b2a3c0273c7c8172018fe0e65",
+      "textFingerprint": "80c544be5b3562cf39524b47837694508dbdea08ca4a97a9b890c1e18df18a57"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/data-collection-entry-parse-error/index.md",
+      "sha256": "2a5695009313681faec30e0f28dec9722f30dce9df4e4e2d8ffdc1f96c418fb2",
+      "textFingerprint": "13dea1473a48a1b812d35d82484481fac46006ffd0f2df9a292ec1897611bbe7"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/duplicate-content-entry-slug-error/index.md",
+      "sha256": "c553cb9f505be7acd2536adcc3bb786a368ce788d452794ed8ab7e1db2e959c4",
+      "textFingerprint": "1d96da68d23ae3a8203b1ef6af9f8d294a0ef0c06ffd9181fbcc430068020491"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/endpoint-did-not-return-aresponse/index.md",
+      "sha256": "a23fc402ca6e6731b5005286b876d9fc3e726d5a11714b2a9ea4eb6c5f4d485b",
+      "textFingerprint": "c9ef9c24687e1e59d14063df5f29a7f58a965c9b2fff805e77e10f4a7928c4fa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/env-invalid-variables/index.md",
+      "sha256": "d3c98f5065f6c2b11f8ff7a4bcdf633bb489010469defa00e46e7d8c05aae943",
+      "textFingerprint": "06de6a03cd63ecb6bcb4363bbdf8340031770f0792e81658da31f3da035935cd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/env-prefix-conflicts-with-secret/index.md",
+      "sha256": "527ba3af2082af656c4d74385fa6b2ae2da900112b11f5b452a49725343b5505",
+      "textFingerprint": "8ff61421031db5f7d39f06d14cb6cfb2d0ce7c7bdee89c204588e4b5b97aa3a5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/expected-image-options/index.md",
+      "sha256": "866a620119aaad7ba6e4e3bbd3a0cdb607863148bd110b5d377a87026c4b77bc",
+      "textFingerprint": "f52d44e9637be6f760c913a224d1e5907e963a220915c3d047d428c85a1edcbf"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/expected-image/index.md",
+      "sha256": "3e256e127d4e8b05e0b782d69d26608b5835c1f762cda7a2aff71b589c9709b2",
+      "textFingerprint": "6f43de5a066f1a1f2602d99a45596b00b6e5275d2e92389e4eef5adf886df656"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/expected-not-esmimage/index.md",
+      "sha256": "4ee9edb14f127c65a2d8a68052159b6aed45806f1f2a898aebe8b14b7a986b5c",
+      "textFingerprint": "cfdd0210f9520e907e82145ea42d8113ad9930a4897c19f81c199e80c8ef6aa9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/failed-to-fetch-remote-image-dimensions/index.md",
+      "sha256": "b03e05b845dfb2edc4061e8dd2c8d81214c1107496eeb5a8f40ba6052dc7336f",
+      "textFingerprint": "8eff81e5ef9bc8a3b1bc2a9e313d2a93418717d10ec1a014c19f9d40c5afb669"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/failed-to-find-page-map-ssr/index.md",
+      "sha256": "5f2a40c096e7b2a4661596a8bb52eb2b701ec9b31dbb7030f0d1bd7aaba70df1",
+      "textFingerprint": "4fb1193df5209da3190f3c3f339faf11d629f90ea7ccfd28c089f762d9e8ad31"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/failed-to-load-module-ssr/index.md",
+      "sha256": "a5d36f787be6f6c04566c5ca270cb515bfb097bb0005e2ca6e5f04c9e762e9c0",
+      "textFingerprint": "c142cec6049d177a138bc8d97170d8cbeada9c17273e10cb74cedfdc16bede78"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/file-glob-not-supported/index.md",
+      "sha256": "965ca105abd99766754da9383968748b1dc2e71b2f8052bac7edecec5ceca429",
+      "textFingerprint": "f3c3283c88679fa22cff010a2ab939427458cb36655fa4f3b4b65c0171a2370e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/file-parser-not-found/index.md",
+      "sha256": "c4e41e18d4c55dab6ffa1b4af611f8eab52fe94daab6e99e8e9fc2a99d230f7b",
+      "textFingerprint": "e40b2132bcfea39fdfde86a9db2e40fa7c8858c5c728e6ca72ce59135be0ed64"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/font-family-not-found/index.md",
+      "sha256": "d0add08ac1f2e4eb5306429bbbd9ab0e3b852259907ba85861b9d5144d372a81",
+      "textFingerprint": "6a01f13d9e11fa80b54c08cbec2f4930a65c3edb3ee9baf8570e7b50e9d0f44e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/forbidden-rewrite/index.md",
+      "sha256": "e884cb94b622cb416b9cb62a98791575e88a2c6fa030a57f34a74c74602f6c8c",
+      "textFingerprint": "c9a274c6e352979e40c87691ff0a3f6abf1cf1504f5763dbaca7988f37f8a7e4"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/generate-content-types-error/index.md",
+      "sha256": "aa9c94e1dd5837fefc441dba990ab5e594f9dee54f171b6f1e01a3fe26054b4f",
+      "textFingerprint": "069be872c10273324378db243783948df5166a379fc5425b748359c361f8683a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/get-entry-deprecation-error/index.md",
+      "sha256": "45890f3ea20689f5315b9b017ba9ebdbea0466841ec3a01375a411be6dd61986",
+      "textFingerprint": "55fd0db965a692cad8f71a598bafc4c53d06aec8377e217c47f1415582624113"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/get-image-not-used-on-server/index.md",
+      "sha256": "34982cefdf3eef3ddbb39b4f32c6c84e1d02368fac015112a2f99bd2e0201e28",
+      "textFingerprint": "c031e5397413854e834eadfda02644d9e6cec324749161bb64953f14ce3c9fa8"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/get-static-paths-expected-params/index.md",
+      "sha256": "326daf78a25527e987fff733ed1ae6146d1d322c9752c08479b24bbfdffc0373",
+      "textFingerprint": "5361d453d6c6d2ac08bc66102948f03edccd875aea9c44a20591d6bafab3f6ce"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/get-static-paths-invalid-route-param/index.md",
+      "sha256": "8de42fc0314a4cb3d6af063d516eb913d3f9535838a0f7544a450aa79c102df6",
+      "textFingerprint": "764fa2336489e1d09d04f07217fe6287130608df190faaccf34a059f570aabb7"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/get-static-paths-required/index.md",
+      "sha256": "efc64bd14209594040aedbdf871dee61e4dc1abf6228b21632b23ac9be63bc7e",
+      "textFingerprint": "a9baf3d485095f5c1f8ee93affa0cc48b67d62122dfb422fd33e658467b0ea3f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/i18n-no-locale-found-in-path/index.md",
+      "sha256": "8c62015683650d0129afc989a684020d43dd922102b66c4e39f044a87be4efc6",
+      "textFingerprint": "47a4ed41ddb7e268731f6256868537e4d2ebbe3c8e2ffdef7e71461f7167b9aa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/i18n-not-enabled/index.md",
+      "sha256": "461625e7f8e4446d97cfbe32b06070e55f1191b303472b8f80af630b2aa3782e",
+      "textFingerprint": "2260f41b19007757784e321d24ea10e26f413b071d4100792bfd7680866bc215"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/image-missing-alt/index.md",
+      "sha256": "78be792331a55b81d401adbe29862de783b5c313b128283a0d3ec9bd1787527d",
+      "textFingerprint": "7632a9bf3f7e061df329ba3489427e95ea64a5dfe29413df1946dec649e4e56b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/image-not-found/index.md",
+      "sha256": "2fe80efd3dc9cf84b2f2a6396e064e8e67d1a5b2b97191b982424fa2c1447e53",
+      "textFingerprint": "301f78962191d890e3852cfc0da41257120430cb3fee100e0f83847c27b943ec"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/incompatible-descriptor-options/index.md",
+      "sha256": "9436fc3aa2f31a94c3b6dd41f256e9dae9db5123b0c38cab45e991e60f25d378",
+      "textFingerprint": "c11ac5a7b9bdaf67987b9766cdcd185aa99f9822c8a2d448c418a866f4971633"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/incorrect-strategy-for-i18n/index.md",
+      "sha256": "db99f1c4e8841d66a72a8f815818add8aa2027d1bdc4d54bd6a59662971f836e",
+      "textFingerprint": "aec8e1ce46c184ffd7cacc8d491070a3dde513ab798f8281a647f30072c5bf39"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-component-args/index.md",
+      "sha256": "c0a34731d9b5a9100ded28165964d7bb5e9850139403fbd5e7d84eace54d55d0",
+      "textFingerprint": "3ffe51c2b98e0f7e21f9a35c9dfdf6403900632324a0e41c8d2342ef95d48517"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-content-entry-data-error/index.md",
+      "sha256": "5dc01e335a8780eb0a7d0d49796268ef26ef4f572f7373e0c5d141e009fb3153",
+      "textFingerprint": "3628adb58a443408c99b3791bec1c5e508962f53629ef14b53324d723242ccc2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-content-entry-frontmatter-error/index.md",
+      "sha256": "9b7e88188f033afb5ec491b12884dacc63246a3808e69a6be7fd17244b084f8b",
+      "textFingerprint": "fabe95b619c355a3f3b79c266c76bb70aeb30032c2cc0600bf30e396393f6efd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-content-entry-slug-error/index.md",
+      "sha256": "1a8f28158e1aecf8a4d1812a04735d8d777ece08a7fb560297888159ae48d897",
+      "textFingerprint": "874e8be3315c5b965c1d33a62f1d1620a4d65ea2fd244c5403b6f5634d2be851"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-dynamic-route/index.md",
+      "sha256": "aba291331e98dcbc6e698dd52822625cf9f1f94783e732b41dd4f4653e71c20b",
+      "textFingerprint": "33c184b59b092a5229cb72b96f0bf6458df0eedbb58eab0d15aeddb6eab266a6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-frontmatter-injection-error/index.md",
+      "sha256": "449e039cac8f16519e70566553cb3635ba12c4a9f89db5a84fdcaf0870549778",
+      "textFingerprint": "5e42530407a19049090c8fa6293f4d7457eae916737fa7db3b4af59a06dd29d0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-get-static-path-param/index.md",
+      "sha256": "10addfb2f3f8c7e0a40b10af36889f7e71e3c6e8f4332a098752292270161f64",
+      "textFingerprint": "ba5724aa05c77805952633f8261521b2624906750bcdcf7a3ff03aefd2da49aa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-get-static-paths-entry/index.md",
+      "sha256": "7113d1313ae55d799d1c44627e21d0fb8540d2971b0dcd2cc4db755305ebeac1",
+      "textFingerprint": "0c2de8e577a64f895e8436272be367e94bed8a4e137a26fc337555f2878b23ad"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-get-static-paths-return/index.md",
+      "sha256": "27159d9bb8702a009d63b04ccc2c476c056ad5851f7b69a696cec2e66b47ae3f",
+      "textFingerprint": "9882adaf36c55b2ffbd7fd98558b3488f28dce3a74a4397d9bf01488f382bff5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-glob/index.md",
+      "sha256": "f8f14d5afd02c5f944d0d0217b329a69a674791bdfda7b82b5aed8de06d87f10",
+      "textFingerprint": "91a76aac3bf8b16e27cf1b493e6fb0c7a5f6afa0260a0775f222921c54aaf9aa"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-i18n-middleware-configuration/index.md",
+      "sha256": "953134eca1bc9480effc3f094a071be020efd05691b43f99273b4917fb0507ac",
+      "textFingerprint": "a604e3cf7bf9fadeac02f338d941a6d7a2c1f970004f5e3c6d2f8dc63d5cecfd"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-image-service/index.md",
+      "sha256": "f5c6132612b83f8c22c2091ea5a17f29231583e11de6781efd8b3d2297fc1f2b",
+      "textFingerprint": "d96166d0ff45732d7de5a5d9a1c8e4f67168d10ed274a1d7bc14285903d08465"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-prerender-export/index.md",
+      "sha256": "e3a5a8272a9ad8b843ce142fd87a9161b2c5adf150d94c2291f52a8ee74b7d2e",
+      "textFingerprint": "0486ca24bd2da9a1fc8b5b20fb175e1469a3bfeeb945a03edcd8cc0152495f82"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/invalid-redirect-destination/index.md",
+      "sha256": "53ab0cab319acd57462531aee4030fab1629af1fee2f6e20ea2f8a4a8c2cf252",
+      "textFingerprint": "2d8d049d924e3b8980fee7b891a78ca3669f197992869fe89f5e80b10a9d1cd0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/legacy-content-config-error/index.md",
+      "sha256": "3da04e61bc3261b17697f033dd7f33fe636d21c8d2c2db9b7170536b2f7a6be6",
+      "textFingerprint": "6613b0b502b7b8ed1eaa30d1f0e8d5948ff3a7a3bf73266c87e807108289654e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/live-content-config-error/index.md",
+      "sha256": "2df8ad9b62f43e73e261ced88da618c333a2e9226bef030b211c3bd1a4126da0",
+      "textFingerprint": "1218faddaaf3acb44b12a81c2745d48290150caa9bc1ee219fec35f483a8ba07"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/local-image-used-wrongly/index.md",
+      "sha256": "39a2ce62c55e2f5c304f758e4088c230d3f2fee991b07d6cb1f3cddc3054d317",
+      "textFingerprint": "47591f6513795f423e29d46f4d3033998d63c65571e9adf3d31f758843f6fa0b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/locals-not-an-object/index.md",
+      "sha256": "28f4ffabae621c77a20efc624b4308691f5ccb98532e55bd01ffa16d04d09754",
+      "textFingerprint": "e6421e4324a058741dba7920f6ad0b9b0ce2209e6dbd81cfb60dbd353abc3df1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/locals-reassigned/index.md",
+      "sha256": "6d1a5e7bf9ea5e898c14e17fe4e28f800a267e3443cf0a4ede5e8f4f0d9ad3a9",
+      "textFingerprint": "9ce470da53772592beafcdb2cd2974b36f1619f22f27793ba0cdd630c71faaa1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/markdown-frontmatter-parse-error/index.md",
+      "sha256": "862a95abded4346688f90569dc949ca4928c337717a54c21f5e117224c9bd8f4",
+      "textFingerprint": "78c7d97cf9e8e908300c25789fb5748aa6550414381992dbdc08e4581818577d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/mdx-integration-missing-error/index.md",
+      "sha256": "ed813d405e43d4b5fd79a15356e6002473ba1e5c01bb5722cac8d510db642a40",
+      "textFingerprint": "6a710d2ee46dfaa708cbc2864fd05040cd280cdb736117ba2c22a1128fbf0a55"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/middleware-cant-be-loaded/index.md",
+      "sha256": "4efca1c97cd83eabde634fea12626184fe7c219b12450fa242e1855377dc9ec7",
+      "textFingerprint": "79a5a019e3d949ae83d0e06e8388b6de93d937e3f335f46b15bd3ebbd5d56bf5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/middleware-no-data-or-next-called/index.md",
+      "sha256": "03d44db49f457385c28156abac5bf472c2d3d80ccfb02603cbd886149be87c68",
+      "textFingerprint": "f702c6e4339a301f252577bc726f9c319033908ab1993004f02d92f09545b3b1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/middleware-not-aresponse/index.md",
+      "sha256": "09f0f93d0e30828f94b08a2e108485a84dcc5b30289fc621f3cfc8fc63b9ab21",
+      "textFingerprint": "714f9b4a6b1cbf20ee305cc5e3e4120f400adcba33244102f992fd08c4191fd0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/missing-image-dimension/index.md",
+      "sha256": "85894da621be0a85d241918b21273f47c23e8c0bce819e993cab8a3c03a01c7f",
+      "textFingerprint": "ff8e3136a05a6cc26181fa04af789af0a8d8c5d8bb409ce441427a43ec8be3a0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/missing-index-for-internationalization/index.md",
+      "sha256": "3947f9b7b0e04359ac3fe16116d8c747cc701df488976e6c859dbe8251bc8b85",
+      "textFingerprint": "0904b033a1160065ebc1b1c383e8d59ed90da4c833bb42f6b84a54bcf2d87678"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/missing-locale/index.md",
+      "sha256": "45b103b4c098d2e9103104d313919dd2b89758962c2974368b40bf95237db61e",
+      "textFingerprint": "6b36ace6cddc495aa94f4246cb868bf2590c64dfdb647fc760444910f19ad2c1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/missing-media-query-directive/index.md",
+      "sha256": "e6659139696d152d131b5ead41486d6ae49e2a5f64333faca934bce272c79e76",
+      "textFingerprint": "972dfdadb8792a58b4b31bb4b3c267fa63c5f6753217d90f8781c06811db1c06"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/missing-middleware-for-internationalization/index.md",
+      "sha256": "3038c05a0b709f2061212fbedfbb791e3bd4448b10f3e3e297238b7a35647086",
+      "textFingerprint": "1066236fce6750c22077bcf046009ebf3e99c41f4c2557c9db995bcda972d609"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/missing-sharp/index.md",
+      "sha256": "7d04a34e92d763efc3ed9f242e5c09d0133fb6494f5e454c829fe59b21685210",
+      "textFingerprint": "4a720c52718fbc25f090334c373d3e2f5f2c46265fa680c7347b57d95ea13a60"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/mixed-content-data-collection-error/index.md",
+      "sha256": "07946b0a40e206fcb55fcd354d6b5bba5b11f8f08626cd7e6900a64c270c1378",
+      "textFingerprint": "fcb4655f3ddbfb625a4cd34e1310bc8eeb9c6e9282165b09cf027f1110d75737"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-adapter-installed-server-islands/index.md",
+      "sha256": "300d3ccdcc36931376923d2985129a2db51ef6ae939a796a476a73c6c7ca4ce6",
+      "textFingerprint": "4c6836d923dee584671038e4871a2895457b0855f0aec64f852442a6af69a5b6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-adapter-installed/index.md",
+      "sha256": "529f804fe358ab965d9078e3663299fcff9ff0e1ea74892a6643f3a64fa1ddb1",
+      "textFingerprint": "cd5d83b03dfcb83d5f657c2de8f5e8a37187d9ad7480e79ddd48b8b58e9e7eff"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-client-entrypoint/index.md",
+      "sha256": "3fb4724f74ded0fe41a5cb914534a9153bb063b8fa9af202a0a666bfa14647f3",
+      "textFingerprint": "b3f6c7ee43664682f8094c8ee4eb3c3ae4326d789e338c88c2ba89dac03c9c89"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-client-only-hint/index.md",
+      "sha256": "dcb49bd7f06c01bc80f156bd3742c6c95ab2a10f744264cc0e0c514e4c249956",
+      "textFingerprint": "b4a8b6d3c59882fa6d5bf0d5fa114d6ed51d31cf2e45598639426ea3972f43a3"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-image-metadata/index.md",
+      "sha256": "9015b25b4c53a4f17861be04ac565bead4228baf57a30904663f95755b19a2f7",
+      "textFingerprint": "66ce37c670395687352a13e35ad333fca61b99d664b60f4dad554b21157bfef5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-matching-import/index.md",
+      "sha256": "5cd9732a14eee46f5a127310cb59f4b7630d74581af239ad601fc42d36649176",
+      "textFingerprint": "ed985cb3222cd135c14b694b084d3d0e47525a5c799a11f46d22c8ae03e2aa9c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-matching-renderer/index.md",
+      "sha256": "572387b6a018f46879645924ad86be2a2140f6bca01754f712d0353d7d7d8419",
+      "textFingerprint": "454a5e171525e9810c8d23cba68d321593d8a2cef2efed89e66bbbfdfc8b4b6f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-matching-static-path-found/index.md",
+      "sha256": "64d86c6ce9b72fd69dbf575b9e97398b0f8370033baedf108fe245fb67fc213a",
+      "textFingerprint": "ed3f92d1a3cc076f2c18f27b018a82e4cf94f4ca463fe8689f0d7963de418e76"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/no-prerendered-routes-with-domains/index.md",
+      "sha256": "4b8e8259d5b5fc7f4ee5ded62c408d8ea0e39490222d686348f165d44e0af701",
+      "textFingerprint": "fd1472786e944259e7ffba8f38b83689d8383138acdb196160f6ba0f1f7fc2a0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/only-response-can-be-returned/index.md",
+      "sha256": "1fd8a36be0e0811f003d013aa45db365f9ffbe09426f0ff33d70598649bf58cb",
+      "textFingerprint": "5e70279eca75c8ae236c79365b10616056177eb8ef97dd9a96b8ff2bcc243a37"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/page-number-param-not-found/index.md",
+      "sha256": "546068cb43d9397c7c797cbdcefb3685054dde777db94e5e13dc241301a7e9ab",
+      "textFingerprint": "391a49f1cd51e4450689f6b130c3a425be53a5fae6c6a6d59b2127c11364bf9e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/prerender-client-address-not-available/index.md",
+      "sha256": "1deac4cc0254664e458259332fc7293f4438d4e86178440457cb397e0c886d5c",
+      "textFingerprint": "c5ab79fbca0d9e0ce32306a47627d2f8e3d9ca69c44dbd1b4f5684e3d177ba4c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/prerender-dynamic-endpoint-path-collide/index.md",
+      "sha256": "60d29b4cca9d3aaf05913668457680183c0ce69a7a323d3cd286e192d2822caf",
+      "textFingerprint": "553203ba481b764858620f263ff0d9a911c891fcb5dfbe4d0b4627c5c6a6a755"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/prerender-route-conflict/index.md",
+      "sha256": "fa6192e325c7c23667518bd8af1ffae853d88816770fb08a877a8cf11eca3efb",
+      "textFingerprint": "84d07bec3e6bee2ddf7fcbf0a07003f198f103869da9ff25ce2aef12813debca"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/redirect-with-no-location/index.md",
+      "sha256": "a8a3d05445978f3ae3127ef1e622f353b5e0e81e381738a0b10e16a466988299",
+      "textFingerprint": "9874c4a5b974317290a41fcc17dd79f430de79ac6cb2187d1099282784aedab5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/remote-image-not-allowed/index.md",
+      "sha256": "a0f7bdc45ee05364650b3c23562de33fcb22ce5832485d1cba69365ae2149a20",
+      "textFingerprint": "f91878f188ec125d3207d474a5bcda38ba86e3ad94d7c1b9eb7e2926f4d4ce6b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/render-undefined-entry-error/index.md",
+      "sha256": "c2b8baa3a4f51ca9e1bf297414bdd109fc8b91a45e03c1b71047a211d3ae4b6d",
+      "textFingerprint": "713fd2ada77405f8194585e39f7d035ad5292a047b791e7046ba1a5ea91e7c03"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/reserved-slot-name/index.md",
+      "sha256": "7fe5a12cd97fff1c4dc425dce9f53b816dcab8e784843c173af37a9f9d8e8a4e",
+      "textFingerprint": "c964ed11f9c3b34fb3472ab0104fccc0aef54fbfd4d746466a1d4a0a0bb3e053"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/response-sent-error/index.md",
+      "sha256": "7939dbf05eea7ce86cacb74ecd7ef6b587c091a0def06d0ffbe2cbb15b3e5ce8",
+      "textFingerprint": "6626e47201d4ca10ade431f43571b4781004eb569947bf50d395958f732c08bf"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/rewrite-with-body-used/index.md",
+      "sha256": "199e016ac962369fc7cf034c318d6e358d47b613474bdc160da16cab6aaa6992",
+      "textFingerprint": "e1fa44e837828e3a3288a312031926a6d0147a8666b0624ef6b75bfec859ffc5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/route-not-found/index.md",
+      "sha256": "d7c272accacab43f60dccedb3829a799a31779af4ccd953d7e5dd9398b7ddddd",
+      "textFingerprint": "1057710a625471291eb43a20fb0fd2dfd4bc144133b2c04805c3234ae56b8a3c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/server-only-module/index.md",
+      "sha256": "3cd8079ecf872d255067c7a55cc1d571337d04ca057192bb94bb2e04ef9edbd0",
+      "textFingerprint": "ad3a944c7f941a9e11a4fd336ef3a652be9c00df445b882477a67465018769e8"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/session-storage-init-error/index.md",
+      "sha256": "59d22dc4b8ab244acb50d0f4dc4edbd474c3297523a9e63613a4a415cab1d0d9",
+      "textFingerprint": "15a67e7b876f3141533aac5ebbe43f1879ea7f5c21fd8f2a1b632a152d1b2c33"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/session-storage-save-error/index.md",
+      "sha256": "c63474b5f6d08a56625b7caee5c3e5d0e5225606f5a907d4a3cdda01db9f8fe9",
+      "textFingerprint": "40bde1dbdff9352b51b4d72fd9be04ee4306e1c1b5b7b527b1d121367b730a24"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/static-client-address-not-available/index.md",
+      "sha256": "7e2a7bc8feca925f55e740c556603ffe1b0dc78ec74c2884efa0e3a58c14c696",
+      "textFingerprint": "0942bedf91da63252dd9f893cddc7640d56b13c67cf7f78da3ed01e900dbcfb3"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unavailable-astro-global/index.md",
+      "sha256": "4cf68287fc107d129997a55ddb23041ec1bda9e61079a2126ce06a160eafba28",
+      "textFingerprint": "cf5e969e9a52adb228747fc04abed9f8c6e13d2defa5cb1885a286d9442ef13b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unhandled-rejection/index.md",
+      "sha256": "903fe6dbf6cd8d482b17e97ee3da0d857549152f21a9decbfada270b6a06c56b",
+      "textFingerprint": "d068565419fa51eece3d212d3db1c7f93052c1e0114dd6c346f56d0ce44f2e95"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-clierror/index.md",
+      "sha256": "49eea586c3bad2ffe5b8e051cae3cf3c2debd9c1ffb25278ca4359a7fdb02913",
+      "textFingerprint": "7f4fc6c1e2aa314ebadc09076465016ea4f0ab32aed4357d8df08066b7bb0658"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-compiler-error/index.md",
+      "sha256": "862676a321261281de6f67b7ddc2883a76b915c5322df752941453cdfe5a424f",
+      "textFingerprint": "41e0de9c53408748ae6d1e916c6697bf0225a85d339f0f55124ccd5a5066e43a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-config-error/index.md",
+      "sha256": "b29427ed2bff5d8a7a63ad36e5ea5a555051ceaa3c82069068dc8b95427c3aa6",
+      "textFingerprint": "146539480bec2ef2b471127f761ab4143311508862b377d1fa4fe02dd9078a22"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-content-collection-error/index.md",
+      "sha256": "5767336150fa8a9c10bc5e71ddb526346152f66c9b64443f16812f830ecc46be",
+      "textFingerprint": "6d2a0a8c98c40eb9d6935f4648b1ba909a61bf37f548569ee9ed22f3e4f5d0fb"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-csserror/index.md",
+      "sha256": "b18978ef72dcae4665d17a146bddb763e60e9a2e1b35fdd5d603e31b5df8811e",
+      "textFingerprint": "2092d0a4558871ae5930a2835be8f482e32e36bce00d28c92a990622d8923295"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-filesystem-error/index.md",
+      "sha256": "1ecb3eba798c22ba63c27b8f211f9fd098b2b94cfeacd01bbaff8bde9280ae1b",
+      "textFingerprint": "f88564c84625c32f36e451fda51362990dbc31df0dfce58b557c59558695e5e7"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-markdown-error/index.md",
+      "sha256": "7ad4b5740f435d416e58b79145771c475b73475be25542b9821b47116bbf3da4",
+      "textFingerprint": "dede4e488a4524bcd53b842ca49c361ae9dfdb9f357417f1f6ed0e63cbde1918"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unknown-vite-error/index.md",
+      "sha256": "b932288ed1e2acc2a9942b8cc67ddee88ff283718c461f835376b637ccf71cac",
+      "textFingerprint": "a610ec4baf64738f02c71389ed72816245e648ffea935d0360f559171ddc064a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unsupported-config-transform-error/index.md",
+      "sha256": "7865d41bb6ef217aa644d38ed872a9e95de5ea0673b41f5e50cc25a4ba75ef55",
+      "textFingerprint": "4a36ca3e3e34a7523183f05e92495d86af4cfc9156f0cf3a145d6bf4210e0ff6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unsupported-external-redirect/index.md",
+      "sha256": "5cc374583149df49a216de4909e943dec5253451b0c95b67814fab28bc69063c",
+      "textFingerprint": "89ac91a6898d93f6f106b3ca1767605672cf3c0fa969a2edb738cd124a6b7f46"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unsupported-image-conversion/index.md",
+      "sha256": "42e41c43a437e24dac3b4830878719e500b3ec3153a085f76677521a5816850b",
+      "textFingerprint": "d3abf18f78b30142bd080695a7c2161bbc9798a907601202184e4f7772181ac6"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/errors/unsupported-image-format/index.md",
+      "sha256": "f3dd0419b38a183e5d0309443cde41a6aae901a48baa6af388d5cd693aebe8c0",
+      "textFingerprint": "bcc89671d7b4707a20eed519048fe8ddd06bb651a05957b8ca1b885e17e035ca"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/chrome-devtools-workspace/index.md",
+      "sha256": "0a8806605471af65bdbc925d6ea9c0385929e87c485a000232b139c6102bd0d9",
+      "textFingerprint": "2479dd4718ca1e60c4d84a0f696d94015d1560a4c46edb1bf519a127c6a090d7"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/client-prerender/index.md",
+      "sha256": "7b56e4aa5d208985c331b30594e3d1187f7581101782f2a32953daf79fb56b3d",
+      "textFingerprint": "33f5c6c47d92d153f8db6e7f79f3c044403ab34d1a1c5befb2030dcae6d29fc5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/collection-storage/index.md",
+      "sha256": "c3ebd06dbb1a9497598cb9367dddf39db6b85ccbb5c3d2dee0013536a619719e",
+      "textFingerprint": "e0a6d6ef4099d6799a4e1d4adb73fa51615b10bc22a9593855343ac92adb001e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/content-intellisense/index.md",
+      "sha256": "3f376162e259778522f9ff32cd90e83013d94360b6ce39764306d28ca2ccdf7d",
+      "textFingerprint": "c6a995b21a8f02a1aeb1ae33a2d1474f298372c992cfde784939dd0d4b48f945"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/incremental-build/index.md",
+      "sha256": "1dc07ff4d45c23af741f468913c720f504ecdf0ca7ad6f093be5fd6ebc1604bf",
+      "textFingerprint": "3d9667065f9563dd97b311ad4b8ee62312dcaa18b9a9a32224db1e22be7a7079"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/index.md",
+      "sha256": "f23c4d78cfe2bd43aff1af87602895a867e583c8f2881c5670d7a7cd4495244b",
+      "textFingerprint": "6445f2932e3e23fa00aef6af2c8b6210b5485cffe7a74cb9e2c173d5a06fa9b9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/parallel-prerender/index.md",
+      "sha256": "d747c979f01d1d8a1214c3fa3b1942e25624f695e824277481e9aa3b4847f766",
+      "textFingerprint": "9f9c3b2383d55d10dcc483b320541b0f2259beef1b3c9b79d154f1cb7bb66d92"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/redirect-page/index.md",
+      "sha256": "5c2a3c367709fcf21377773a7b09a9a8330e02f719c7c7a786c520b786955f19",
+      "textFingerprint": "0124c5aa19b5f69de066212d3afc7391116cf9a55b30e1f834a2f398dab9f973"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/experimental-flags/svg-optimization/index.md",
+      "sha256": "1fc463cf3b2fd5c0734c76281f05a348b3309c90056be71979241c371084f54c",
+      "textFingerprint": "afea27ce268011dbd828cbd510d9da2506462a1e854f0dfde2927ca40b59a7e2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/font-provider-reference/index.md",
+      "sha256": "d27d196fd9295b6531cfa57458a1ba0623cef643ecdd81fbe15273429c535314",
+      "textFingerprint": "bc682a4ab71de149565cfcc46c6d27b5c66c0acca115b7163b1bbda4b1cbc780"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/image-service-reference/index.md",
+      "sha256": "71739bc512b455126a9ae2b1e542af272250cc20d4a01ebb2a1f12a324f9ea1f",
+      "textFingerprint": "af91fcf3b78a0ff53afd00fcef1bd9902190c7bf1041943884996beac9c0315a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/integrations-reference/index.md",
+      "sha256": "3bdb1138abf57b28aac87ee392c4d95f7ff7d65fdb8841e2a611f938a4e9de1b",
+      "textFingerprint": "a840bd684f74e86e656b52d2f99ec335563066041ecec6ff3697803f0ee5680d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/legacy-flags/index.md",
+      "sha256": "8fc725fe39ffb4430b6c897f72f8595b58d2aa45d4a7c91708cb18423e7fb843",
+      "textFingerprint": "4cdefcedc24915b1d5143f063c510fe47fdd26108c7642ebce7f2bc45a46a979"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/logger-reference/index.md",
+      "sha256": "2f49bb858918e5ffa6e54f2b8d4c674f2adaa027cf824aa25c3c66468e2f305c",
+      "textFingerprint": "8e9a5e99413dbcf9c5cb9028d5f6b855f0ba4b0fd695024c65625508ff9e553f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/markdown-processors/satteri/index.md",
+      "sha256": "66afd6dc620d551356fdd70401b186c9c803103a3768b70b8ba9488cb3bd9443",
+      "textFingerprint": "e2c40fc954102ba0be2edd57eca253160817eb9f10212430194d4c9233f4ecf9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/markdown-processors/unified/index.md",
+      "sha256": "d3f378bf89c1b437218de170213dbb995f4e163aa68148f38ea8cacffe426d07",
+      "textFingerprint": "3e807e7915392341179b71f688d78dfb58c73de4c5166bf821d1cc7e13a1678c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-actions/index.md",
+      "sha256": "c6a026f7d3c92d0e2e72c50a302c95293c597c57cac3b6ce976d04df951bf8d7",
+      "textFingerprint": "315f93cc205a68139a54ddd10ecd1530abec5406b779259853bf3ad49ba1cca7"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-app/index.md",
+      "sha256": "6f9b8b049056df99a695ea61f1153f92192d94b6a88f2f4ea14a43dfe150000f",
+      "textFingerprint": "75e74f857a81da577a018ebd795afd30ab4f83d757842ceaf3d7df98c9117821"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-assets/index.md",
+      "sha256": "09ed28f9d785263ce13d434b1666c12ae230af026a0666e30924fe093a3c167d",
+      "textFingerprint": "afaa0e0409369ca817c65f8cdbed56418b5b592909465b887fd957c65f17a651"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-config/index.md",
+      "sha256": "dec8fadd5dc831de4d6eda99cdc5d704547a71908848e9da37ca58ac87e6276e",
+      "textFingerprint": "80298dc8e5e0f8041ed147e0c5832a4331e74d90fadaba0fa5a4519add10f006"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-content/index.md",
+      "sha256": "c8c8bd3149b64bcaeef43fb92087e3d105a35e7c79428373f74ed2d69af7f99c",
+      "textFingerprint": "045c9b3a506c53e904cdf9156c03296526ea8b39410b7a68e99eac2ef34fcabc"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-env/index.md",
+      "sha256": "e535a9b8508d1884890c4e723fdb342fe3d355690de223eab0c275e0ad6bb105",
+      "textFingerprint": "fc6b4e27c0eba522a4207a3b66c1f607c5f1597d9b36d3cdac31f1717dc04d87"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-fetch/index.md",
+      "sha256": "8a5d2961f643b82271489e967842199b8100e237b08384f7317304e0edf40507",
+      "textFingerprint": "7b0e95c3f804d3c733fa30bbb53b91ad482a728130927faf29f57b3288f85398"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-hono/index.md",
+      "sha256": "652805cdcea0478c19ad368d96a66a4da64704a672d356c515c2aac77524cec6",
+      "textFingerprint": "8a3a13794278e4645a6420e7adf16091b3bca902cebcdf9aae94b7e4f78ce65f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-i18n/index.md",
+      "sha256": "487770635f7dcbbc5979993bf7aa13da8663945a8eb4f27715064c117b3f7610",
+      "textFingerprint": "31d103609a638e2e8c53d69b324bc6a20e85d7c2dd6bcfb230b0a1166e89523b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-middleware/index.md",
+      "sha256": "4fe53c9282616ea754ec4f01cae6032b868a9eef67f688a7d862ed48d1e4cf1f",
+      "textFingerprint": "efb355aabf4a6711cef88f236c0e87154516b975485f184e7e1c2f13cb0ce60c"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-static-paths/index.md",
+      "sha256": "fc895f5b79a1a0bdd00b2e6fe904d49f9ec002bf92a935abf15284928315e6c5",
+      "textFingerprint": "1375b585c1bc6fe0b07a06a2d98020c1195c6b5cdf19ab9babe2bfc85d6c529a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-transitions/index.md",
+      "sha256": "85b1a6f56675fd23cae7227ccfb575cdc3fba8f7588468cdbc0d48b101025f04",
+      "textFingerprint": "4940ae7c68607345eda7e0ec638a0983418d0b6121efada721fc3a16ef63c10d"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/modules/astro-zod/index.md",
+      "sha256": "90423783cb3ad1e500e1ba83d5e1ba415ab29ee8662778a242486057b5743d98",
+      "textFingerprint": "43a68d5e7cca64b98298540e56634731ac31dba33dfa3e0e30922d748235d481"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/programmatic-reference/index.md",
+      "sha256": "c3004c278eebdb1c7c0af38225209c17445dc2fb00e1f1dba9b5f9af3982b5d2",
+      "textFingerprint": "2ba45f6d9de541cd3419dc44053ab96e81fe91043c9454a11bd7fce9dcc6c6d8"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/renderer-reference/index.md",
+      "sha256": "b0bae3049c4d6d3f0ef98df9d93b79f54ec894718496406e873a31380d4b99ec",
+      "textFingerprint": "0a7f26b0cf0942dbbf59e6eac3adf0e296f6a6517edda78f236d1e7fbe7533f5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/routing-reference/index.md",
+      "sha256": "36a5a2cca53cb8ceab0b9f23f442c96aed93e2f763bd7f24526f082ec2874de9",
+      "textFingerprint": "e65b8ac2b6f6c303579920fc53d5d743cc95baf4bd143f1d2132508a63f075f2"
+    },
+    {
+      "path": "material-1/pages/zh-cn/reference/session-driver-reference/index.md",
+      "sha256": "06d4e80002f40657734f611b7c05c196755620f753cd2070bc348ace66f3a692",
+      "textFingerprint": "569f652b93eb37fca1137a6e976d8b928426f45ee3bdbf5e5289c14cfc014b52"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/0-introduction/1/index.md",
+      "sha256": "7135bbf4a69b7e78662482e00d3906b8e863b0ce99594010d7e2baf9342eff4d",
+      "textFingerprint": "d56f81af6bde8f29d7c1b14c0553b99f40d61ea0c4235f8fe45b3403159506ae"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/0-introduction/index.md",
+      "sha256": "3b86b9895301d83804dae3473cbfb4925853afec962866ac421a55e0c0878aac",
+      "textFingerprint": "5b5c9ddafad1856900ede6af92e38b78ca0674a2fb8cb48c3684b0b604e4d63b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/1/index.md",
+      "sha256": "8c3cb5a7476e2a3c4c1260fa922f25e5a3c7771b2bd8f1d733e62746b335bcf7",
+      "textFingerprint": "c309240f9994931990dc0007d3f53e7132defcdb626e11e151797b98ae221ec5"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/2/index.md",
+      "sha256": "a3449f349586002588c6ca6e3e8a47fd1473da0affa56c4eaae922c2d019b950",
+      "textFingerprint": "12abc8e425a52a3d1b9570d5500854c998b7302444ed2301f2aed65f507bceef"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/3/index.md",
+      "sha256": "a052abe2bc13f880f5f5f5f13ec57f51231e06e47c33666e38380933f76f8b9e",
+      "textFingerprint": "038cb210f877f3dddaf9844454afb5f9ebc5b6e976c829abf7c172d41c7b05ed"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/4/index.md",
+      "sha256": "472585d3cf6bfa9c20c2a79e66ab7c79fe0eaa295f4a8d891fe7cbbb8ec20791",
+      "textFingerprint": "92f8d616edf0dad96a688b2048738502a380c95b991e18de07f1ed3e422e4f25"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/5/index.md",
+      "sha256": "db2fe31182cf45c00c4172351aad53af3617f7e48113aa007d13a5e24f1d5eba",
+      "textFingerprint": "c33aab60737d1981c0a00879c728021caa5ea1ddb43d374b97881585b4ce235f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/1-setup/index.md",
+      "sha256": "3eee8bf6eb13df4123ed5dda85b0a766de23f20ee20f3fc83e8889a39bb53de5",
+      "textFingerprint": "230083caa262ff2daba413748538280c28e6a5989815a6cea2da768348644ce9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/1/index.md",
+      "sha256": "c3c518a309fcf3ac5c7b1f03d5f7d88839e9d5d9171cc22ae4882cf1994aaa53",
+      "textFingerprint": "b9c8968b67cc0bd83ccc9c62d5d4210878deaa01b57def71fa9235688fe12d19"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/2/index.md",
+      "sha256": "6fa3d7a28fc80d9c152a75189eb54995527c9acd75b4705c253531785fce1e9c",
+      "textFingerprint": "80a63323fd34d321d58d6c84dbf854e2c14455a0a282883d72bfafa6d529adda"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/3/index.md",
+      "sha256": "eebdb5b8d9f7ea4246bcfa8ab24d4a61f3298c4be2da4a3f020c131a2d8e8c72",
+      "textFingerprint": "5862c634d334e2084166d96f2dce6a265d2f994a46009a636016a08eca69e0cb"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/4/index.md",
+      "sha256": "690defe860bd42e5b5348179a80814e437304c664e1d68ac04d4b88969087fc3",
+      "textFingerprint": "6ee20d721b3d72de904a6caa3542a0392a9911cf882a7567aa8c9cf428086a65"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/5/index.md",
+      "sha256": "6e5768c8d74c8f63b00f3df145d99e2f205d370440ca8f369101223bd758d779",
+      "textFingerprint": "202063fe5cbab658f9f0060787ef0856289ec487acc5c05b5d786bc7f8d63421"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/2-pages/index.md",
+      "sha256": "573ec6bccbd5550c51bdc21707c41bca872173ea8c44655be8c820a3edb27e28",
+      "textFingerprint": "e01b47d6b51009c4bb71830e81eb1bc1982b9133ec0db1afb21a1997cf6059b8"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/1/index.md",
+      "sha256": "19491c37bf856a2080d181cd5bde046c8b6a8fecba883edd569fd1f23abfe582",
+      "textFingerprint": "131a8fc5ebecd1d35403b73f40d833c2107846b0a15be7d9e720c826100c4647"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/2/index.md",
+      "sha256": "6250effacaf7c24c4e3426fd02567c5ff03df812eaef9dc9cd27531eb75caed7",
+      "textFingerprint": "87ce4415c4e5e433283c94bd846b9ee891279eda2f3436808eae8ef280d49cd0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/3/index.md",
+      "sha256": "5f605033715d6fe80a6311b723245addb5038a83179f7e3642a4c13a38febfae",
+      "textFingerprint": "4b005ab4cfdc4db913291b39bc91731fcab57da3be83cb51ab7e185ebea883a1"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/4/index.md",
+      "sha256": "5181331d94c5bcdcf948193107a000624b9a48ffbd2b70a6df5fcec4c61ba642",
+      "textFingerprint": "bba176d8ee7334364921628f0902049effa0e0b51d0ea2d766c67dbf51041ae9"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/3-components/index.md",
+      "sha256": "1bb6e8be20d15c20c8a8aa3a3f1e7581791add79bb2170f2d3c636f37a60a7e2",
+      "textFingerprint": "077de9868a0fda331ada7704526c824ac2ba68aa1e1f48eba0d833e15c690def"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/4-layouts/1/index.md",
+      "sha256": "c6a02ed0ea2ddfacd884460019651cdeb3721aca36e9146b5b9b0611891491af",
+      "textFingerprint": "69167e32e650c3e17dd858c0778c07b788abd8a1e7ce536af4646c6690018a31"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/4-layouts/2/index.md",
+      "sha256": "0fcd531699d8037c95f95c0ae7cd92565c00ee989a45c347972dd75854dc340e",
+      "textFingerprint": "a68bdcea22ec73c687ac43931e0186f07efb31a896660cfc9807f7e955ebe018"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/4-layouts/3/index.md",
+      "sha256": "df3e81f1e553571e3ccf602d8c47e5e9e9becbed0065296a3916b4f9c0886c41",
+      "textFingerprint": "1b9c8c61353e416ed9bc0209aa33aa3bd9eaf4655fac4cd15088caac53ecf529"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/4-layouts/index.md",
+      "sha256": "ecee62d7b35b6862ece367833f9327bc663f4f7bacdd4800cec4881f2da37714",
+      "textFingerprint": "20dbcfe42b39b0092e840df03206e9779029e4964771654049a9574acc01b3ad"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/1/index.md",
+      "sha256": "535eeaa9061f37306f3d5677fa5f69100ea0b9e09631e3b68ecd1cc9694141ab",
+      "textFingerprint": "aa78019777e6e63720b48d351e5e20faac115f3fed4e30fd14b939cf49bcb1ed"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/2/index.md",
+      "sha256": "fdc4294989d0d18438abfdcbf301ae22abbb9a39b3814a83b84b7c500aa9a084",
+      "textFingerprint": "b6f867441089cc2e9f2d92c9dd8d9c05d3dca9b91ae18ecbd934c9180b05b33b"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/3/index.md",
+      "sha256": "b10d1b30c3988ea8f5d5229fda7267116bce759dd32aa37c024ffe38b32e0304",
+      "textFingerprint": "34fce475c87fd6d7c0a17bba0f041973658e876946e520f56a8b0366ce42db60"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/4/index.md",
+      "sha256": "60a3b973c7d57bc183b2c5591fbe0449acddc904152aec4b8ae985505bb56855",
+      "textFingerprint": "dbe1d5a9e750264b275173b41a07f2df94053a9916e20a8c75b8fc7222dbdc1a"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/5-astro-api/index.md",
+      "sha256": "d159018e2aa8c11580c81206ffb2848350f0d556726fd1b5a4b5dfc8ea8d7a5c",
+      "textFingerprint": "ecaa152aeb3df70c46dc841b8a4d15a0ab8922e088cdbdebc58a1cb4d631472f"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/1/index.md",
+      "sha256": "380e5f6d5dcf9ba1f995156c94c9a0e8aabe68bdce9be0ef5010732d9973bd18",
+      "textFingerprint": "eb0a5f54464526b1eb96c36d1139435c4e7e10797efbc3a103c33ff73733de90"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/2/index.md",
+      "sha256": "3850615986e2a865f22b6d52dc676e57a405956ae801517363c38d5e0280a2ba",
+      "textFingerprint": "8953fd4452f4dc7ef8d32bf6689c95713899f3eb897493891a8a711fa72f100e"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/3/index.md",
+      "sha256": "b553806bf6adaacd7ccb5896ed13a5d2383c856d1834e11442eb6bc090a86cc1",
+      "textFingerprint": "546df171ddbd7f7b1be8e073c52079a3c0d0096d23edcde01df55e9b06143868"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/4/index.md",
+      "sha256": "2913a75e2480438f22f38fb0ba692379efdb6fcccb531d9c4d454900e1b65a5c",
+      "textFingerprint": "dbf42b44e5691f4f8b5eee8ab90e4de43adb87895d416e13341469a5f725ffa0"
+    },
+    {
+      "path": "material-1/pages/zh-cn/tutorial/6-islands/index.md",
+      "sha256": "11fa505f9f72e47513bc9c3605123efd1e9d07d55cf3607f231788ab7aa44941",
+      "textFingerprint": "e7299c19ac511e2b2b9d4c37073fadadfd3d95080cbb39bc0754c84412fcbf94"
+    },
+    {
+      "path": "material-1/pages/zh-cn/upgrade-astro/index.md",
+      "sha256": "4f4e47c9ce552999d244d685ec56036797ce626e81b937c85764770f0bcb8e85",
+      "textFingerprint": "0aa26efd4723c19d55e8e2a3134f980dbc1a28932ebf6105ccdb29fb95ee85f2"
+    },
+    {
+      "path": "material-1/provenance.json",
+      "sha256": "c5838e1ea9a362610bcf04d487b2932b01e71375c0ad26f296310990fb80792b",
+      "textFingerprint": "c5838e1ea9a362610bcf04d487b2932b01e71375c0ad26f296310990fb80792b"
+    }
+  ]
+}

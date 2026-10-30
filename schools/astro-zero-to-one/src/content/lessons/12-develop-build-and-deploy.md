@@ -5,6 +5,9 @@ description: "贯通 Astro 全生命周期闭环，透彻辨析 dev 本地监听
 order: 12
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/develop-and-build/index.md
+  - material-1/pages/zh-cn/guides/deploy/index.md
 agentInstructions: |
   教学目标：
   1. 贯通全套工程链路：深刻掌握 `astro dev`（本地热重载调试）、`astro build`（编译打包至 `dist/`）与 `astro preview`（生产静态预览）三者在职责与底层运行机制上的根本差异。

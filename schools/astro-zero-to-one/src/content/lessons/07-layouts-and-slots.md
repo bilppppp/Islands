@@ -5,6 +5,11 @@ description: "掌握 Astro 布局组件（Layouts）的封装模式，熟练运�
 order: 7
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/basics/layouts/index.md
+  - material-1/pages/zh-cn/tutorial/4-layouts/1/index.md
+  - material-1/pages/zh-cn/tutorial/4-layouts/2/index.md
+  - material-1/pages/zh-cn/tutorial/4-layouts/3/index.md
 agentInstructions: |
   教学目标：
   1. 理解页面外壳复用的迫切性：将 `<!doctype html>`、`<head>`、`<meta>`、`<Header />` 与 `<Footer />` 统一封装至 `src/layouts/BaseLayout.astro`。

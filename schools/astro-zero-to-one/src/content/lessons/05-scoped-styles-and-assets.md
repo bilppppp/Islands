@@ -5,6 +5,11 @@ description: "掌握 Astro 默认作用域 CSS（Scoped Styles）与 data-astro-
 order: 5
 quiz: false
 agentOnly: true
+sources:
+  - material-1/pages/zh-cn/guides/styling/index.md
+  - material-1/pages/zh-cn/guides/images/index.md
+  - material-1/pages/zh-cn/tutorial/2-pages/4/index.md
+  - material-1/pages/zh-cn/tutorial/2-pages/5/index.md
 agentInstructions: |
   教学目标：
   1. 理解传统网页开发中“CSS 类名冲突与全局样式污染”的顽疾，掌握 Astro `<style>` 标签默认具备局部作用域（Scoped CSS）的底层原理（`data-astro-cid-*` 属性选择器）。
