@@ -479,18 +479,18 @@ describe('preview blocks', () => {
     );
   });
 
-  it('rejects html preview referencing external resources with http:// or https://', () => {
+  it('warns on html preview referencing external resources with http:// or https://', () => {
     const scriptDoc = lesson('```html preview\n<script src="https://example.com/lib.js"></script>\n```');
-    assert.throws(
-      () => assertRunBlocks(scriptDoc, 'external-script.md'),
-      /Run block in external-script\.md: html preview block cannot reference external resources with http:\/\/ or https:\/\//,
-    );
+    const scriptBlocks = assertRunBlocks(scriptDoc, 'external-script.md');
+    assert.equal(scriptBlocks.length, 1);
+    assert.ok(scriptBlocks[0].warning);
+    assert.match(scriptBlocks[0].warning, /引用了外部 http:\/\/ 或 https:\/\/ 资源/);
 
     const linkDoc = lesson('```html preview\n<link rel="stylesheet" href="http://example.com/style.css">\n```');
-    assert.throws(
-      () => assertRunBlocks(linkDoc, 'external-link.md'),
-      /Run block in external-link\.md: html preview block cannot reference external resources with http:\/\/ or https:\/\//,
-    );
+    const linkBlocks = assertRunBlocks(linkDoc, 'external-link.md');
+    assert.equal(linkBlocks.length, 1);
+    assert.ok(linkBlocks[0].warning);
+    assert.match(linkBlocks[0].warning, /引用了外部 http:\/\/ 或 https:\/\/ 资源/);
   });
 
   it('buildPreviewDocument outputs injected script for html and jsx, and require mapping for jsx', () => {

@@ -7,6 +7,7 @@ import { spawn } from 'node:child_process';
 import { command, prepareMaterials, supplementMaterials } from './materials.mjs';
 import { piPrint, defaultModel } from './pi.mjs';
 import { generate, generationPrompt, validateGeneration } from './generate.mjs';
+import { formatWarnings } from './verify-lesson-blocks.mjs';
 import { runSources } from './source-state.mjs';
 import { runUpdate } from './source-update.mjs';
 import { resolveTeachOrigin, teachAccessError, teachModeWriteError } from './teach-origin.mjs';
@@ -254,13 +255,24 @@ async function main() {
     await command('python3', ['scripts/apply-school-kit.py', relative(root, path)], { inherit: true });
     console.log('已同步共享网站增量。');
     let count;
+    let warnings = [];
     try {
-      count = validateGeneration(join(root, 'inputs', basename(path) + '.json'));
+      const out = {};
+      count = validateGeneration(join(root, 'inputs', basename(path) + '.json'), { logWarnings: false, out });
+      warnings = out.warnings || [];
     } catch (err) {
-      throw new Error(`${err.message}\n\n修改上述课文后重新运行 finish。`);
+      warnings = err.warnings || [];
+      let errMsg = err.message;
+      if (warnings.length > 0) {
+        errMsg = `${errMsg}\n\n${formatWarnings(warnings)}`;
+      }
+      throw new Error(`${errMsg}\n\n修改上述课文后重新运行 finish。`);
     }
     await command('npm', ['run', 'build'], { cwd: path, inherit: true, rejectOnErrorLog: true });
     console.log(`School 已检查并构建：${basename(path)}（${count} 关）。启动：npm run school -- start ${basename(path)}。真实教学尚未验证。`);
+    if (warnings.length > 0) {
+      console.log(`\n${formatWarnings(warnings)}`);
+    }
   } else if (operation === 'supplement') {
     if (options['no-crawl']) throw new Error('--no-crawl cannot be used with supplement.');
     const opts = crawlOptions();

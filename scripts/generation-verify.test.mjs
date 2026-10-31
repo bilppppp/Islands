@@ -8,6 +8,7 @@ import { createRequire } from 'node:module';
 
 import {
   verifySchoolLessons,
+  collectSchoolWarnings,
 } from './verify-lesson-blocks.mjs';
 
 import {
@@ -440,5 +441,163 @@ describe('Session ID consistency across generate and repair rounds', () => {
       rmSync(tempDir, { recursive: true, force: true });
       rmSync(join(root, 'evidence/generation', `${basename(tempDir)}.jsonl`), { force: true });
     }
+  });
+});
+
+describe('Generation warnings vs errors', () => {
+  it('collects warning when html preview references external http(s) resources without throwing', () => {
+    const lessons = [
+      {
+        name: '01-preview.md',
+        text: `---\ntitle: Preview\n---\n\`\`\`html preview\n<script src="https://cdn.example.com/app.js"></script>\n\`\`\``,
+      },
+    ];
+    const warnings = collectSchoolWarnings(lessons);
+    const ext = warnings.filter((w) => w.code === 'preview-external-resource');
+    assert.equal(ext.length, 1);
+    assert.equal(ext[0].level, 'warning');
+    assert.equal(ext[0].file, '01-preview.md');
+    assert.match(ext[0].message, /引用了外部 http:\/\/ 或 https:\/\/ 资源/);
+  });
+
+  it('warns when a single lesson has more than 3 interactive blocks', () => {
+    const lessonWith4Blocks = [
+      {
+        name: '01-heavy.md',
+        text: `---
+title: Heavy
+---
+\`\`\`predict
+question: Q1?
+answer: A1
+explain: E1
+\`\`\`
+
+\`\`\`predict
+question: Q2?
+answer: A2
+explain: E2
+\`\`\`
+
+\`\`\`python run
+print("one")
+\`\`\`
+
+\`\`\`python run
+print("two")
+\`\`\`
+`,
+      },
+    ];
+    const warnings = collectSchoolWarnings(lessonWith4Blocks);
+    const tooMany = warnings.filter((w) => w.code === 'too-many-interactive-blocks');
+    assert.equal(tooMany.length, 1);
+    assert.equal(tooMany[0].level, 'warning');
+    assert.equal(tooMany[0].file, '01-heavy.md');
+    assert.match(tooMany[0].message, /超过了建议的上限/);
+  });
+
+  it('warns when programming course has 0 interactive blocks, but does not warn for non-programming course with 0 blocks', () => {
+    const codingCourse0Blocks = [
+      {
+        name: '01-py.md',
+        text: `---
+title: Python Lesson
+---
+Here is some code:
+\`\`\`python
+def greet():
+    print("hi")
+\`\`\`
+`,
+      },
+    ];
+    const codingWarnings = collectSchoolWarnings(codingCourse0Blocks);
+    const codingNoBlocks = codingWarnings.filter((w) => w.code === 'no-interactive-blocks-in-coding-course');
+    assert.equal(codingNoBlocks.length, 1);
+    assert.equal(codingNoBlocks[0].level, 'warning');
+
+    const nonCodingCourse0Blocks = [
+      {
+        name: '01-history.md',
+        text: `---
+title: History Lesson
+---
+In 1911, the revolution took place.
+Here is a quote:
+> Historical text
+`,
+      },
+    ];
+    const nonCodingWarnings = collectSchoolWarnings(nonCodingCourse0Blocks);
+    const nonCodingNoBlocks = nonCodingWarnings.filter((w) => w.code === 'no-interactive-blocks-in-coding-course');
+    assert.equal(nonCodingNoBlocks.length, 0);
+  });
+
+  it('warns with line number when non-programming course uses html preview demo', () => {
+    const nonCodingWithPreview = [
+      {
+        name: '01-history.md',
+        text: `---
+title: Ancient History
+---
+
+# Timeline
+
+\`\`\`html preview
+<div id="timeline">Ancient Timeline</div>
+\`\`\`
+`,
+      },
+    ];
+    const warnings = collectSchoolWarnings(nonCodingWithPreview);
+    const previewWarnings = warnings.filter((w) => w.code === 'preview-in-non-programming-course');
+    assert.equal(previewWarnings.length, 1);
+    assert.equal(previewWarnings[0].level, 'warning');
+    assert.equal(previewWarnings[0].file, '01-history.md');
+    assert.equal(previewWarnings[0].line, 7);
+    assert.match(previewWarnings[0].message, /请人工核对演示是否正确/);
+  });
+
+  it('returns two info warnings when COURSE.md has two wanted interaction lines', () => {
+    const courseMd = `# Course Goal
+
+## Wanted interactions
+- 01-algebra: drag-and-drop equation balancer for two-sided operations
+- 02-geometry: compass-and-straightedge canvas demo
+
+## Architecture
+`;
+    const warnings = collectSchoolWarnings([], { courseMdText: courseMd });
+    const wanted = warnings.filter((w) => w.code === 'wanted-interaction');
+    assert.equal(wanted.length, 2);
+    assert.equal(wanted[0].level, 'info');
+    assert.equal(wanted[1].level, 'info');
+    assert.equal(wanted[0].file, 'COURSE.md');
+    assert.equal(wanted[1].file, 'COURSE.md');
+    assert.match(wanted[0].message, /drag-and-drop equation balancer/);
+    assert.match(wanted[1].message, /compass-and-straightedge canvas demo/);
+  });
+
+  it('does not trigger repair when validation produces only warnings without errors', async () => {
+    let validateCalls = 0;
+    let repairCalls = 0;
+
+    const fakeValidateWithWarnings = async () => {
+      validateCalls++;
+      return 5;
+    };
+
+    const res = await repairUntilValid({
+      validate: fakeValidateWithWarnings,
+      repair: async () => {
+        repairCalls++;
+      },
+      maxRounds: 2,
+    });
+
+    assert.equal(res, 5);
+    assert.equal(validateCalls, 1);
+    assert.equal(repairCalls, 0);
   });
 });

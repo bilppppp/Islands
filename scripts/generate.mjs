@@ -6,7 +6,7 @@ import { assertLessonHasSources, listFiles, rawSha256, readLessons } from './sou
 import { assertSourceCites } from '../school-kit/overlay/src/lib/source-cite.mjs';
 import { assertLessonCodeBlocks, resolvePreviewRuntime, normalizeRunLang } from '../school-kit/overlay/src/lib/run-block.mjs';
 import { scanCodeFences } from '../school-kit/overlay/src/lib/predict-block.mjs';
-import { verifySchoolLessons, getFenceStartLine } from './verify-lesson-blocks.mjs';
+import { verifySchoolLessons, getFenceStartLine, formatWarnings } from './verify-lesson-blocks.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -376,7 +376,8 @@ export function assertConsistentPreviewRuntimes(lessons) {
   }
 }
 
-export function validateGeneration(inputPath) {
+export function validateGeneration(inputPath, options = {}) {
+  const { logWarnings = true, out = null } = options;
   const input = JSON.parse(readFileSync(inputPath, 'utf8'));
   const output = resolve(root, input.output);
   const lessons = readdirSync(join(output, 'src/content/lessons')).filter(n => /\.mdx?$/.test(n)).sort();
@@ -415,11 +416,17 @@ export function validateGeneration(inputPath) {
   assertConsistentPreviewRuntimes(lessonEntries);
 
   const verification = verifySchoolLessons(join(output, 'src/content/lessons'), output);
+  const warnings = verification.warnings || [];
+  if (out && typeof out === 'object') {
+    out.warnings = warnings;
+    out.lessonsCount = lessons.length;
+  }
+
   const totalInteractiveBlocks = (verification.summary?.byType?.predict || 0)
     + (verification.summary?.byType?.numberline || 0)
     + (verification.summary?.byType?.run || 0)
     + (verification.summary?.byType?.preview || 0);
-  if (totalInteractiveBlocks > 0) {
+  if (totalInteractiveBlocks > 0 || warnings.length > 0) {
     const schoolName = basename(output);
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const evidenceDir = join(root, 'evidence/generation/blocks');
@@ -443,12 +450,19 @@ export function validateGeneration(inputPath) {
       timestamp: new Date().toISOString(),
       summary: verification.summary,
       blocks: recordBlocks,
+      warnings,
     };
     writeFileSync(evidencePath, JSON.stringify(evidenceData, null, 2) + '\n');
   }
 
+  if (logWarnings && warnings.length > 0) {
+    console.log('\n' + formatWarnings(warnings));
+  }
+
   if (!verification.ok) {
-    throw new Error(verification.error || 'Lesson block verification failed');
+    const err = new Error(verification.error || 'Lesson block verification failed');
+    err.warnings = warnings;
+    throw err;
   }
 
   return lessons.length;

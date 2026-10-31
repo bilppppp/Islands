@@ -10,6 +10,7 @@ import {
 import {
   assertRunFence,
   collectRunBlocks,
+  PROGRAMMING_LANGUAGES,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -242,6 +243,189 @@ export function verifyLessonBlocks(
   }
 }
 
+export function parseWantedInteractions(courseMdText, courseFile = 'COURSE.md') {
+  if (!courseMdText) return [];
+  const lines = courseMdText.split(/\r?\n/);
+  let inSection = false;
+  const items = [];
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    const headerMatch = trimmed.match(/^#+\s*(.+)$/);
+    if (headerMatch) {
+      if (/^wanted\s+interactions$/i.test(headerMatch[1].trim())) {
+        inSection = true;
+        continue;
+      } else if (inSection) {
+        break;
+      }
+    }
+    if (inSection) {
+      if (!trimmed) continue;
+      const message = trimmed.replace(/^[-*]\s+|\d+\.\s+/, '').trim();
+      if (message) {
+        items.push({
+          level: 'info',
+          code: 'wanted-interaction',
+          file: courseFile,
+          line: i + 1,
+          message,
+        });
+      }
+    }
+  }
+  return items;
+}
+
+export function collectSchoolWarnings(target, options = {}) {
+  let lessonsList = [];
+  let courseMdText = options.courseMdText || options.courseMd || '';
+  let courseFile = options.courseFile || 'COURSE.md';
+
+  if (Array.isArray(target)) {
+    lessonsList = target.map((item, idx) => ({
+      file: item.file || item.name || `lesson-${idx + 1}.md`,
+      text: typeof item === 'string' ? item : (item.text || ''),
+    }));
+  } else if (typeof target === 'string') {
+    let schoolDir = target;
+    let lessonsDir = join(schoolDir, 'src/content/lessons');
+    if (!existsSync(lessonsDir) && existsSync(schoolDir)) {
+      lessonsDir = schoolDir;
+      schoolDir = resolve(schoolDir, '..', '..');
+    }
+    if (!courseMdText && existsSync(join(schoolDir, 'COURSE.md'))) {
+      courseMdText = readFileSync(join(schoolDir, 'COURSE.md'), 'utf8');
+      courseFile = 'COURSE.md';
+    }
+    if (existsSync(lessonsDir)) {
+      const files = readdirSync(lessonsDir).filter((n) => /\.mdx?$/.test(n)).sort();
+      for (const f of files) {
+        lessonsList.push({
+          file: f,
+          text: readFileSync(join(lessonsDir, f), 'utf8'),
+        });
+      }
+    }
+  } else if (target && typeof target === 'object') {
+    if (Array.isArray(target.lessons)) {
+      lessonsList = target.lessons.map((item, idx) => ({
+        file: item.file || item.name || `lesson-${idx + 1}.md`,
+        text: typeof item === 'string' ? item : (item.text || ''),
+      }));
+    }
+    if (target.courseMdText || target.courseMd) {
+      courseMdText = target.courseMdText || target.courseMd;
+    }
+    if (target.courseFile) {
+      courseFile = target.courseFile;
+    }
+  }
+
+  if (options.lessons && Array.isArray(options.lessons)) {
+    lessonsList = options.lessons.map((item, idx) => ({
+      file: item.file || item.name || `lesson-${idx + 1}.md`,
+      text: typeof item === 'string' ? item : (item.text || ''),
+    }));
+  }
+
+  const warnings = [];
+  let hasCodeBlock = false;
+  const htmlPreviewBlocks = [];
+  let totalInteractiveBlocks = 0;
+
+  for (const { file, text } of lessonsList) {
+    const fences = scanCodeFences(text);
+    const interactiveLines = [];
+
+    for (const fence of fences) {
+      const isPredict = /^predict(?:\s|$)/.test(fence.info);
+      const isNumberline = /^numberline(?:\s|$)/.test(fence.info);
+      const isRunOrPreview = /(?:^|\s)(?:run|preview)(?:\s|$)/.test(fence.info);
+      const isInteractive = isPredict || isNumberline || isRunOrPreview;
+
+      const line = getFenceStartLine(text, fence);
+
+      if (isInteractive) {
+        interactiveLines.push(line);
+        totalInteractiveBlocks++;
+
+        if (isRunOrPreview) {
+          try {
+            const runMeta = assertRunFence(fence, file);
+            if (runMeta && runMeta.mode === 'preview' && runMeta.lang === 'html') {
+              htmlPreviewBlocks.push({ file, line });
+              if (runMeta.warning) {
+                warnings.push({
+                  level: 'warning',
+                  code: 'preview-external-resource',
+                  file,
+                  line,
+                  message: runMeta.warning,
+                });
+              }
+            }
+          } catch {}
+        }
+      } else {
+        const rawLang = (fence.info || '').trim().split(/\s+/)[0]?.toLowerCase();
+        if (rawLang && PROGRAMMING_LANGUAGES.has(rawLang)) {
+          hasCodeBlock = true;
+        }
+      }
+    }
+
+    if (interactiveLines.length > 3) {
+      warnings.push({
+        level: 'warning',
+        code: 'too-many-interactive-blocks',
+        file,
+        line: interactiveLines[3],
+        message: `该关卡包含 ${interactiveLines.length} 个交互块（predict、numberline、run、preview），超过了建议的上限（最多 3 个）。`,
+      });
+    }
+  }
+
+  if (hasCodeBlock && totalInteractiveBlocks === 0) {
+    warnings.push({
+      level: 'warning',
+      code: 'no-interactive-blocks-in-coding-course',
+      file: 'COURSE.md',
+      line: 1,
+      message: '课程为编程课（课文中包含编程语言代码块），但整门课没有包含任何交互块（predict、numberline、run、preview）。',
+    });
+  }
+
+  if (!hasCodeBlock && htmlPreviewBlocks.length > 0) {
+    for (const block of htmlPreviewBlocks) {
+      warnings.push({
+        level: 'warning',
+        code: 'preview-in-non-programming-course',
+        file: block.file,
+        line: block.line,
+        message: '非编程课使用了 html preview 进行演示，请人工核对演示是否正确。',
+      });
+    }
+  }
+
+  if (courseMdText) {
+    const wantedInfos = parseWantedInteractions(courseMdText, courseFile);
+    warnings.push(...wantedInfos);
+  }
+
+  return warnings;
+}
+
+export function formatWarnings(warnings = []) {
+  if (!warnings || warnings.length === 0) return '';
+  const lines = ['提醒（不阻断）：'];
+  for (const w of warnings) {
+    const loc = w.file ? (w.line ? `【${w.file}:${w.line}】` : `【${w.file}】`) : '';
+    lines.push(`- ${loc} [${w.level || 'warning'}] ${w.message}`);
+  }
+  return lines.join('\n');
+}
+
 export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
   const options = typeof schoolDirOrOptions === 'string'
     ? { schoolDir: schoolDirOrOptions }
@@ -254,6 +438,7 @@ export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
 
   const allBlocks = [];
   const lessonResults = [];
+  const lessonEntries = [];
   const perLesson = {};
   const byType = {
     predict: 0,
@@ -266,6 +451,7 @@ export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
   for (const file of files) {
     const filePath = join(lessonsDir, file);
     const text = readFileSync(filePath, 'utf8');
+    lessonEntries.push({ file, text });
     const result = verifyLessonBlocks(text, file, {
       schoolDir,
       fileTimeoutMs: options.fileTimeoutMs,
@@ -335,12 +521,21 @@ export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
     .filter(Boolean)
     .join('\n\n');
 
+  const courseMdPath = join(schoolDir, 'COURSE.md');
+  const courseMdText = existsSync(courseMdPath) ? readFileSync(courseMdPath, 'utf8') : '';
+  const warnings = collectSchoolWarnings({
+    lessons: lessonEntries,
+    courseMdText,
+    courseFile: 'COURSE.md',
+  });
+
   return {
     ok: allOk && failedBlocks === 0,
     lessons: lessonResults,
     blocks: allBlocks,
     summary,
     error,
+    warnings,
   };
 }
 
@@ -370,6 +565,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
     }
   }
   console.log(`\n汇总: 共 ${res.summary.totalBlocks} 个块，通过 ${res.summary.passedBlocks}，失败 ${res.summary.failedBlocks}，通过率 ${(res.summary.passRate * 100).toFixed(1)}%`);
+  if (res.warnings && res.warnings.length > 0) {
+    console.log(`\n${formatWarnings(res.warnings)}`);
+  }
   if (!res.ok) {
     process.exit(1);
   }

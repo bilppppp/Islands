@@ -1,0 +1,153 @@
+{
+  "school": "python-official",
+  "timestamp": "2026-10-31T14:15:32.743Z",
+  "summary": {
+    "totalBlocks": 2,
+    "passedBlocks": 2,
+    "failedBlocks": 0,
+    "passRate": 1,
+    "perLesson": {
+      "01-appetite-and-interpreter.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "02-numbers-and-strings.md": {
+        "total": 4,
+        "predict": 2,
+        "numberline": 0,
+        "run": 2,
+        "preview": 0
+      },
+      "03-lists-and-first-steps.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "04-control-flow-tools.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "05-defining-functions.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "06-lists-deep-dive.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "07-tuples-sets-and-dicts.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "08-modules-and-scripts.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "09-input-output-and-files.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "10-errors-and-exceptions.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "11-classes-and-objects.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "12-standard-library-overview.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "13-standard-library-part2.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "14-virtual-environments-and-script.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      }
+    },
+    "byType": {
+      "predict": 2,
+      "numberline": 0,
+      "run": 2,
+      "preview": 0
+    }
+  },
+  "blocks": [
+    {
+      "file": "02-numbers-and-strings.md",
+      "line": 67,
+      "lang": "python",
+      "mode": "run",
+      "runtime": null,
+      "ok": true,
+      "ms": 1,
+      "error": null,
+      "stdout": "矩形面积： 900\n经典除法 17 / 3 = 5.666666666666667\n向下取整 17 // 3 = 5\n",
+      "html": "",
+      "pageText": ""
+    },
+    {
+      "file": "02-numbers-and-strings.md",
+      "line": 220,
+      "lang": "python",
+      "mode": "run",
+      "runtime": null,
+      "ok": true,
+      "ms": 0,
+      "error": null,
+      "stdout": "拼接还原： Python\n切片组合新词： Jython\n",
+      "html": "",
+      "pageText": ""
+    }
+  ],
+  "warnings": [
+    {
+      "level": "warning",
+      "code": "too-many-interactive-blocks",
+      "file": "02-numbers-and-strings.md",
+      "line": 220,
+      "message": "该关卡包含 4 个交互块（predict、numberline、run、preview），超过了建议的上限（最多 3 个）。"
+    }
+  ]
+}

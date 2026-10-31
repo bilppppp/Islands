@@ -11,6 +11,23 @@ const LANG_ALIASES = {
   ts: 'typescript',
 };
 
+export const PROGRAMMING_LANGUAGES = new Set([
+  'python', 'py',
+  'javascript', 'js',
+  'typescript', 'ts',
+  'jsx',
+  'tsx',
+  'html',
+  'css',
+  'c', 'cpp', 'c++', 'csharp', 'c#',
+  'java', 'rust', 'rs', 'go',
+  'ruby', 'rb', 'php', 'swift', 'kotlin', 'kt',
+  'sql', 'shell', 'bash', 'sh', 'zsh',
+]);
+
+export const EXTERNAL_RESOURCE_WARNING =
+  'html preview 引用了外部 http:// 或 https:// 资源：部分学习者（比如国内）可能访问不了，建议把资源复制到课程的 public/ 下。';
+
 export function normalizeRunLang(lang) {
   const lower = (lang || '').toLowerCase().trim();
   return LANG_ALIASES[lower] || lower;
@@ -211,14 +228,15 @@ export function assertRunFence(fence, fileName = 'lesson.md') {
       fail(fileName, `"preview" is only supported for html, jsx, tsx, got "${fenceInfo.rawLang}"`);
     }
     if (fenceInfo.lang === 'html') {
-      if (/(?:src|href)\s*=\s*['"]\s*https?:\/\//i.test(fence.code)) {
-        fail(fileName, 'html preview block cannot reference external resources with http:// or https://');
-      }
-      return {
+      const block = {
         lang: fenceInfo.lang,
         code: fence.code,
         mode: 'preview',
       };
+      if (/(?:src|href)\s*=\s*['"]\s*https?:\/\//i.test(fence.code)) {
+        block.warning = EXTERNAL_RESOURCE_WARNING;
+      }
+      return block;
     } else if (fenceInfo.lang === 'jsx' || fenceInfo.lang === 'tsx') {
       if (!/export\s+default\b/.test(fence.code)) {
         fail(fileName, `${fenceInfo.lang} preview block must contain "export default"`);
