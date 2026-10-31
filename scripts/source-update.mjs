@@ -462,6 +462,8 @@ export function defaultPortBusy(port) {
 }
 
 export async function defaultFinish({ schoolPath }) {
+  await command('python3', ['scripts/apply-school-kit.py', relative(root, schoolPath)], { inherit: true });
+  console.log('已同步共享网站增量。');
   const name = basename(schoolPath);
   const inputPath = join(root, 'inputs', `${name}.json`);
   const count = validateGeneration(inputPath);

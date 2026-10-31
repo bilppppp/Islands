@@ -130,7 +130,7 @@ npm run school -- start my-school
 | `start NAME [--port 端口]` | 本机启动。换端口后，页面中的 API 和提示词会使用新地址 |
 | `teach NAME --student 身份` | 用 Pi 授课。可选 `--mode`、`--lesson` |
 | `teach ... --prompt-only` | 只输出通用教师提示词 |
-| `finish NAME` | 检查 Agent 写的课程并构建 |
+| `finish NAME` | 检查 Agent 写的课程并构建。会真正执行 run/preview 块；可用 `node scripts/verify-lesson-blocks.mjs schools/NAME` 先行自查 |
 | `build NAME` | 构建。先停止该 School 的开发服务；不要同时开发并构建 |
 | `deploy NAME` | 部署到 Vercel，并连接私有 Blob。存储被暂停时脚本会停下来 |
 | `deploy-cloudflare NAME` | 部署到 Cloudflare Workers。进度写入该校私有 R2，地址是 `workers.dev` |

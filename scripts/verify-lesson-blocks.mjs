@@ -1,14 +1,22 @@
 import { spawnSync } from 'node:child_process';
-import { resolve, dirname } from 'node:path';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scanCodeFences } from '../school-kit/overlay/src/lib/predict-block.mjs';
-import { assertRunFence } from '../school-kit/overlay/src/lib/run-block.mjs';
+import {
+  scanCodeFences,
+  collectPredictBlocks,
+  collectNumberlineBlocks,
+} from '../school-kit/overlay/src/lib/predict-block.mjs';
+import {
+  assertRunFence,
+  collectRunBlocks,
+} from '../school-kit/overlay/src/lib/run-block.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const CHILD_SCRIPT = resolve(__dirname, 'verify-lesson-blocks-child.mjs');
 
-function getFenceStartLine(markdown, fence) {
+export function getFenceStartLine(markdown, fence) {
   const text = String(markdown);
   const frontmatterEnd = text.startsWith('---\n') ? text.indexOf('\n---\n', 4) : -1;
   const frontmatterLineCount = frontmatterEnd >= 0
@@ -231,5 +239,138 @@ export function verifyLessonBlocks(
       error: err.message,
       blocks: [],
     };
+  }
+}
+
+export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
+  const options = typeof schoolDirOrOptions === 'string'
+    ? { schoolDir: schoolDirOrOptions }
+    : (schoolDirOrOptions || {});
+  const schoolDir = options.schoolDir || process.env.ISLANDS_DEPS_SCHOOL || resolve(root, 'schools/astro-zero-to-one');
+
+  const files = existsSync(lessonsDir)
+    ? readdirSync(lessonsDir).filter((n) => /\.mdx?$/.test(n)).sort()
+    : [];
+
+  const allBlocks = [];
+  const lessonResults = [];
+  const perLesson = {};
+  const byType = {
+    predict: 0,
+    numberline: 0,
+    run: 0,
+    preview: 0,
+  };
+  let allOk = true;
+
+  for (const file of files) {
+    const filePath = join(lessonsDir, file);
+    const text = readFileSync(filePath, 'utf8');
+    const result = verifyLessonBlocks(text, file, {
+      schoolDir,
+      fileTimeoutMs: options.fileTimeoutMs,
+      blockTimeoutMs: options.blockTimeoutMs,
+    });
+
+    let predictCount = 0;
+    let numberlineCount = 0;
+    try {
+      predictCount = collectPredictBlocks(text, file).length;
+    } catch {}
+    try {
+      numberlineCount = collectNumberlineBlocks(text, file).length;
+    } catch {}
+
+    let runCount = 0;
+    let previewCount = 0;
+    try {
+      const runBlocks = collectRunBlocks(text, file);
+      runCount = runBlocks.filter((b) => b.mode === 'run').length;
+      previewCount = runBlocks.filter((b) => b.mode === 'preview').length;
+    } catch {
+      runCount = (result.blocks || []).filter((b) => b.mode === 'run').length;
+      previewCount = (result.blocks || []).filter((b) => b.mode === 'preview').length;
+    }
+
+    const totalCount = predictCount + numberlineCount + runCount + previewCount;
+    perLesson[file] = {
+      total: totalCount,
+      predict: predictCount,
+      numberline: numberlineCount,
+      run: runCount,
+      preview: previewCount,
+    };
+
+    byType.predict += predictCount;
+    byType.numberline += numberlineCount;
+    byType.run += runCount;
+    byType.preview += previewCount;
+
+    for (const block of result.blocks || []) {
+      allBlocks.push({ ...block, file });
+    }
+    if (!result.ok) {
+      allOk = false;
+    }
+    lessonResults.push({ file, result });
+  }
+
+  const totalBlocks = allBlocks.length;
+  const passedBlocks = allBlocks.filter((b) => b.ok).length;
+  const failedBlocks = totalBlocks - passedBlocks;
+  const passRate = totalBlocks > 0 ? Number((passedBlocks / totalBlocks).toFixed(4)) : 1;
+
+  const summary = {
+    totalBlocks,
+    passedBlocks,
+    failedBlocks,
+    passRate,
+    perLesson,
+    byType,
+  };
+
+  const error = lessonResults
+    .filter((lr) => !lr.result.ok)
+    .map((lr) => formatBlockErrors(lr.result, lr.file))
+    .filter(Boolean)
+    .join('\n\n');
+
+  return {
+    ok: allOk && failedBlocks === 0,
+    lessons: lessonResults,
+    blocks: allBlocks,
+    summary,
+    error,
+  };
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  const targetArg = process.argv[2];
+  if (!targetArg) {
+    console.error('用法: node scripts/verify-lesson-blocks.mjs schools/NAME');
+    process.exit(1);
+  }
+  const schoolDir = resolve(root, targetArg);
+  const lessonsDir = join(schoolDir, 'src/content/lessons');
+  if (!existsSync(lessonsDir)) {
+    console.error(`课文目录不存在: ${lessonsDir}`);
+    process.exit(1);
+  }
+  const res = verifySchoolLessons(lessonsDir, schoolDir);
+  for (const block of res.blocks) {
+    const status = block.ok ? '✓ PASS' : '✗ FAIL';
+    const runtimeStr = block.runtime ? ` (${block.runtime})` : '';
+    console.log(`[${status}] 【${block.file}】第 ${block.index} 个块 (第 ${block.line} 行) [${block.lang} ${block.mode}${runtimeStr}] - ${block.ms}ms`);
+    if (block.stdout && block.stdout.trim()) {
+      console.log(`  stdout:\n${block.stdout.trim().split('\n').map((l) => '    ' + l).join('\n')}`);
+    }
+    if (!block.ok) {
+      const errText = block.error || block.stderr || '未知错误';
+      console.log(`  error:\n${errText.trim().split('\n').map((l) => '    ' + l).join('\n')}`);
+    }
+  }
+  console.log(`\n汇总: 共 ${res.summary.totalBlocks} 个块，通过 ${res.summary.passedBlocks}，失败 ${res.summary.failedBlocks}，通过率 ${(res.summary.passRate * 100).toFixed(1)}%`);
+  if (!res.ok) {
+    process.exit(1);
   }
 }

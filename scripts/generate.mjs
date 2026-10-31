@@ -1,10 +1,12 @@
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
 import { resolve, basename, join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
 import { assertLessonHasSources, listFiles, rawSha256, readLessons } from './source-state.mjs';
 import { assertSourceCites } from '../school-kit/overlay/src/lib/source-cite.mjs';
-import { assertLessonCodeBlocks } from '../school-kit/overlay/src/lib/run-block.mjs';
+import { assertLessonCodeBlocks, resolvePreviewRuntime, normalizeRunLang } from '../school-kit/overlay/src/lib/run-block.mjs';
+import { scanCodeFences } from '../school-kit/overlay/src/lib/predict-block.mjs';
+import { verifySchoolLessons, getFenceStartLine } from './verify-lesson-blocks.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -311,10 +313,73 @@ function assertProtectedTrees(plan, schoolPath) {
   }
 }
 
+export function isIslandChrome(schoolDirOrConfigText) {
+  let text = '';
+  if (typeof schoolDirOrConfigText === 'string') {
+    if (existsSync(join(schoolDirOrConfigText, 'school.config.ts'))) {
+      text = readFileSync(join(schoolDirOrConfigText, 'school.config.ts'), 'utf8');
+    } else {
+      text = schoolDirOrConfigText;
+    }
+  }
+  const stripped = text.replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '');
+  return /(?:^|\n)\s*chrome\s*:\s*["']island["']\s*,?\s*(?:$|\n)/m.test(stripped);
+}
+
+export function assertIslandBlocksSupported(isIsland, lessons) {
+  if (isIsland) return;
+  for (const { text, name = 'lesson.md' } of lessons) {
+    const fences = scanCodeFences(text);
+    for (const fence of fences) {
+      if (/^predict(?:\s|$)/.test(fence.info)) {
+        throw new Error(`课文 ${name} 包含 predict 交互块，但当前学校不是 island chrome 皮肤。这些块只在 island 皮肤上渲染。`);
+      }
+      if (/(?:^|\s)(?:run|preview)(?:\s|$)/.test(fence.info)) {
+        throw new Error(`课文 ${name} 包含 run/preview 交互块，但当前学校不是 island chrome 皮肤。这些块只在 island 皮肤上渲染。`);
+      }
+      if (/^numberline(?:\s|$)/.test(fence.info)) {
+        throw new Error(`课文 ${name} 包含 numberline 交互块，但当前学校不是 island chrome 皮肤。这些块只在 island 皮肤上渲染。`);
+      }
+    }
+  }
+}
+
+export function assertConsistentPreviewRuntimes(lessons) {
+  let hasReact = false;
+  const preactBlocks = [];
+
+  for (const { text, name = 'lesson.md' } of lessons) {
+    const fences = scanCodeFences(text);
+    for (const fence of fences) {
+      const tokens = fence.info.trim().split(/\s+/);
+      const isPreview = tokens.includes('preview');
+      const rawLang = tokens[0] === 'run' || tokens[0] === 'preview' ? tokens[0] : tokens[0];
+      const lang = normalizeRunLang(rawLang);
+      if (isPreview && (lang === 'jsx' || lang === 'tsx')) {
+        const line = getFenceStartLine(text, fence);
+        let explicit = null;
+        if (tokens.includes('react')) explicit = 'react';
+        else if (tokens.includes('preact')) explicit = 'preact';
+        const runtime = resolvePreviewRuntime(explicit, fence.code);
+        if (runtime === 'react') {
+          hasReact = true;
+        } else if (runtime === 'preact') {
+          preactBlocks.push({ name, line });
+        }
+      }
+    }
+  }
+
+  if (hasReact && preactBlocks.length > 0) {
+    const first = preactBlocks[0];
+    throw new Error(`一门课中不能混用 React 和 Preact：发现 ${first.name} 第 ${first.line} 行的代码块落到了 Preact 运行时，但课程其他部分使用了 React。`);
+  }
+}
+
 export function validateGeneration(inputPath) {
   const input = JSON.parse(readFileSync(inputPath, 'utf8'));
   const output = resolve(root, input.output);
-  const lessons = readdirSync(join(output, 'src/content/lessons')).filter(n => /\.mdx?$/.test(n));
+  const lessons = readdirSync(join(output, 'src/content/lessons')).filter(n => /\.mdx?$/.test(n)).sort();
   if (!lessons.length || !existsSync(join(output, 'COURSE.md'))) throw new Error('Generation did not produce a complete route and lessons. Files are preserved for inspection.');
   const configText = readFileSync(join(output, 'school.config.ts'), 'utf8');
   const field = (key) => configText.match(new RegExp(`^\\s*${key}:\\s*"((?:\\\\.|[^"])*)"`, 'm'))?.[1] ?? '';
@@ -326,6 +391,7 @@ export function validateGeneration(inputPath) {
   }
   const settingsPath = join(output, 'school.settings.json');
   const requireLessonSources = existsSync(settingsPath) && JSON.parse(readFileSync(settingsPath, 'utf8')).requireLessonSources === true;
+  const lessonEntries = [];
   for (const name of lessons) {
     const text = readFileSync(join(output, 'src/content/lessons', name), 'utf8');
     if (!text.startsWith('---\n') || !/agentInstructions:\s*\|/.test(text) || /\bTODO\b|Coming soon\./.test(text)) {
@@ -341,22 +407,160 @@ export function validateGeneration(inputPath) {
     assertSourceCites(text, name, join(output, 'public/sources'));
     assertLessonCodeBlocks(text, name);
     if (requireLessonSources) assertLessonHasSources(text, name, join(output, 'public/sources'));
+    lessonEntries.push({ name, text });
   }
+
+  const isIsland = isIslandChrome(output);
+  assertIslandBlocksSupported(isIsland, lessonEntries);
+  assertConsistentPreviewRuntimes(lessonEntries);
+
+  const verification = verifySchoolLessons(join(output, 'src/content/lessons'), output);
+  const totalInteractiveBlocks = (verification.summary?.byType?.predict || 0)
+    + (verification.summary?.byType?.numberline || 0)
+    + (verification.summary?.byType?.run || 0)
+    + (verification.summary?.byType?.preview || 0);
+  if (totalInteractiveBlocks > 0) {
+    const schoolName = basename(output);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const evidenceDir = join(root, 'evidence/generation/blocks');
+    mkdirSync(evidenceDir, { recursive: true });
+    const evidencePath = join(evidenceDir, `${schoolName}-${timestamp}.json`);
+    const recordBlocks = verification.blocks.map(b => ({
+      file: b.file,
+      line: b.line,
+      lang: b.lang,
+      mode: b.mode,
+      runtime: b.runtime ?? null,
+      ok: b.ok,
+      ms: b.ms ?? 0,
+      error: b.error || (b.ok ? null : (b.stderr || '未知错误')),
+      stdout: (b.stdout || '').slice(0, 500),
+      html: (b.html || '').slice(0, 500),
+      pageText: (b.pageText || '').slice(0, 500),
+    }));
+    const evidenceData = {
+      school: schoolName,
+      timestamp: new Date().toISOString(),
+      summary: verification.summary,
+      blocks: recordBlocks,
+    };
+    writeFileSync(evidencePath, JSON.stringify(evidenceData, null, 2) + '\n');
+  }
+
+  if (!verification.ok) {
+    throw new Error(verification.error || 'Lesson block verification failed');
+  }
+
   return lessons.length;
 }
 
-export async function generate(inputPath, { model } = {}) {
+export function repairPrompt(errorText) {
+  return [
+    '课程验证未通过，请修复课文中的问题。',
+    '',
+    '注意：',
+    '1. 只修下面列出的问题；',
+    '2. 不要改 slug、order、完成条件文字和 COURSE.md 的路线；',
+    '3. 修完后不需要自己再调用验证。',
+    '',
+    '错误全文如下：',
+    errorText,
+  ].join('\n');
+}
+
+export async function repairUntilValid({
+  validate,
+  repair,
+  maxRounds = 2,
+  onRoundStart,
+  onRoundResult,
+  onRoundFailure,
+}) {
+  let lastError;
+  try {
+    return await validate();
+  } catch (err) {
+    lastError = err;
+  }
+
+  for (let round = 1; round <= maxRounds; round++) {
+    onRoundStart?.(round);
+    const repairResult = await repair(lastError, round);
+    onRoundResult?.(round, repairResult);
+    try {
+      return await validate();
+    } catch (err) {
+      lastError = err;
+      onRoundFailure?.(round, lastError);
+    }
+  }
+
+  throw lastError;
+}
+
+export function createGenerationSessionId(schoolName, date = new Date()) {
+  const ts = date.toISOString().replace(/[:.]/g, '-');
+  return `${schoolName}-${ts}`;
+}
+
+export async function generate(inputPath, { model, piPrint: customPiPrint = piPrint, validate } = {}) {
   const input = JSON.parse(readFileSync(inputPath, 'utf8'));
   const output = resolve(root, input.output);
-  const summary = await piPrint(generationPrompt(inputPath), {
+  const schoolName = basename(output);
+  const logPath = join(root, `evidence/generation/${schoolName}.jsonl`);
+  const sessionDir = join(root, 'evidence/generation/sessions');
+  const sessionId = createGenerationSessionId(schoolName);
+
+  const summary = await customPiPrint(generationPrompt(inputPath), {
     model, cwd: root, tools: 'read,bash,write,edit',
-    logPath: join(root, `evidence/generation/${basename(output)}.jsonl`),
-    sessionDir: join(root, 'evidence/generation/sessions'),
+    logPath,
+    sessionDir,
+    sessionId,
     onTool: name => console.log(`生成中：${name}`)
   });
-  const count = validateGeneration(inputPath);
   console.log(summary);
-  return count;
+
+  const appendLog = (entry) => {
+    try {
+      mkdirSync(dirname(logPath), { recursive: true });
+      appendFileSync(logPath, JSON.stringify(entry) + '\n');
+    } catch {}
+  };
+
+  try {
+    return await repairUntilValid({
+      validate: () => (validate ? validate() : validateGeneration(inputPath)),
+      repair: async (lastError, round) => {
+        return await customPiPrint(repairPrompt(lastError.message), {
+          model,
+          cwd: root,
+          tools: 'read,bash,write,edit',
+          logPath,
+          sessionDir,
+          sessionId,
+          appendLog: true,
+          onTool: name => console.log(`修复第 ${round} 轮中：${name}`)
+        });
+      },
+      maxRounds: 2,
+      onRoundStart: (round) => {
+        console.log(`\n课程验证未通过，开始第 ${round} 轮修复...`);
+        appendLog({ type: 'repair_round_start', round, sessionId, timestamp: new Date().toISOString() });
+      },
+      onRoundResult: (round, result) => {
+        console.log(`第 ${round} 轮修复完成：${result}`);
+        appendLog({ type: 'repair_round_result', round, sessionId, result, timestamp: new Date().toISOString() });
+      },
+      onRoundFailure: (round, error) => {
+        console.log(`第 ${round} 轮修复后验证仍未通过：\n${error.message}`);
+        appendLog({ type: 'repair_round_failure', round, sessionId, error: error.message, timestamp: new Date().toISOString() });
+      },
+    });
+  } catch (error) {
+    const hint = `已尝试 2 轮修复，仍未全部通过。已保留生成的文件，可以修改后运行 npm run school -- finish ${schoolName}，不要用 retry。`;
+    console.error(`\n${hint}`);
+    throw new Error(`${error.message}\n\n${hint}`);
+  }
 }
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   if (!process.argv[2]) { console.error('Use: node scripts/generate.mjs INPUT.json (or npm run school -- create)'); process.exitCode = 1; }

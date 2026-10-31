@@ -251,7 +251,14 @@ async function main() {
     if (!existsSync(script)) throw new Error(`Unknown School script ${script}. Apply the School Kit first.`);
     await command(script, [], { cwd: path, inherit: true });
   } else if (operation === 'finish') {
-    const count = validateGeneration(join(root, 'inputs', basename(path) + '.json'));
+    await command('python3', ['scripts/apply-school-kit.py', relative(root, path)], { inherit: true });
+    console.log('已同步共享网站增量。');
+    let count;
+    try {
+      count = validateGeneration(join(root, 'inputs', basename(path) + '.json'));
+    } catch (err) {
+      throw new Error(`${err.message}\n\n修改上述课文后重新运行 finish。`);
+    }
     await command('npm', ['run', 'build'], { cwd: path, inherit: true, rejectOnErrorLog: true });
     console.log(`School 已检查并构建：${basename(path)}（${count} 关）。启动：npm run school -- start ${basename(path)}。真实教学尚未验证。`);
   } else if (operation === 'supplement') {

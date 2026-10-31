@@ -701,7 +701,10 @@ def apply(target: Path) -> list[str]:
         if "package.json" in island_changed:
             package_changed = True
         changed.extend(island_changed)
-    if package_changed:
+    node_modules = target / "node_modules"
+    if node_modules.is_symlink():
+        node_modules.unlink()
+    if package_changed or not node_modules.is_dir():
         install_runtime_dependencies(target)
         changed.append("package-lock.json")
     return changed

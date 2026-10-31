@@ -41,7 +41,7 @@ npm run school -- create "用户的完整学习请求" \
 npm run school -- finish new-school
 ```
 
-`finish` 复用课程文件检查并构建，不调用 Pi。失败时保留材料与生成文件，修复具体错误后再次 `finish`；不要用 `retry` 代替它。默认 Pi 自动生成仍可用：省略 `--prepare-only`，或者直接 `create "完整自然语言请求" --name new-school`。
+`finish` 复用课程文件检查并构建，不调用 Pi；它会真正执行课文里的 run/preview 块以验证代码与渲染。写课时可以先运行 `node scripts/verify-lesson-blocks.mjs schools/new-school` 自查。失败时保留材料与生成文件，修复具体错误后再次 `finish`；不要用 `retry` 代替它。默认 Pi 自动生成仍可用：省略 `--prepare-only`，或者直接 `create "完整自然语言请求" --name new-school`。
 
 新建 School 的岛屿页面由 `create` 自动安装；生成课程的 Agent 只按 GENERATION.md 编写课程内容，不修改页面、组件或样式，也不从 `schools/island-preview` 复制文件。来源支撑的要点按协议用正文 `{{cite …}}` 标记短词（路径须在该关 `sources` 中，quote 须是保存文件里的原句）；自读页显示来源卡，教师仍读 `/sources/`。不要手写 HTML 引用组件。
 

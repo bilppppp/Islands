@@ -1,0 +1,143 @@
+{
+  "school": "astro-zero-to-one",
+  "timestamp": "2026-10-31T13:20:44.634Z",
+  "summary": {
+    "totalBlocks": 3,
+    "passedBlocks": 3,
+    "failedBlocks": 0,
+    "passRate": 1,
+    "perLesson": {
+      "01-why-astro-and-server-first.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "02-project-setup-and-structure.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "03-astro-pages-and-markdown.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "04-astro-components-and-syntax.md": {
+        "total": 1,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 1
+      },
+      "05-scoped-styles-and-assets.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "06-reusable-components-and-props.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "07-layouts-and-slots.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "08-client-scripts-and-interaction.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "09-dynamic-routes-and-astro-api.md": {
+        "total": 1,
+        "predict": 0,
+        "numberline": 0,
+        "run": 1,
+        "preview": 0
+      },
+      "10-islands-and-client-directives.md": {
+        "total": 1,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 1
+      },
+      "11-content-collections.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      },
+      "12-develop-build-and-deploy.md": {
+        "total": 0,
+        "predict": 0,
+        "numberline": 0,
+        "run": 0,
+        "preview": 0
+      }
+    },
+    "byType": {
+      "predict": 0,
+      "numberline": 0,
+      "run": 1,
+      "preview": 2
+    }
+  },
+  "blocks": [
+    {
+      "file": "04-astro-components-and-syntax.md",
+      "line": 157,
+      "lang": "html",
+      "mode": "preview",
+      "runtime": null,
+      "ok": true,
+      "ms": 0,
+      "error": null,
+      "stdout": "",
+      "html": "<style>\n  ul {\n    list-style-type: square;\n    padding-left: 20px;\n    font-family: sans-serif;\n  }\n  li {\n    margin: 4px 0;\n    color: #2b2118;\n  }\n</style>\n<ul>\n  <li>HTML</li>\n  <li>CSS</li>\n  <li>JavaScript</li>\n  <li>React</li>\n  <li>Astro</li>\n  <li>编写文档</li>\n</ul>",
+      "pageText": ""
+    },
+    {
+      "file": "09-dynamic-routes-and-astro-api.md",
+      "line": 58,
+      "lang": "typescript",
+      "mode": "run",
+      "runtime": null,
+      "ok": true,
+      "ms": 3,
+      "error": null,
+      "stdout": "[\n  {\n    \"params\": {\n      \"tag\": \"astro\"\n    },\n    \"props\": {\n      \"posts\": [\n        {\n          \"title\": \"学习 Astro 的第一天\",\n          \"tags\": [\n            \"astro\",\n            \"blogging\"\n          ]\n        },\n        {\n          \"title\": \"关于组件的小结\",\n          \"tags\": [\n            \"astro\"\n          ]\n        }\n      ]\n    }\n  },\n  {\n    \"params\": {\n      \"tag\": \"blogging\"\n    },\n    \"props\": {\n      \"posts\": [\n        {\n          \"title\": \"学习 Astro 的第一天\",\n          \"tags\": [\n            \"as",
+      "html": "",
+      "pageText": ""
+    },
+    {
+      "file": "10-islands-and-client-directives.md",
+      "line": 150,
+      "lang": "jsx",
+      "mode": "preview",
+      "runtime": "preact",
+      "ok": true,
+      "ms": 4,
+      "error": null,
+      "stdout": "",
+      "html": "<div><h3>你好！感谢你的访问！</h3><button>换一句新的问候语</button></div>",
+      "pageText": ""
+    }
+  ]
+}
