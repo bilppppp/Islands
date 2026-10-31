@@ -140,8 +140,9 @@ export default function IslandLessonChrome() {
 				if (isPreview && isPreviewLang(lang)) {
 					const host = document.createElement("div");
 					host.className = "island-run-host island-preview-host";
+					const explicitRuntime = (pre.getAttribute("data-runtime") || undefined) as "react" | "preact" | undefined;
 					pre.replaceWith(host);
-					createRoot(host).render(<IslandRunBlock initialCode={code} lang={lang} mode="preview" />);
+					createRoot(host).render(<IslandRunBlock initialCode={code} lang={lang} mode="preview" initialRuntime={explicitRuntime} />);
 					return;
 				}
 				const isRun = pre.getAttribute("data-run") === "true" || pre.dataset.run === "true";

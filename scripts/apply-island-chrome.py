@@ -22,6 +22,7 @@ ISLAND_DEPENDENCIES = {
     "pyodide": "314.0.7",
     "sucrase": "3.35.1",
     "preact": "10.29.8",
+    "esbuild": "0.27.4",
 }
 
 ISLAND_ASTRO_FILES = (
@@ -127,7 +128,9 @@ def island_astro_config_text(source: str) -> str:
     text = text.replace('theme: "vesper"', "theme: islandTheme")
     text = text.replace('theme: "github-light"', "theme: islandTheme")
     if 'noExternal: ["animal-island-ui"]' not in text or "resolve:" not in text:
-        marker = "\t\tdefine: {"
+        marker = '\t\tdefine: {\n\t\t\t"import.meta.env.SCHOOL_DEPLOY_TARGET"'
+        if marker not in text:
+            marker = "\t\tdefine: {"
         if marker not in text:
             raise ValueError("astro config has no vite define block")
         if "ssr: {" in text and 'noExternal: ["animal-island-ui"]' in text:

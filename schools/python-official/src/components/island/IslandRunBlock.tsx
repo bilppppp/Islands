@@ -4,6 +4,7 @@ import IslandAskTeacher, { t } from "./IslandAskTeacher";
 import {
 	buildPreviewDocument,
 	normalizeRunLang,
+	resolvePreviewRuntime,
 } from "../../lib/run-block.mjs";
 
 interface RunResult {
@@ -42,6 +43,7 @@ async function transformWithSucrase(
 }
 let preactUmdSource: string | null = null;
 let hooksUmdSource: string | null = null;
+let reactRuntimeSource: string | null = null;
 
 async function loadPreactUmdSources(): Promise<{
 	preact: string;
@@ -56,6 +58,17 @@ async function loadPreactUmdSources(): Promise<{
 		hooksUmdSource = (hooksMod as unknown as { default: string }).default;
 	}
 	return { preact: preactUmdSource, hooks: hooksUmdSource };
+}
+
+async function loadReactRuntimeSource(): Promise<string> {
+	if (!reactRuntimeSource) {
+		const res = await fetch("/vendor/react-preview/runtime.js");
+		if (!res.ok) {
+			throw new Error(`无法加载 React 运行时 (HTTP ${res.status})`);
+		}
+		reactRuntimeSource = await res.text();
+	}
+	return reactRuntimeSource;
 }
 
 function getWorker(runtime: "python" | "javascript"): Worker {
@@ -173,10 +186,12 @@ export default function IslandRunBlock({
 	initialCode,
 	lang = "python",
 	mode = "run",
+	initialRuntime,
 }: {
 	initialCode: string;
 	lang?: string;
 	mode?: "run" | "preview";
+	initialRuntime?: "react" | "preact";
 }) {
 	const [code, setCode] = useState(initialCode);
 	const [stdin, setStdin] = useState("");
@@ -251,6 +266,15 @@ export default function IslandRunBlock({
 		}
 
 		if (normalizedLang === "jsx" || normalizedLang === "tsx") {
+			let runtime: "react" | "preact" = "preact";
+			try {
+				runtime = resolvePreviewRuntime(initialRuntime, codeToRender);
+			} catch (err: unknown) {
+				const msg = err instanceof Error ? err.message : String(err);
+				setPreviewError(msg);
+				return;
+			}
+
 			let transformedCode = "";
 			try {
 				const transforms =
@@ -259,8 +283,8 @@ export default function IslandRunBlock({
 						: ["jsx", "imports"];
 				transformedCode = await transformWithSucrase(codeToRender, {
 					transforms,
-					jsxPragma: "h",
-					jsxFragmentPragma: "Fragment",
+					jsxPragma: runtime === "react" ? "React.createElement" : "h",
+					jsxFragmentPragma: runtime === "react" ? "React.Fragment" : "Fragment",
 				});
 			} catch (err: unknown) {
 				const msg = err instanceof Error ? err.message : String(err);
@@ -271,10 +295,14 @@ export default function IslandRunBlock({
 			setPreviewError(null);
 			setConsoleLogs([]);
 			try {
-				const runtimeSources = await loadPreactUmdSources();
+				const runtimeSources =
+					runtime === "react"
+						? { react: await loadReactRuntimeSource() }
+						: await loadPreactUmdSources();
 				const doc = buildPreviewDocument({
 					lang: normalizedLang,
 					code: transformedCode,
+					runtime,
 					runtimeSources,
 				});
 				setPreviewDoc(doc);

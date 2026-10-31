@@ -120,7 +120,9 @@ populated via `srcdoc`). Code changes automatically re-render after a ~500ms deb
 helper intercepts `console` logs, unhandled errors, and forwards body height (clamped between
 120–600px) and `innerText` (truncated to 500 characters) via `parent.postMessage` to update a compact
 console below the preview. JSX/TSX blocks are transformed in-browser using `sucrase` and render with
-Preact UMD bundles dynamically loaded via Vite `?raw` on first preview use.
+either Preact (default, using Preact UMD bundles dynamically loaded via Vite `?raw` on first preview use)
+or React 19 (for React courses, bundle generated on demand via `esbuild` to `/vendor/react-preview/runtime.js`
+and fetched on first preview use, rendering with `ReactDOMClient.createRoot`).
 
 Lesson Markdown may also include fenced ```numberline blocks for interactive number
 line widgets (see `generation/protocol.md`). The overlay configures `numberline`

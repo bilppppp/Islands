@@ -389,7 +389,7 @@ describe('preview blocks', () => {
     const collected = collectRunBlocks(doc, 'preview.md');
     assert.equal(collected.length, 2);
     assert.deepEqual(collected[0], { lang: 'html', code: htmlCode, mode: 'preview' });
-    assert.deepEqual(collected[1], { lang: 'jsx', code: jsxCode, mode: 'preview' });
+    assert.deepEqual(collected[1], { lang: 'jsx', code: jsxCode, mode: 'preview', runtime: 'preact' });
 
     const asserted = assertRunBlocks(doc, 'preview.md');
     assert.equal(asserted.length, 2);
@@ -397,6 +397,7 @@ describe('preview blocks', () => {
     assert.equal(asserted[0].mode, 'preview');
     assert.equal(asserted[1].lang, 'jsx');
     assert.equal(asserted[1].mode, 'preview');
+    assert.equal(asserted[1].runtime, 'preact');
   });
 
   it('rejects unsupported language with preview', () => {
@@ -428,16 +429,74 @@ describe('preview blocks', () => {
   });
 
   it('rejects jsx preview block with disallowed imports', () => {
-    const reactDoc = lesson('```jsx preview\nimport React from "react";\nexport default function App() {}\n```');
+    const reactDoc = lesson('```jsx preview preact\nimport React from "react";\nexport default function App() {}\n```');
     assert.throws(
       () => assertRunBlocks(reactDoc, 'disallowed-import.md'),
-      /Run block in disallowed-import\.md: jsx preview block can only import from "preact" and "preact\/hooks", got "react"/,
+      /Run block in disallowed-import\.md: jsx preview block specifies preact runtime but imports from "react"/,
     );
 
     const relativeDoc = lesson('```jsx preview\nimport { helper } from "./helper";\nexport default function App() {}\n```');
     assert.throws(
       () => assertRunBlocks(relativeDoc, 'disallowed-relative.md'),
       /Run block in disallowed-relative\.md: jsx preview block can only import from "preact" and "preact\/hooks", got "\.\/helper"/,
+    );
+  });
+
+  it('selects runtime: explicit, inferred by import, or default', () => {
+    const explicitReact = lesson('```jsx preview react\nexport default function App() {}\n```');
+    assert.equal(collectRunBlocks(explicitReact)[0].runtime, 'react');
+    assert.equal(assertRunBlocks(explicitReact)[0].runtime, 'react');
+
+    const explicitPreact = lesson('```jsx preview preact\nexport default function App() {}\n```');
+    assert.equal(collectRunBlocks(explicitPreact)[0].runtime, 'preact');
+    assert.equal(assertRunBlocks(explicitPreact)[0].runtime, 'preact');
+
+    const importReact = lesson('```jsx preview\nimport { useState } from "react";\nexport default function App() {}\n```');
+    assert.equal(collectRunBlocks(importReact)[0].runtime, 'react');
+    assert.equal(assertRunBlocks(importReact)[0].runtime, 'react');
+
+    const importReactDom = lesson('```jsx preview\nimport { createRoot } from "react-dom/client";\nexport default function App() {}\n```');
+    assert.equal(collectRunBlocks(importReactDom)[0].runtime, 'react');
+    assert.equal(assertRunBlocks(importReactDom)[0].runtime, 'react');
+
+    const importPreact = lesson('```jsx preview\nimport { useState } from "preact/hooks";\nexport default function App() {}\n```');
+    assert.equal(collectRunBlocks(importPreact)[0].runtime, 'preact');
+    assert.equal(assertRunBlocks(importPreact)[0].runtime, 'preact');
+
+    const defaultDoc = lesson('```jsx preview\nexport default function App() { return <div>Hi</div>; }\n```');
+    assert.equal(collectRunBlocks(defaultDoc)[0].runtime, 'preact');
+    assert.equal(assertRunBlocks(defaultDoc)[0].runtime, 'preact');
+  });
+
+  it('rejects runtime and import conflicts', () => {
+    const conflictReactPreact = lesson('```jsx preview react\nimport { useState } from "preact/hooks";\nexport default function App() {}\n```');
+    assert.throws(
+      () => assertRunBlocks(conflictReactPreact, 'conflict-react-preact.md'),
+      /Run block in conflict-react-preact\.md: jsx preview block specifies react runtime but imports from "preact\/hooks"/,
+    );
+
+    const conflictPreactReact = lesson('```jsx preview preact\nimport { useState } from "react";\nexport default function App() {}\n```');
+    assert.throws(
+      () => assertRunBlocks(conflictPreactReact, 'conflict-preact-react.md'),
+      /Run block in conflict-preact-react\.md: jsx preview block specifies preact runtime but imports from "react"/,
+    );
+
+    const mixedImports = lesson('```jsx preview\nimport { useState } from "react";\nimport { useEffect } from "preact/hooks";\nexport default function App() {}\n```');
+    assert.throws(
+      () => assertRunBlocks(mixedImports, 'mixed.md'),
+      /Run block in mixed\.md: jsx preview block cannot import both React and Preact/,
+    );
+
+    const reactDisallowed = lesson('```jsx preview react\nimport { helper } from "./helper";\nexport default function App() {}\n```');
+    assert.throws(
+      () => assertRunBlocks(reactDisallowed, 'react-disallowed.md'),
+      /Run block in react-disallowed\.md: jsx preview block can only import from "react" and "react-dom\/client", got "\.\/helper"/,
+    );
+
+    const reactInferredDisallowed = lesson('```jsx preview\nimport { useState } from "react";\nimport lodash from "lodash";\nexport default function App() {}\n```');
+    assert.throws(
+      () => assertRunBlocks(reactInferredDisallowed, 'react-inferred-disallowed.md'),
+      /Run block in react-inferred-disallowed\.md: jsx preview block can only import from "react" and "react-dom\/client", got "lodash"/,
     );
   });
 
@@ -477,6 +536,150 @@ describe('preview blocks', () => {
     assert.ok(jsxOut.includes('if (name === "preact") return window.preact;'), 'JSX document must include require("preact") mapping');
     assert.ok(jsxOut.includes('if (name === "preact/hooks") return window.preactHooks;'), 'JSX document must include require("preact/hooks") mapping');
     assert.ok(jsxOut.includes('window.preact.render'), 'JSX document must call window.preact.render');
+  });
+
+  it('buildPreviewDocument outputs React branch with createRoot and require mappings', () => {
+    const reactOut = buildPreviewDocument({
+      lang: 'jsx',
+      runtime: 'react',
+      code: 'exports.default = function App() { return null; };',
+      runtimeSources: {
+        react: 'window.__islandReact = { React: {}, ReactDOMClient: {} };',
+      },
+    });
+    assert.ok(reactOut.includes('preview-console'), 'React document must include injected console handler');
+    assert.ok(reactOut.includes('preview-metrics'), 'React document must include injected metrics handler');
+    assert.ok(reactOut.includes('if (name === "react") return __islandReact;'), 'React document must include require("react") mapping');
+    assert.ok(reactOut.includes('if (name === "react-dom/client") return __islandReactDOMClient;'), 'React document must include require("react-dom/client") mapping');
+    assert.ok(reactOut.includes('window.React = __islandReact;'), 'React document must set window.React');
+    assert.ok(reactOut.includes('__islandReactDOMClient.createRoot'), 'React document must call createRoot');
+    assert.ok(reactOut.includes('__islandRootInstance.render'), 'React document must call render');
+  });
+
+  it('renders pilot lesson react preview blocks with real React in Node', async () => {
+    const reactSchoolDir = resolve(root, 'schools/react-official');
+    const req = createRequire(resolve(reactSchoolDir, 'package.json'));
+    const React = req('react');
+    const ReactDOMServer = req('react-dom/server');
+    const { transform } = req('sucrase');
+    const vm = await import('node:vm');
+
+    const lesson14Path = resolve(reactSchoolDir, 'src/content/lessons/14-state-a-components-memory.md');
+    const lesson14Blocks = assertRunBlocks(readFileSync(lesson14Path, 'utf8'), '14-state-a-components-memory.md');
+    const preview14 = lesson14Blocks.filter((b) => b.mode === 'preview');
+    assert.equal(preview14.length, 1, 'Lesson 14 must have exactly 1 preview block');
+    assert.equal(preview14[0].runtime, 'react');
+
+    const lesson16Path = resolve(reactSchoolDir, 'src/content/lessons/16-state-as-a-snapshot.md');
+    const lesson16Blocks = assertRunBlocks(readFileSync(lesson16Path, 'utf8'), '16-state-as-a-snapshot.md');
+    const preview16 = lesson16Blocks.filter((b) => b.mode === 'preview');
+    assert.equal(preview16.length, 1, 'Lesson 16 must have exactly 1 preview block');
+    assert.equal(preview16[0].runtime, 'react');
+
+    const pilots = [
+      { name: 'Lesson 14 (Counter/Gallery)', block: preview14[0] },
+      { name: 'Lesson 16 (State as snapshot)', block: preview16[0] },
+    ];
+
+    for (const pilot of pilots) {
+      const transformed = transform(pilot.block.code, {
+        transforms: ['jsx', 'imports'],
+        jsxPragma: 'React.createElement',
+        jsxFragmentPragma: 'React.Fragment',
+      });
+      const context = vm.createContext({
+        require: (name) => {
+          if (name === 'react') return React;
+          if (name === 'react-dom/client') return req('react-dom/client');
+          throw new Error(`Cannot find module '${name}'`);
+        },
+        exports: {},
+        React,
+      });
+      vm.runInContext(transformed.code, context);
+      assert.equal(typeof context.exports.default, 'function', `${pilot.name} must export a default component`);
+      const html = ReactDOMServer.renderToString(React.createElement(context.exports.default));
+      assert.ok(typeof html === 'string' && html.length > 0, `${pilot.name} renderToString must produce HTML`);
+      console.log(`[React Pilot Render] ${pilot.name} HTML (first 200 chars):\n${html.slice(0, 200)}`);
+    }
+  });
+
+  it('executes complete preview document for react preview block with stubs', async () => {
+    const reactSchoolDir = resolve(root, 'schools/react-official');
+    const req = createRequire(resolve(reactSchoolDir, 'package.json'));
+    const { transform } = req('sucrase');
+    const vm = await import('node:vm');
+
+    const lesson14Path = resolve(reactSchoolDir, 'src/content/lessons/14-state-a-components-memory.md');
+    const blocks = assertRunBlocks(readFileSync(lesson14Path, 'utf8'), '14-state-a-components-memory.md');
+    const preview14 = blocks.find((b) => b.mode === 'preview');
+    assert.ok(preview14, 'Lesson 14 must have preview block');
+
+    const transformed = transform(preview14.code, {
+      transforms: ['jsx', 'imports'],
+      jsxPragma: 'React.createElement',
+      jsxFragmentPragma: 'React.Fragment',
+    });
+
+    const doc = buildPreviewDocument({
+      lang: 'jsx',
+      code: transformed.code,
+      runtime: 'react',
+      runtimeSources: {},
+    });
+
+    const scriptMatches = [...doc.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
+    assert.ok(scriptMatches.length > 0, 'Document must contain script tags');
+    const lastScript = scriptMatches[scriptMatches.length - 1][1];
+
+    const renderCalls = [];
+    const consoleErrors = [];
+
+    const ReactStub = {
+      createElement: (type, props, ...children) => ({ type, props, children }),
+      Fragment: 'FragmentPlaceholder',
+      useState: (initial) => [typeof initial === 'function' ? initial() : initial, () => {}],
+    };
+    const ReactDOMClientStub = {
+      createRoot: (container) => ({
+        render: (el) => {
+          renderCalls.push({ container, el });
+        },
+      }),
+    };
+
+    const windowStub = {
+      __islandReact: {
+        React: ReactStub,
+        ReactDOMClient: ReactDOMClientStub,
+      },
+    };
+    windowStub.window = windowStub;
+
+    const documentStub = {
+      getElementById: (id) => ({ id }),
+    };
+
+    const consoleStub = {
+      ...console,
+      error: (...args) => {
+        consoleErrors.push(args);
+      },
+    };
+
+    windowStub.document = documentStub;
+    windowStub.console = consoleStub;
+
+    const context = vm.createContext({
+      window: windowStub,
+      document: documentStub,
+      console: consoleStub,
+    });
+
+    vm.runInContext(lastScript, context);
+
+    assert.equal(renderCalls.length, 1, 'ReactDOMClient.createRoot().render should be called once');
+    assert.equal(consoleErrors.length, 0, `console.error should not be called: ${JSON.stringify(consoleErrors)}`);
   });
 });
 

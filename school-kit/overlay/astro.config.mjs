@@ -1,4 +1,5 @@
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import cloudflare from "@astrojs/cloudflare";
@@ -36,6 +37,11 @@ const runBlockTransformer = {
 		}
 		if (/(?:^|\s)preview(?:\s|$)/.test(rawMeta)) {
 			node.properties["data-preview"] = "true";
+			if (/(?:^|\s)react(?:\s|$)/.test(rawMeta)) {
+				node.properties["data-runtime"] = "react";
+			} else if (/(?:^|\s)preact(?:\s|$)/.test(rawMeta)) {
+				node.properties["data-runtime"] = "preact";
+			}
 		}
 	},
 };
@@ -49,43 +55,101 @@ function pyodideVendorIntegration() {
 				const lessonsDir = resolve(rootDir, "src/content/lessons");
 				if (!existsSync(lessonsDir)) return;
 				let hasPythonRun = false;
+				let hasReactPreview = false;
 				for (const file of readdirSync(lessonsDir)) {
 					if (file.endsWith(".md") || file.endsWith(".mdx")) {
 						const text = readFileSync(join(lessonsDir, file), "utf-8");
-						if (collectRunBlocks(text).some((b) => b.lang === "python")) {
+						const blocks = collectRunBlocks(text);
+						if (blocks.some((b) => b.lang === "python")) {
 							hasPythonRun = true;
-							break;
+						}
+						if (blocks.some((b) => b.mode === "preview" && b.runtime === "react")) {
+							hasReactPreview = true;
 						}
 					}
 				}
-				if (!hasPythonRun) return;
-				const pkgDir = resolve(rootDir, "node_modules/pyodide");
-				if (!existsSync(pkgDir)) {
-					throw new Error(
-						`[pyodide-vendor] 课文包含 python run 块，但在 ${rootDir} 中未找到 node_modules/pyodide。请在该 School 目录下执行 npm install 或运行 python3 scripts/apply-school-kit.py ${rootDir}。`,
-					);
-				}
-				const vendorDir = resolve(rootDir, "public/vendor/pyodide");
-				mkdirSync(vendorDir, { recursive: true });
-				const filesToCopy = [
-					"pyodide.mjs",
-					"pyodide.asm.mjs",
-					"pyodide.asm.wasm",
-					"python_stdlib.zip",
-					"pyodide-lock.json",
-				];
-				for (const name of filesToCopy) {
-					const src = join(pkgDir, name);
-					if (existsSync(src)) {
-						const dst = join(vendorDir, name);
-						if (!existsSync(dst) || statSync(src).size !== statSync(dst).size) {
-							copyFileSync(src, dst);
+				if (hasPythonRun) {
+					const pkgDir = resolve(rootDir, "node_modules/pyodide");
+					if (!existsSync(pkgDir)) {
+						throw new Error(
+							`[pyodide-vendor] 课文包含 python run 块，但在 ${rootDir} 中未找到 node_modules/pyodide。请在该 School 目录下执行 npm install 或运行 python3 scripts/apply-school-kit.py ${rootDir}。`,
+						);
+					}
+					const vendorDir = resolve(rootDir, "public/vendor/pyodide");
+					mkdirSync(vendorDir, { recursive: true });
+					const filesToCopy = [
+						"pyodide.mjs",
+						"pyodide.asm.mjs",
+						"pyodide.asm.wasm",
+						"python_stdlib.zip",
+						"pyodide-lock.json",
+					];
+					for (const name of filesToCopy) {
+						const src = join(pkgDir, name);
+						if (existsSync(src)) {
+							const dst = join(vendorDir, name);
+							if (!existsSync(dst) || statSync(src).size !== statSync(dst).size) {
+								copyFileSync(src, dst);
+							}
+						}
+					}
+					for (const name of readdirSync(vendorDir)) {
+						if (!filesToCopy.includes(name)) {
+							rmSync(join(vendorDir, name), { force: true });
 						}
 					}
 				}
-				for (const name of readdirSync(vendorDir)) {
-					if (!filesToCopy.includes(name)) {
-						rmSync(join(vendorDir, name), { force: true });
+				if (hasReactPreview) {
+					const reactVendorDir = resolve(rootDir, "public/vendor/react-preview");
+					const outFile = join(reactVendorDir, "runtime.js");
+					const versionFile = join(reactVendorDir, "version.json");
+					const reactPkg = resolve(rootDir, "node_modules/react/package.json");
+					const reactDomPkg = resolve(rootDir, "node_modules/react-dom/package.json");
+					if (!existsSync(reactPkg) || !existsSync(reactDomPkg)) {
+						throw new Error(
+							`[pyodide-vendor] 课文包含 react preview 块，但在 ${rootDir} 中未找到 node_modules/react 或 react-dom。请在该 School 目录下执行 npm install 或运行 python3 scripts/apply-school-kit.py ${rootDir}。`,
+						);
+					}
+					const reactVersion = JSON.parse(readFileSync(reactPkg, "utf-8")).version;
+					const reactDomVersion = JSON.parse(readFileSync(reactDomPkg, "utf-8")).version;
+					let needsBuild = !existsSync(outFile) || !existsSync(versionFile);
+					if (!needsBuild) {
+						try {
+							const cached = JSON.parse(readFileSync(versionFile, "utf-8"));
+							if (cached.react !== reactVersion || cached.reactDom !== reactDomVersion) {
+								needsBuild = true;
+							}
+						} catch {
+							needsBuild = true;
+						}
+					}
+					if (needsBuild) {
+						mkdirSync(reactVendorDir, { recursive: true });
+						const req = createRequire(resolve(rootDir, "package.json"));
+						const esbuild = req("esbuild");
+						esbuild.buildSync({
+							stdin: {
+								contents:
+									'import * as React from "react";\nimport * as ReactDOMClient from "react-dom/client";\nwindow.__islandReact = { React, ReactDOMClient };\n',
+								resolveDir: rootDir,
+								loader: "js",
+							},
+							bundle: true,
+							format: "iife",
+							minify: true,
+							platform: "browser",
+							define: { "process.env.NODE_ENV": '"production"' },
+							outfile: outFile,
+						});
+						writeFileSync(
+							versionFile,
+							JSON.stringify({ react: reactVersion, reactDom: reactDomVersion }),
+						);
+					}
+				} else {
+					const reactVendorDir = resolve(rootDir, "public/vendor/react-preview");
+					if (existsSync(reactVendorDir)) {
+						rmSync(reactVendorDir, { recursive: true, force: true });
 					}
 				}
 			},
