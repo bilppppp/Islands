@@ -48,6 +48,7 @@ ISLAND_RUNTIME_FILES = (
     (ISLAND / "IslandLessonChrome.tsx", Path("src/components/island/IslandLessonChrome.tsx")),
     (ISLAND / "IslandPredict.tsx", Path("src/components/island/IslandPredict.tsx")),
     (ISLAND / "IslandRunBlock.tsx", Path("src/components/island/IslandRunBlock.tsx")),
+    (ISLAND / "IslandNumberline.tsx", Path("src/components/island/IslandNumberline.tsx")),
     (ISLAND / "IslandPageIcon.tsx", Path("src/components/island/IslandPageIcon.tsx")),
     (ISLAND / "IslandPromptNotice.tsx", Path("src/components/island/IslandPromptNotice.tsx")),
     (ISLAND / "LessonTabs.tsx", Path("src/components/island/LessonTabs.tsx")),

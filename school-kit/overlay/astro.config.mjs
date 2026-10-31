@@ -18,11 +18,11 @@ import { assertVercelBuildEnv, resolveDeployTarget } from "./src/lib/deploy-targ
 const deployTarget = resolveDeployTarget();
 assertVercelBuildEnv();
 
-const predictLang = {
-	name: "predict",
-	scopeName: "source.predict",
+const customLangs = ["predict", "numberline"].map((name) => ({
+	name,
+	scopeName: `source.${name}`,
 	patterns: [],
-};
+}));
 
 const runBlockTransformer = {
 	name: "run-block-transformer",
@@ -150,7 +150,7 @@ export default defineConfig({
 		],
 		shikiConfig: {
 			theme: "vesper",
-			langs: [predictLang],
+			langs: customLangs,
 			transformers: [runBlockTransformer],
 		},
 	},

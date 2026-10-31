@@ -5,7 +5,8 @@ import { Button, Countdown, Loading, Title } from "animal-island-ui";
 import IslandPageIcon from "./IslandPageIcon";
 import IslandPredict from "./IslandPredict";
 import IslandRunBlock from "./IslandRunBlock";
-import { parsePredictBlock } from "../../lib/predict-block.mjs";
+import IslandNumberline from "./IslandNumberline";
+import { parsePredictBlock, parseNumberlineBlock } from "../../lib/predict-block.mjs";
 
 function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
 	const slotRef = useRef<HTMLDivElement | null>(null);
@@ -133,6 +134,16 @@ export default function IslandLessonChrome() {
 						host.className = "island-predict-host";
 						pre.replaceWith(host);
 						createRoot(host).render(<IslandPredict block={parsed} />);
+						return;
+					}
+				}
+				if (lang === "numberline") {
+					const parsed = parseNumberlineBlock(code);
+					if (!("error" in parsed)) {
+						const host = document.createElement("div");
+						host.className = "island-numberline-host";
+						pre.replaceWith(host);
+						createRoot(host).render(<IslandNumberline block={parsed} />);
 						return;
 					}
 				}

@@ -1819,3 +1819,100 @@ button.source-cite:focus-visible {
   color: #a39073;
   font-style: italic;
 }
+
+/* Island Numberline */
+.island-numberline-host {
+  margin: 1.5rem 0;
+}
+
+.island-numberline-card {
+  user-select: none;
+}
+
+.island-numberline-caption {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #543d22;
+  line-height: 1.6;
+  margin-bottom: 0.85rem;
+}
+
+.island-numberline-svg-wrap {
+  width: 100%;
+  overflow-x: auto;
+  touch-action: none;
+  padding: 0.25rem 0;
+}
+
+.island-numberline-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.island-numberline-tick-label {
+  font-family: inherit;
+  font-size: 12px;
+  fill: #8a6d4b;
+  user-select: none;
+}
+
+.island-numberline-handle {
+  outline: none;
+  transition: transform 0.1s ease;
+}
+
+.island-numberline-handle:focus-visible {
+  outline: none;
+}
+
+.island-numberline-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: #faf7eb;
+  border: 1px solid #e8dec3;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #543d22;
+  user-select: text;
+}
+
+.island-numberline-readout-item {
+  font-weight: 600;
+  font-feature-settings: "tnum";
+}
+
+.island-numberline-readout-item.distance {
+  color: #794f27;
+  border-top: 1px dashed #dfcfad;
+  padding-top: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.island-numberline-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.island-numberline-reset-btn {
+  padding: 0.35rem 0.85rem;
+  background: #f7f3df;
+  border: 1px solid #dfcfad;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #794f27;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.island-numberline-reset-btn:hover {
+  background: #efe9cb;
+  border-color: #cbba95;
+}

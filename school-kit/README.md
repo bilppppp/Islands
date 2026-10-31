@@ -109,6 +109,17 @@ click of "运行", isolating global state across executions and enforcing a 10-s
 timeout. Generation checks call `assertRunBlocks` to ensure `run` is only used on
 Python code without interactive `>>>` prompts.
 
+Lesson Markdown may also include fenced ```numberline blocks for interactive number
+line widgets (see `generation/protocol.md`). The overlay configures `numberline`
+syntax in `astro.config.mjs` and ships parsing and validation in
+`src/lib/predict-block.mjs`. Island chrome mounts `IslandNumberline` in place of valid
+`pre[data-language="numberline"]` elements on the self-read page, rendering an SVG
+number axis with mouse/touch pointer dragging, keyboard slider navigation (Arrow keys
+step, Home/End jump to bounds), `aria-live` real-time value readouts (displaying points,
+opposites, absolute values, and distances), and responsive width scaling. If parsing fails,
+the raw code block is preserved without breaking the page. Generation checks validate
+integer range spans, tick mark alignments, point counts (1 to 3), and option constraints.
+
 ## Website language
 
 Fixed UI copy uses `school.settings.json.language`: `zh` (default) or `en`

@@ -4,7 +4,11 @@ import {
   parsePredictBlock,
   collectPredictBlocks,
   assertPredictBlocks,
+  parseNumberlineBlock,
+  collectNumberlineBlocks,
+  assertNumberlineBlocks,
 } from '../school-kit/overlay/src/lib/predict-block.mjs';
+import { assertLessonCodeBlocks } from '../school-kit/overlay/src/lib/run-block.mjs';
 
 function lesson(body) {
   return `---\ntitle: Example\norder: 1\n---\n\n${body}\n`;
@@ -150,5 +154,187 @@ explain: \`|\` 是按位或，\`&\` 是按位与。`;
     assert.equal(result.length, 1);
     assert.deepEqual(result[0].choices, ['a | b', 'a & b']);
     assert.equal(result[0].answer, 'a | b');
+  });
+});
+
+describe('numberline blocks', () => {
+  it('parses normal block with all fields', () => {
+    const source = `range: -6 .. 6
+points: A=-3 | B=2
+step: 1
+show: opposite | abs
+caption: 拖动 A，看它的相反数和绝对值怎样变化。`;
+
+    const parsed = parseNumberlineBlock(source);
+    assert.deepEqual(parsed, {
+      range: [-6, 6],
+      points: [
+        { label: 'A', value: -3 },
+        { label: 'B', value: 2 },
+      ],
+      step: 1,
+      show: ['opposite', 'abs'],
+      caption: '拖动 A，看它的相反数和绝对值怎样变化。',
+    });
+
+    const doc = lesson('```numberline\n' + source + '\n```');
+    const result = assertNumberlineBlocks(doc, 'test-nl.md');
+    assert.equal(result.length, 1);
+    assert.deepEqual(result[0].range, [-6, 6]);
+    assert.equal(result[0].points.length, 2);
+
+    // Test unified assertLessonCodeBlocks
+    assert.doesNotThrow(() => assertLessonCodeBlocks(doc, 'test-nl.md'));
+  });
+
+  it('parses normal block with distance and step 0.5', () => {
+    const source = `range: -5 .. 5
+points: A=-1.5 | B=2.5
+step: 0.5
+show: distance`;
+
+    const parsed = parseNumberlineBlock(source);
+    assert.deepEqual(parsed, {
+      range: [-5, 5],
+      points: [
+        { label: 'A', value: -1.5 },
+        { label: 'B', value: 2.5 },
+      ],
+      step: 0.5,
+      show: ['distance'],
+      caption: '',
+    });
+  });
+
+  it('rejects reversed range or identical endpoints', () => {
+    const sourceReversed = `range: 6 .. -6
+points: A=0`;
+    const parsedReversed = parseNumberlineBlock(sourceReversed);
+    assert.ok('error' in parsedReversed);
+    assert.match(parsedReversed.error, /range left endpoint \(6\) must be less than right endpoint \(-6\)/);
+
+    const doc = lesson('```numberline\n' + sourceReversed + '\n```');
+    assert.throws(() => assertNumberlineBlocks(doc, 'reversed.md'), /range left endpoint/);
+
+    const sourceSame = `range: 5 .. 5
+points: A=5`;
+    const parsedSame = parseNumberlineBlock(sourceSame);
+    assert.ok('error' in parsedSame);
+    assert.match(parsedSame.error, /range left endpoint \(5\) must be less than right endpoint \(5\)/);
+  });
+
+  it('rejects points out of range', () => {
+    const source = `range: -6 .. 6
+points: A=-7 | B=2`;
+    const parsed = parseNumberlineBlock(source);
+    assert.ok('error' in parsed);
+    assert.match(parsed.error, /point "A" value -7 is outside range \[-6, 6\]/);
+
+    const doc = lesson('```numberline\n' + source + '\n```');
+    assert.throws(() => assertNumberlineBlocks(doc, 'out-of-range.md'), /outside range/);
+  });
+
+  it('rejects point not on step tick', () => {
+    const sourceStep1 = `range: -6 .. 6
+points: A=1.5
+step: 1`;
+    const parsedStep1 = parseNumberlineBlock(sourceStep1);
+    assert.ok('error' in parsedStep1);
+    assert.match(parsedStep1.error, /point "A" value 1.5 does not land on step 1 tick/);
+
+    const sourceStep05 = `range: -6 .. 6
+points: A=1.2
+step: 0.5`;
+    const parsedStep05 = parseNumberlineBlock(sourceStep05);
+    assert.ok('error' in parsedStep05);
+    assert.match(parsedStep05.error, /point "A" value 1.2 does not land on step 0.5 tick/);
+
+    const doc = lesson('```numberline\n' + sourceStep1 + '\n```');
+    assert.throws(() => assertNumberlineBlocks(doc, 'not-on-step.md'), /does not land on step 1 tick/);
+  });
+
+  it('rejects distance with non-2 points', () => {
+    const sourceOnePoint = `range: -6 .. 6
+points: A=2
+show: distance`;
+    const parsedOne = parseNumberlineBlock(sourceOnePoint);
+    assert.ok('error' in parsedOne);
+    assert.match(parsedOne.error, /show option "distance" requires exactly 2 points, got 1/);
+
+    const sourceThreePoints = `range: -6 .. 6
+points: A=-2 | B=0 | C=3
+show: distance`;
+    const parsedThree = parseNumberlineBlock(sourceThreePoints);
+    assert.ok('error' in parsedThree);
+    assert.match(parsedThree.error, /show option "distance" requires exactly 2 points, got 3/);
+
+    const doc = lesson('```numberline\n' + sourceOnePoint + '\n```');
+    assert.throws(() => assertNumberlineBlocks(doc, 'distance-non-2.md'), /requires exactly 2 points/);
+  });
+
+  it('rejects more than 3 points', () => {
+    const source = `range: -6 .. 6
+points: A=-3 | B=-1 | C=1 | D=3`;
+    const parsed = parseNumberlineBlock(source);
+    assert.ok('error' in parsed);
+    assert.match(parsed.error, /points must contain between 1 and 3 points, got 4/);
+
+    const doc = lesson('```numberline\n' + source + '\n```');
+    assert.throws(() => assertNumberlineBlocks(doc, 'too-many-points.md'), /between 1 and 3 points/);
+  });
+
+  it('rejects step not in allowed values', () => {
+    const sourceStep2 = `range: -6 .. 6
+points: A=2
+step: 2`;
+    const parsedStep2 = parseNumberlineBlock(sourceStep2);
+    assert.ok('error' in parsedStep2);
+    assert.match(parsedStep2.error, /invalid step "2", only 1, 0.5, or 0.1 are allowed/);
+
+    const sourceStep02 = `range: -6 .. 6
+points: A=2
+step: 0.2`;
+    const parsedStep02 = parseNumberlineBlock(sourceStep02);
+    assert.ok('error' in parsedStep02);
+    assert.match(parsedStep02.error, /invalid step "0.2", only 1, 0.5, or 0.1 are allowed/);
+
+    const doc = lesson('```numberline\n' + sourceStep2 + '\n```');
+    assert.throws(() => assertNumberlineBlocks(doc, 'invalid-step.md'), /only 1, 0.5, or 0.1 are allowed/);
+  });
+
+  it('assertLessonCodeBlocks validates mixed predict, run, and numberline blocks in one pass', () => {
+    const doc = lesson(`
+\`\`\`predict
+question: 问题 1
+answer: 答案 1
+explain: 解析 1
+\`\`\`
+
+\`\`\`python run
+print("hello")
+\`\`\`
+
+\`\`\`numberline
+range: -6 .. 6
+points: A=-3
+step: 1
+show: opposite
+\`\`\`
+`);
+    assert.doesNotThrow(() => assertLessonCodeBlocks(doc, 'mixed.md'));
+
+    const docWithBadNl = lesson(`
+\`\`\`predict
+question: 问题 1
+answer: 答案 1
+explain: 解析 1
+\`\`\`
+
+\`\`\`numberline
+range: -6 .. 6
+points: A=99
+\`\`\`
+`);
+    assert.throws(() => assertLessonCodeBlocks(docWithBadNl, 'bad-nl.md'), /Numberline block in bad-nl\.md: point "A" value 99 is outside range/);
   });
 });

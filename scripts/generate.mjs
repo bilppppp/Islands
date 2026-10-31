@@ -4,8 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
 import { assertLessonHasSources, listFiles, rawSha256, readLessons } from './source-state.mjs';
 import { assertSourceCites } from '../school-kit/overlay/src/lib/source-cite.mjs';
-import { assertPredictBlocks } from '../school-kit/overlay/src/lib/predict-block.mjs';
-import { assertRunBlocks } from '../school-kit/overlay/src/lib/run-block.mjs';
+import { assertLessonCodeBlocks } from '../school-kit/overlay/src/lib/run-block.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -340,8 +339,7 @@ export function validateGeneration(inputPath) {
     }
     assertMathDelimiters(text, name);
     assertSourceCites(text, name, join(output, 'public/sources'));
-    assertPredictBlocks(text, name);
-    assertRunBlocks(text, name);
+    assertLessonCodeBlocks(text, name);
     if (requireLessonSources) assertLessonHasSources(text, name, join(output, 'public/sources'));
   }
   return lessons.length;
