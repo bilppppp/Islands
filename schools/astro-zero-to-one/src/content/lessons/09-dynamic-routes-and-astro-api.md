@@ -53,6 +53,38 @@ Astro 提供了工业级的**动态路由（Dynamic Routing）**机制：**一�
   ```
   Astro 收到这份工单后，就会自动开启流水线，为数组里的每一项生成一个独立的 HTML 页面！
 
+你可以运行下面带类型标注的 TypeScript 代码，直观体验如何从一组文章数据计算出包含 `params` 和 `props` 的返回数组：
+
+```ts run
+interface Post {
+  title: string;
+  tags: string[];
+}
+
+interface StaticPath {
+  params: { tag: string };
+  props: { posts: Post[] };
+}
+
+const samplePosts: Post[] = [
+  { title: "学习 Astro 的第一天", tags: ["astro", "blogging"] },
+  { title: "关于组件的小结", tags: ["astro"] },
+  { title: "随笔与日常", tags: ["blogging", "life"] },
+];
+
+function buildStaticPaths(posts: Post[]): StaticPath[] {
+  const allTags = posts.flatMap((p) => p.tags);
+  const uniqueTags = Array.from(new Set(allTags));
+  return uniqueTags.map((tag) => ({
+    params: { tag },
+    props: { posts: posts.filter((p) => p.tags.includes(tag)) },
+  }));
+}
+
+const paths: StaticPath[] = buildStaticPaths(samplePosts);
+console.log(paths);
+```
+
 ### (3) `params` 与 `props` 的分工
 - **`params`**：决定生成出来的**网址 URL 是什么**（必须和方括号里的参数名严格一致，如 `{ tag: "astro" }` 生成 `/tags/astro/`）。
 - **`props`**：传递给该页面模板的**数据内容**（通过 `Astro.props` 接收，比如属于该标签的文章列表）。

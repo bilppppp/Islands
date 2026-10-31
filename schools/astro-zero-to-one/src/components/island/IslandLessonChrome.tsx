@@ -1,8 +1,51 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Button, CodeBlock, Countdown, Loading, Title } from "animal-island-ui";
+import { Button, Countdown, Loading, Title } from "animal-island-ui";
 import IslandPageIcon from "./IslandPageIcon";
+import IslandPredict from "./IslandPredict";
+import IslandRunBlock from "./IslandRunBlock";
+import IslandNumberline from "./IslandNumberline";
+import { useClipboardCopy } from "./IslandAskTeacher";
+import { parsePredictBlock, parseNumberlineBlock } from "../../lib/predict-block.mjs";
+import { isRunnableLang } from "../../lib/run-block.mjs";
+
+function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
+	const slotRef = useRef<HTMLDivElement | null>(null);
+	const { status, copy } = useClipboardCopy();
+
+	useEffect(() => {
+		const slot = slotRef.current;
+		if (slot && !slot.contains(pre)) {
+			slot.appendChild(pre);
+		}
+	}, [pre]);
+
+	const handleCopy = () => {
+		copy(pre.textContent ?? "");
+	};
+
+	const labels = {
+		idle: { text: "复制", label: "复制代码" },
+		copied: { text: "已复制", label: "代码已复制" },
+		error: { text: "复制失败", label: "代码复制失败" },
+	};
+	const current = labels[status];
+
+	return (
+		<div className="island-shiki-host">
+			<div ref={slotRef} className="island-shiki-slot" />
+			<button
+				type="button"
+				className="island-code-copy-btn"
+				aria-label={current.label}
+				onClick={handleCopy}
+			>
+				{current.text}
+			</button>
+		</div>
+	);
+}
 
 declare global {
 	interface Window {
@@ -42,6 +85,8 @@ function mountHeading(heading: HTMLElement, variant: "tab" | "layer", withIcon: 
 	const nodes = contentNodes(heading);
 	const host = document.createElement("div");
 	if (heading.id) host.id = heading.id;
+	host.dataset.heading = heading.tagName.toLowerCase();
+	host.dataset.headingText = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
 	if (withIcon) host.className = "island-heading-mark";
 	heading.replaceWith(host);
 	createRoot(host).render(
@@ -65,11 +110,44 @@ export default function IslandLessonChrome() {
 		if (article && article.dataset.islandEnhanced !== "1") {
 			article.dataset.islandEnhanced = "1";
 			article.querySelectorAll("pre").forEach((pre) => {
+				const rawLang = pre.getAttribute("data-language") ?? pre.dataset.language ?? "";
+				const lang = rawLang.toLowerCase().trim();
+				if (lang === "mermaid") {
+					return;
+				}
 				const code = pre.textContent ?? "";
+				if (lang === "predict") {
+					const parsed = parsePredictBlock(code);
+					if (!("error" in parsed)) {
+						const host = document.createElement("div");
+						host.className = "island-predict-host";
+						pre.replaceWith(host);
+						createRoot(host).render(<IslandPredict block={parsed} />);
+						return;
+					}
+				}
+				if (lang === "numberline") {
+					const parsed = parseNumberlineBlock(code);
+					if (!("error" in parsed)) {
+						const host = document.createElement("div");
+						host.className = "island-numberline-host";
+						pre.replaceWith(host);
+						createRoot(host).render(<IslandNumberline block={parsed} />);
+						return;
+					}
+				}
+				const isRun = pre.getAttribute("data-run") === "true" || pre.dataset.run === "true";
+				if (isRun && isRunnableLang(lang)) {
+					const host = document.createElement("div");
+					host.className = "island-run-host";
+					pre.replaceWith(host);
+					createRoot(host).render(<IslandRunBlock initialCode={code} lang={lang} />);
+					return;
+				}
 				const host = document.createElement("div");
 				host.className = "island-code-host";
 				pre.replaceWith(host);
-				createRoot(host).render(<CodeBlock code={code} />);
+				createRoot(host).render(<IslandShikiBlock pre={pre} />);
 			});
 			const found: { id: string; text: string }[] = [];
 			let firstH2 = true;

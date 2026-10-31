@@ -152,6 +152,14 @@ const goal = 3;
     </ul>
 ```
 
+你也可以在浏览器里直接运行下面的普通 JavaScript，观察 `.map()` 是如何把技能数组加工成带标签的文本列表的：
+
+```js run
+const skills = ["HTML", "CSS", "JavaScript", "React", "Astro", "编写文档"];
+const listItems = skills.map((skill) => `<li>${skill}</li>`);
+console.log(listItems.join("\n"));
+```
+
 ### 第四步：使用条件渲染控制内容展示
 在技能列表下方加入三行条件判断：
 

@@ -6,3 +6,4 @@ dist/
 .dev.vars
 public/og/
 .school-data/
+public/vendor/

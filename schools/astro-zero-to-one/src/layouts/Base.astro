@@ -11,6 +11,7 @@ import IslandShell from "../components/island/IslandShell";
 import IslandMark from "../components/island/IslandMark";
 import IslandClock from "../components/island/IslandClock";
 import config from "../../school.config";
+import { pageCanonicalUrl, shouldNoindex } from "../lib/publication";
 import { getCollection } from "astro:content";
 
 interface Props {
@@ -22,10 +23,11 @@ const { title, description = config.description } = Astro.props;
 const courseShortName = config.shortName || config.publicName || config.name;
 const coursePublicName = config.publicName || config.shortName || config.name;
 const pageTitle = title ? `${title} | ${courseShortName}` : `${coursePublicName} | Learn Islands`;
-const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.pathname;
 
 const lessons = (await getCollection("lessons")).sort((a, b) => a.data.order - b.data.order);
 const exercises = (await getCollection("exercises")).sort((a, b) => a.data.order - b.data.order);
+const canonicalUrl = pageCanonicalUrl(config, Astro.url.pathname, lessons);
+const noindex = shouldNoindex(config);
 const currentPath = Astro.url.pathname;
 const currentLessonSlug = (currentPath.match(/^\/lessons\/([^/]+)\/?$/) || [])[1] || "";
 
@@ -42,6 +44,7 @@ import ClientUI from "../components/ClientUI.astro";
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />

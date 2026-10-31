@@ -1211,3 +1211,764 @@ div.prose samp {
     transform: scaleY(1.23);
   }
 }
+
+button.source-cite {
+  all: unset;
+  display: inline;
+  padding: 0 0 3px;
+  background-color: transparent;
+  background-image: linear-gradient(to right, #c4b89e 50%, transparent 50%);
+  background-position: left bottom;
+  background-size: 12px 2px;
+  background-repeat: repeat-x;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: help;
+}
+
+button.source-cite:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.source-cite-pop {
+  position: fixed;
+  z-index: 40;
+  width: min(22rem, calc(100vw - 1.5rem));
+  padding: 0.85rem 0.95rem 0.75rem;
+  border: 1px solid #e4d5b7;
+  border-radius: 12px;
+  background: #fffdf7;
+  box-shadow: 0 12px 32px rgba(114, 93, 66, 0.16);
+  color: #725d42;
+}
+
+.source-cite-pop[hidden] {
+  display: none;
+}
+
+.source-cite-kicker,
+.source-cite-title,
+.source-cite-quote {
+  margin: 0;
+}
+
+.source-cite-kicker {
+  color: #11a89b;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.source-cite-title {
+  margin: 0.2rem 0 0.45rem;
+  color: #794f27;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.source-cite-quote {
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.source-cite-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid #e4d5b7;
+  font-size: 0.78rem;
+}
+
+.source-cite-meta a {
+  color: #11a89b;
+  text-decoration: none;
+}
+
+.source-cite-meta a:hover,
+.source-cite-meta a:focus-visible {
+  text-decoration: underline;
+}
+
+.source-cite-path {
+  color: #8a6d4b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.source-cite-arrow {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fffdf7;
+  border-left: 1px solid #e4d5b7;
+  border-top: 1px solid #e4d5b7;
+}
+
+/* Island Predict Blocks */
+.island-predict-host {
+  margin: 1.5rem 0;
+}
+
+.island-predict-card {
+  background: #fffdf8;
+  border: 1.5px solid #e4d5b7;
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  box-shadow: 0 3px 12px rgba(114, 93, 66, 0.06);
+  color: #725d42;
+  box-sizing: border-box;
+}
+
+.island-predict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  background: #f7f3df;
+  border: 1px solid #dfcfad;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #794f27;
+  margin-bottom: 0.75rem;
+}
+
+.island-predict-badge-icon {
+  font-size: 0.95rem;
+}
+
+.island-predict-question {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #543d22;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.island-predict-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.island-predict-choice {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 42px;
+  padding: 0.6rem 0.95rem;
+  background: #fbf8ee;
+  border: 1.5px solid #dfcfad;
+  border-radius: 12px;
+  color: #725d42;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.island-predict-choice:not(:disabled):hover {
+  background: #f4eed9;
+  border-color: #c9b389;
+}
+
+.island-predict-choice:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+}
+
+.island-predict-choice-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c9b389;
+  margin-right: 0.65rem;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+
+.island-predict-choice-text {
+  flex: 1;
+  line-height: 1.5;
+}
+
+.island-predict-choice-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.island-predict-choice-tag.correct {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.island-predict-choice-tag.wrong {
+  background: #d32f2f;
+  color: #ffffff;
+}
+
+.island-predict-choice.is-answer {
+  background: #eaf6ea;
+  border-color: #2e7d32;
+  color: #1e5a22;
+  font-weight: 600;
+}
+
+.island-predict-choice.is-answer .island-predict-choice-dot {
+  background: #2e7d32;
+}
+
+.island-predict-choice.is-wrong {
+  background: #fdf0ed;
+  border-color: #d32f2f;
+  color: #9c2020;
+}
+
+.island-predict-choice.is-wrong .island-predict-choice-dot {
+  background: #d32f2f;
+}
+
+.island-predict-choice.is-dimmed {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.island-predict-action {
+  margin: 0.75rem 0;
+}
+
+.island-predict-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0.5rem 1.35rem;
+  background: #11a89b;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: inherit;
+}
+
+.island-predict-submit-btn:hover {
+  background: #0d8a7f;
+}
+
+.island-predict-submit-btn:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+}
+
+.island-predict-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: rgba(114, 93, 66, 0.08);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.island-predict-reveal-wrap {
+  margin-top: 0.5rem;
+}
+
+.island-predict-reveal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #e4d5b7;
+}
+
+.island-predict-feedback {
+  padding: 0.65rem 0.95rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.island-predict-feedback.feedback-correct {
+  background: #eaf6ea;
+  border: 1px solid #b7dfb8;
+  color: #1e5a22;
+}
+
+.island-predict-feedback.feedback-wrong {
+  background: #fdf0ed;
+  border: 1px solid #f2bdb5;
+  color: #9c2020;
+}
+
+.island-predict-feedback.feedback-info {
+  background: #eef7f6;
+  border: 1px solid #b2dedb;
+  color: #0d665f;
+}
+
+.island-predict-explain {
+  background: #fbf8ee;
+  border: 1px dashed #d8c7a5;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.island-predict-explain-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #8a6a45;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.island-predict-explain-body {
+  color: #725d42;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.island-predict-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.island-predict-reset-btn {
+  background: transparent;
+  border: 1px dashed #d8c7a5;
+  border-radius: 999px;
+  color: #8a6a45;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.island-predict-reset-btn:hover {
+  background: #f7f3df;
+  color: #543d22;
+  border-color: #c9b389;
+}
+
+.island-predict-reset-btn:focus-visible {
+  outline: 2px solid #11a89b;
+  outline-offset: 2px;
+}
+
+/* Island Shiki Code Blocks */
+.island-shiki-host {
+  position: relative;
+  margin: 1em 0;
+  min-width: 0;
+}
+
+.island-shiki-host pre.astro-code,
+.island-shiki-host pre,
+[data-lesson-panel="read"] pre.astro-code {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 20px 24px !important;
+  padding-right: 96px !important;
+  background: #2b2118 !important;
+  color: #e8d5bc !important;
+  border-radius: 20px !important;
+  border: 1px solid #3d3028 !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace !important;
+  font-weight: 600 !important;
+  white-space: pre !important;
+  overflow-x: auto !important;
+  tab-size: 4 !important;
+}
+
+.island-code-copy-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-width: 62px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(232, 213, 188, 0.3);
+  border-radius: 50px;
+  background: #3d3028f0;
+  color: #e8d5bc;
+  font-family: var(--animal-font-family, "Nunito", "Noto Sans SC");
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--animal-motion-duration-base, 0.2s) var(--animal-motion-ease, cubic-bezier(0.4, 0, 0.2, 1));
+  z-index: 2;
+}
+
+.island-code-copy-btn:hover {
+  background: #4b3b31;
+  transform: translateY(-1px);
+}
+
+.island-code-copy-btn:active {
+  transform: translateY(0);
+}
+
+.island-code-copy-btn:focus-visible {
+  outline: 2px solid var(--animal-primary-color, #19c8b9);
+  outline-offset: 2px;
+}
+
+/* Island Run Blocks (Python in-browser execution) */
+.island-run-host {
+  margin: 1.5rem 0;
+  min-width: 0;
+}
+
+.island-run-card {
+  background: #fffdf8;
+  border: 1.5px solid #e4d5b7;
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  box-shadow: 0 3px 12px rgba(114, 93, 66, 0.06);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.island-run-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.island-run-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f3ebd7;
+  color: #725d42;
+  border: 1px solid #e4d5b7;
+}
+
+.island-run-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.island-run-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+}
+
+.island-run-primary {
+  background: #794f27;
+  color: #fffdf8;
+  border: 1px solid #5a3819;
+}
+
+.island-run-primary:hover:not(:disabled) {
+  background: #633f1c;
+  transform: translateY(-1px);
+}
+
+.island-run-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.island-run-reset {
+  background: transparent;
+  color: #725d42;
+  border: 1px dashed #c4b089;
+}
+
+.island-run-reset:hover:not(:disabled) {
+  background: #f7f3df;
+}
+
+.island-run-reset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.island-run-editor-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.island-run-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 14px 16px;
+  background: #2b2118;
+  border: 1px solid #3d3028;
+  border-radius: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #e8d5bc;
+  resize: none;
+  overflow-y: hidden;
+  outline: none;
+  tab-size: 4;
+}
+
+.island-run-textarea:focus-visible {
+  border-color: #19c8b9;
+  box-shadow: 0 0 0 2px rgba(25, 200, 185, 0.2);
+}
+
+.island-run-stdin-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.island-run-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a6d4b;
+}
+
+.island-run-stdin-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  background: #fffbe7;
+  border: 1px solid #e4d5b7;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 12.5px;
+  color: #725d42;
+  resize: vertical;
+  outline: none;
+}
+
+.island-run-stdin-input:focus-visible {
+  border-color: #19c8b9;
+}
+
+.island-run-output {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 12px 14px;
+  background: #faf7eb;
+  border: 1px solid #e8dec3;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.island-run-status {
+  font-size: 12.5px;
+  color: #b7791f;
+  font-weight: 600;
+}
+
+.island-run-stdout {
+  margin: 0;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  color: #2b2118;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.island-run-stderr {
+  margin: 0;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  color: #c53030;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.island-run-empty {
+  font-size: 12.5px;
+  color: #a39073;
+  font-style: italic;
+}
+
+/* Island Numberline */
+.island-numberline-host {
+  margin: 1.5rem 0;
+}
+
+.island-numberline-card {
+  user-select: none;
+}
+
+.island-numberline-caption {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #543d22;
+  line-height: 1.6;
+  margin-bottom: 0.85rem;
+}
+
+.island-numberline-svg-wrap {
+  width: 100%;
+  overflow-x: auto;
+  touch-action: none;
+  padding: 0.25rem 0;
+}
+
+.island-numberline-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.island-numberline-tick-label {
+  font-family: inherit;
+  font-size: 12px;
+  fill: #8a6d4b;
+  user-select: none;
+}
+
+.island-numberline-handle {
+  outline: none;
+  transition: transform 0.1s ease;
+}
+
+.island-numberline-handle:focus-visible {
+  outline: none;
+}
+
+.island-numberline-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: #faf7eb;
+  border: 1px solid #e8dec3;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #543d22;
+  user-select: text;
+}
+
+.island-numberline-readout-item {
+  font-weight: 600;
+  font-feature-settings: "tnum";
+}
+
+.island-numberline-readout-item.distance {
+  color: #794f27;
+  border-top: 1px dashed #dfcfad;
+  padding-top: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.island-numberline-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 0.75rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.island-numberline-reset-btn {
+  padding: 0.35rem 0.85rem;
+  background: #f7f3df;
+  border: 1px solid #dfcfad;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #794f27;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.island-numberline-reset-btn:hover {
+  background: #efe9cb;
+  border-color: #cbba95;
+}
+
+/* Island Ask Teacher Button */
+.island-ask-teacher-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  height: 32px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  background: #fffdf8;
+  color: #794f27;
+  border: 1px solid #c4b089;
+  white-space: nowrap;
+}
+
+.island-ask-teacher-btn:hover:not(:disabled) {
+  background: #f7f3df;
+  border-color: #8a6d4b;
+  color: #543d22;
+  transform: translateY(-1px);
+}
+
+.island-ask-teacher-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.island-ask-teacher-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.island-ask-teacher-btn.is-copied {
+  background: #e8f5e9;
+  border-color: #81c784;
+  color: #2e7d32;
+}
+
+.island-ask-teacher-btn.is-error {
+  background: #ffebee;
+  border-color: #e57373;
+  color: #c62828;
+}

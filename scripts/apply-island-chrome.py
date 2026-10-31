@@ -20,6 +20,7 @@ ISLAND_DEPENDENCIES = {
     "@types/react-dom": "^19.1.0",
     "naive-icons": "^1.6.0",
     "pyodide": "314.0.7",
+    "sucrase": "3.35.1",
 }
 
 ISLAND_ASTRO_FILES = (
@@ -55,6 +56,7 @@ ISLAND_RUNTIME_FILES = (
     (ISLAND / "LessonTabs.tsx", Path("src/components/island/LessonTabs.tsx")),
     (ISLAND / "island-icons.ts", Path("src/components/island/island-icons.ts")),
     (ISLAND / "pyodide-worker.js", Path("public/pyodide-worker.js")),
+    (ISLAND / "js-worker.js", Path("public/js-worker.js")),
     (ISLAND / "island-theme.json", Path("src/styles/island-theme.json")),
 )
 

@@ -5,6 +5,8 @@ export interface RunBlock {
   code: string;
 }
 
+export function normalizeRunLang(lang: string): string;
+export function isRunnableLang(lang: string): boolean;
 export function assertRunFence(fence: CodeFence, fileName?: string): RunBlock | null;
 export function collectRunBlocks(markdown: string, fileName?: string): RunBlock[];
 export function assertRunBlocks(markdown: string, fileName?: string): RunBlock[];

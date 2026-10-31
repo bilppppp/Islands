@@ -7,6 +7,7 @@ import {
   progressUnavailableResponse,
 } from "../../../lib/store";
 import { mdxToProse } from "../../../lib/mdx-to-prose";
+import { sourceCiteProse } from "../../../lib/source-cite.mjs";
 import { QUIZ_INSTRUCTIONS } from "../../../lib/quiz-instructions";
 import {
   DEFAULT_TEACHING_MODE,
@@ -83,7 +84,7 @@ export const GET: APIRoute = async ({ params, request }) => {
     description: lesson.data.description,
     agentOnly: lesson.data.agentOnly,
     agentInstructions,
-    content: mdxToProse(lesson.body),
+    content: mdxToProse(sourceCiteProse(lesson.body)),
     teachingMode: mode,
     teachingGuidance: teachingGuidance(mode),
   };

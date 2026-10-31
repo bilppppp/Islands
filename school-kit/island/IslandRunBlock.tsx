@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import IslandAskTeacher, { t } from "./IslandAskTeacher";
+import { normalizeRunLang } from "../../lib/run-block.mjs";
 
 interface RunResult {
 	stdout: string;
@@ -9,49 +10,70 @@ interface RunResult {
 
 type StatusCallback = (msg: string) => void;
 
-let sharedWorker: Worker | null = null;
+let currentWorker: Worker | null = null;
+let currentRuntime: "python" | "javascript" | null = null;
 let currentTimeout: number | null = null;
 let runIdCounter = 0;
 let pendingResolve: ((res: RunResult) => void) | null = null;
 let pendingStatus: StatusCallback | null = null;
+let sucraseTransform:
+	| ((code: string, options: { transforms: string[] }) => { code: string })
+	| null = null;
 
-function getWorker(): Worker {
-	if (!sharedWorker) {
-		const workerUrl = new URL("/pyodide-worker.js", window.location.origin).href;
-		sharedWorker = new Worker(workerUrl, { type: "module" });
-		sharedWorker.onmessage = (e) => {
-			const data = e.data;
-			if (data.type === "status") {
-				pendingStatus?.(data.text);
-			} else if (data.type === "started") {
-				if (currentTimeout !== null) {
-					window.clearTimeout(currentTimeout);
-				}
-				currentTimeout = window.setTimeout(() => {
-					terminateWorker("运行超时，已停止");
-				}, 10000);
-			} else if (data.type === "result") {
-				if (currentTimeout !== null) {
-					window.clearTimeout(currentTimeout);
-					currentTimeout = null;
-				}
-				const resolve = pendingResolve;
-				pendingResolve = null;
-				pendingStatus = null;
-				resolve?.({ stdout: data.stdout, stderr: data.stderr, ok: data.ok });
-			}
-		};
-		sharedWorker.onerror = (e) => {
-			terminateWorker(`Worker 运行错误: ${e.message}`);
-		};
+function getWorker(runtime: "python" | "javascript"): Worker {
+	if (currentWorker && currentRuntime === runtime) {
+		return currentWorker;
 	}
-	return sharedWorker;
+	if (currentWorker) {
+		currentWorker.terminate();
+		currentWorker = null;
+		currentRuntime = null;
+	}
+	const workerUrl = new URL(
+		runtime === "python" ? "/pyodide-worker.js" : "/js-worker.js",
+		window.location.origin,
+	).href;
+	const worker = new Worker(workerUrl, { type: "module" });
+	currentWorker = worker;
+	currentRuntime = runtime;
+	worker.onmessage = (e) => {
+		const data = e.data;
+		if (data.type === "status") {
+			pendingStatus?.(data.text);
+		} else if (data.type === "started") {
+			if (currentTimeout !== null) {
+				window.clearTimeout(currentTimeout);
+			}
+			currentTimeout = window.setTimeout(() => {
+				terminateWorker("运行超时，已停止");
+			}, 10000);
+		} else if (data.type === "result") {
+			if (currentTimeout !== null) {
+				window.clearTimeout(currentTimeout);
+				currentTimeout = null;
+			}
+			const resolve = pendingResolve;
+			pendingResolve = null;
+			pendingStatus = null;
+			if (currentRuntime !== "python") {
+				currentWorker?.terminate();
+				currentWorker = null;
+				currentRuntime = null;
+			}
+			resolve?.({ stdout: data.stdout, stderr: data.stderr, ok: data.ok });
+		}
+	};
+	worker.onerror = (e) => {
+		terminateWorker(`Worker 运行错误: ${e.message}`);
+	};
+	return worker;
 }
 
 export function terminateWorker(reason = "已被另一段代码的运行中断") {
-	if (sharedWorker) {
-		sharedWorker.terminate();
-		sharedWorker = null;
+	if (currentWorker) {
+		currentWorker.terminate();
+		currentWorker = null;
+		currentRuntime = null;
 	}
 	if (currentTimeout !== null) {
 		window.clearTimeout(currentTimeout);
@@ -63,26 +85,67 @@ export function terminateWorker(reason = "已被另一段代码的运行中断")
 	resolve?.({ stdout: "", stderr: reason, ok: false });
 }
 
+export async function runCode(
+	lang: string,
+	code: string,
+	stdin: string,
+	onStatus: StatusCallback,
+): Promise<RunResult> {
+	const normalized = normalizeRunLang(lang);
+	let codeToRun = code;
+
+	if (normalized === "typescript") {
+		try {
+			if (!sucraseTransform) {
+				const { transform } = await import("sucrase");
+				sucraseTransform = transform;
+			}
+			const res = sucraseTransform(code, { transforms: ["typescript"] });
+			codeToRun = res.code;
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : String(err);
+			return {
+				stdout: "",
+				stderr: `语法错误：${msg}`,
+				ok: false,
+			};
+		}
+	}
+
+	return new Promise((resolve) => {
+		if (pendingResolve) {
+			terminateWorker();
+		}
+		const runtime = normalized === "python" ? "python" : "javascript";
+		const worker = getWorker(runtime);
+		const id = ++runIdCounter;
+		pendingResolve = resolve;
+		pendingStatus = onStatus;
+
+		if (runtime === "python") {
+			const indexURL = new URL("/vendor/pyodide/", window.location.origin).pathname;
+			worker.postMessage({ id, type: "run", code: codeToRun, stdin, indexURL });
+		} else {
+			worker.postMessage({ id, type: "run", code: codeToRun });
+		}
+	});
+}
+
 export function runPythonCode(
 	code: string,
 	stdin: string,
 	onStatus: StatusCallback,
 ): Promise<RunResult> {
-	return new Promise((resolve) => {
-		if (pendingResolve) {
-			terminateWorker();
-		}
-		const worker = getWorker();
-		const id = ++runIdCounter;
-		pendingResolve = resolve;
-		pendingStatus = onStatus;
-
-		const indexURL = new URL("/vendor/pyodide/", window.location.origin).pathname;
-		worker.postMessage({ id, type: "run", code, stdin, indexURL });
-	});
+	return runCode("python", code, stdin, onStatus);
 }
 
-export default function IslandRunBlock({ initialCode }: { initialCode: string }) {
+export default function IslandRunBlock({
+	initialCode,
+	lang = "python",
+}: {
+	initialCode: string;
+	lang?: string;
+}) {
 	const [code, setCode] = useState(initialCode);
 	const [stdin, setStdin] = useState("");
 	const [stdout, setStdout] = useState("");
@@ -91,6 +154,14 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 	const [running, setRunning] = useState(false);
 	const [hasRun, setHasRun] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+	const normalizedLang = normalizeRunLang(lang);
+	const langTitle =
+		normalizedLang === "python"
+			? "Python"
+			: normalizedLang === "typescript"
+				? "TypeScript"
+				: "JavaScript";
 
 	const adjustTextareaHeight = () => {
 		const el = textareaRef.current;
@@ -126,7 +197,7 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 		setStdout("");
 		setStderr("");
 		try {
-			const res = await runPythonCode(code, stdin, (msg) => {
+			const res = await runCode(lang, code, stdin, (msg) => {
 				setStatus(msg);
 			});
 			setStatus("");
@@ -150,7 +221,7 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 	const describeRun = (): string => {
 		const lines: string[] = [
 			t("askTeacherRunCode"),
-			"```python",
+			`\`\`\`${lang}`,
 			code,
 			"```",
 			t("askTeacherRunOutput"),
@@ -162,13 +233,13 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 		return lines.join("\n");
 	};
 
-	const needsStdin = code.includes("input(");
+	const needsStdin = normalizedLang === "python" && code.includes("input(");
 	const hasOutput = stdout !== "" || stderr !== "" || status !== "" || running;
 
 	return (
 		<div className="island-run-card">
 			<div className="island-run-header">
-				<span className="island-run-badge">Python 运行</span>
+				<span className="island-run-badge">{langTitle} 运行</span>
 				<div className="island-run-actions">
 					<button
 						type="button"
@@ -205,7 +276,7 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 					autoCorrect="off"
 					onChange={(e) => setCode(e.target.value)}
 					onKeyDown={handleKeyDown}
-					aria-label="可编辑 Python 代码"
+					aria-label={`可编辑 ${langTitle} 代码`}
 				/>
 			</div>
 

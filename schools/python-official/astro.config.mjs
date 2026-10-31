@@ -47,17 +47,17 @@ function pyodideVendorIntegration() {
 				const rootDir = fileURLToPath(config.root);
 				const lessonsDir = resolve(rootDir, "src/content/lessons");
 				if (!existsSync(lessonsDir)) return;
-				let hasRun = false;
+				let hasPythonRun = false;
 				for (const file of readdirSync(lessonsDir)) {
 					if (file.endsWith(".md") || file.endsWith(".mdx")) {
 						const text = readFileSync(join(lessonsDir, file), "utf-8");
-						if (collectRunBlocks(text).length > 0) {
-							hasRun = true;
+						if (collectRunBlocks(text).some((b) => b.lang === "python")) {
+							hasPythonRun = true;
 							break;
 						}
 					}
 				}
-				if (!hasRun) return;
+				if (!hasPythonRun) return;
 				const pkgDir = resolve(rootDir, "node_modules/pyodide");
 				if (!existsSync(pkgDir)) {
 					throw new Error(

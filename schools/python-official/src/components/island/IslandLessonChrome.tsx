@@ -8,6 +8,7 @@ import IslandRunBlock from "./IslandRunBlock";
 import IslandNumberline from "./IslandNumberline";
 import { useClipboardCopy } from "./IslandAskTeacher";
 import { parsePredictBlock, parseNumberlineBlock } from "../../lib/predict-block.mjs";
+import { isRunnableLang } from "../../lib/run-block.mjs";
 
 function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
 	const slotRef = useRef<HTMLDivElement | null>(null);
@@ -136,11 +137,11 @@ export default function IslandLessonChrome() {
 					}
 				}
 				const isRun = pre.getAttribute("data-run") === "true" || pre.dataset.run === "true";
-				if (lang === "python" && isRun) {
+				if (isRun && isRunnableLang(lang)) {
 					const host = document.createElement("div");
 					host.className = "island-run-host";
 					pre.replaceWith(host);
-					createRoot(host).render(<IslandRunBlock initialCode={code} />);
+					createRoot(host).render(<IslandRunBlock initialCode={code} lang={lang} />);
 					return;
 				}
 				const host = document.createElement("div");

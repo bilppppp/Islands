@@ -5,6 +5,8 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import {
+  normalizeRunLang,
+  isRunnableLang,
   collectRunBlocks,
   assertRunBlocks,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
@@ -32,15 +34,81 @@ describe('python run blocks', () => {
     assert.equal(asserted[0].lang, 'python');
   });
 
-  it('rejects run on non-python language', () => {
-    const doc = lesson(`\`\`\`javascript run\nconsole.log(1)\n\`\`\``);
+  it('collects and asserts normal javascript and typescript run blocks', () => {
+    const jsCode = `const nums = [1, 2, 3];\nconsole.log(nums.map(n => n * 2));`;
+    const tsCode = `const greeting: string = "hello";\nconsole.log(greeting.toUpperCase());`;
+    const doc = lesson(`\`\`\`javascript run\n${jsCode}\n\`\`\`\n\n\`\`\`typescript run\n${tsCode}\n\`\`\``);
+
+    const collected = collectRunBlocks(doc, 'test.md');
+    assert.equal(collected.length, 2);
+    assert.deepEqual(collected[0], { lang: 'javascript', code: jsCode });
+    assert.deepEqual(collected[1], { lang: 'typescript', code: tsCode });
+
+    const asserted = assertRunBlocks(doc, 'test.md');
+    assert.equal(asserted.length, 2);
+    assert.equal(asserted[0].lang, 'javascript');
+    assert.equal(asserted[1].lang, 'typescript');
+  });
+
+  it('normalizes aliases js and ts to javascript and typescript', () => {
+    assert.equal(normalizeRunLang('js'), 'javascript');
+    assert.equal(normalizeRunLang('ts'), 'typescript');
+    assert.equal(normalizeRunLang('python'), 'python');
+    assert.equal(normalizeRunLang('javascript'), 'javascript');
+    assert.equal(normalizeRunLang('typescript'), 'typescript');
+    assert.equal(isRunnableLang('python'), true);
+    assert.equal(isRunnableLang('javascript'), true);
+    assert.equal(isRunnableLang('typescript'), true);
+    assert.equal(isRunnableLang('js'), true);
+    assert.equal(isRunnableLang('ts'), true);
+    assert.equal(isRunnableLang('ruby'), false);
+    assert.equal(isRunnableLang(''), false);
+
+    const jsDoc = lesson(`\`\`\`js run\nconsole.log("js alias");\n\`\`\``);
+    const tsDoc = lesson(`\`\`\`ts run\nconst n: number = 42;\nconsole.log(n);\n\`\`\``);
+
+    const jsCollected = collectRunBlocks(jsDoc, 'alias-js.md');
+    assert.equal(jsCollected.length, 1);
+    assert.equal(jsCollected[0].lang, 'javascript');
+    const jsAsserted = assertRunBlocks(jsDoc, 'alias-js.md');
+    assert.equal(jsAsserted[0].lang, 'javascript');
+
+    const tsCollected = collectRunBlocks(tsDoc, 'alias-ts.md');
+    assert.equal(tsCollected.length, 1);
+    assert.equal(tsCollected[0].lang, 'typescript');
+    const tsAsserted = assertRunBlocks(tsDoc, 'alias-ts.md');
+    assert.equal(tsAsserted[0].lang, 'typescript');
+  });
+
+  it('rejects javascript and typescript run blocks containing import, export, or require', () => {
+    const importDoc = lesson(`\`\`\`js run\nimport React from "react";\nconsole.log(React);\n\`\`\``);
+    assert.throws(
+      () => assertRunBlocks(importDoc, 'import-test.md'),
+      /Run block in import-test\.md: javascript run block cannot contain import or export statements/,
+    );
+
+    const exportDoc = lesson(`\`\`\`typescript run\nexport const answer = 42;\n\`\`\``);
+    assert.throws(
+      () => assertRunBlocks(exportDoc, 'export-test.md'),
+      /Run block in export-test\.md: typescript run block cannot contain import or export statements/,
+    );
+
+    const requireDoc = lesson(`\`\`\`js run\nconst fs = require("node:fs");\n\`\`\``);
+    assert.throws(
+      () => assertRunBlocks(requireDoc, 'require-test.md'),
+      /Run block in require-test\.md: javascript run block cannot contain require\(\)/,
+    );
+  });
+
+  it('rejects run on unsupported languages', () => {
+    const doc = lesson(`\`\`\`ruby run\nputs 1\n\`\`\``);
     const collected = collectRunBlocks(doc, 'test.md');
     assert.equal(collected.length, 1);
-    assert.equal(collected[0].lang, 'javascript');
+    assert.equal(collected[0].lang, 'ruby');
 
     assert.throws(
       () => assertRunBlocks(doc, 'invalid-lang.md'),
-      /Run block in invalid-lang\.md: "run" is only supported for python, got "javascript"/,
+      /Run block in invalid-lang\.md: "run" is only supported for python, javascript, typescript, got "ruby"/,
     );
   });
 
@@ -105,6 +173,54 @@ npm run build
       console.log(`[Pyodide Test] Pilot Block ${i + 1} Output:\n${output.trim()}`);
       assert.ok(output.trim().length > 0, `Block ${i + 1} should produce output`);
     }
+  });
+
+  it('executes pilot lesson js/ts run blocks with vm in Node', async () => {
+    const astroDir = resolve(root, 'schools/astro-zero-to-one');
+    const sucrasePath = resolve(astroDir, 'node_modules/sucrase/dist/index.js');
+    const { transform } = await import(pathToFileURL(sucrasePath).href);
+    const vm = await import('node:vm');
+
+    // 1. Lesson 04 (js run)
+    const lesson04Path = resolve(astroDir, 'src/content/lessons/04-astro-components-and-syntax.md');
+    const lesson04Content = readFileSync(lesson04Path, 'utf8');
+    const jsBlocks = assertRunBlocks(lesson04Content, '04-astro-components-and-syntax.md');
+    assert.equal(jsBlocks.length, 1, 'Lesson 04 must have exactly 1 run block');
+    assert.equal(jsBlocks[0].lang, 'javascript');
+
+    let jsOutput = '';
+    const jsContext = vm.createContext({
+      console: {
+        log: (...args) => {
+          jsOutput += args.join(' ') + '\n';
+        },
+      },
+    });
+    vm.runInContext(jsBlocks[0].code, jsContext);
+    console.log('[JS Pilot Test] Lesson 04 Output:\n' + jsOutput.trim());
+    assert.ok(jsOutput.includes('<li>HTML</li>'), 'Output should contain HTML list items');
+
+    // 2. Lesson 09 (ts run)
+    const lesson09Path = resolve(astroDir, 'src/content/lessons/09-dynamic-routes-and-astro-api.md');
+    const lesson09Content = readFileSync(lesson09Path, 'utf8');
+    const tsBlocks = assertRunBlocks(lesson09Content, '09-dynamic-routes-and-astro-api.md');
+    assert.equal(tsBlocks.length, 1, 'Lesson 09 must have exactly 1 run block');
+    assert.equal(tsBlocks[0].lang, 'typescript');
+
+    const transformed = transform(tsBlocks[0].code, { transforms: ['typescript'] });
+    let tsOutput = '';
+    const tsContext = vm.createContext({
+      console: {
+        log: (...args) => {
+          tsOutput += args.map((a) => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' ') + '\n';
+        },
+      },
+      Set,
+      Array,
+    });
+    vm.runInContext(transformed.code, tsContext);
+    console.log('[TS Pilot Test] Lesson 09 Output:\n' + tsOutput.trim());
+    assert.ok(tsOutput.includes('"tag": "astro"'), 'Output should contain astro tag');
   });
 
   it('highlights code with island shiki theme matching palette', async () => {

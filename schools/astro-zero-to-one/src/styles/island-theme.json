@@ -1,0 +1,101 @@
+{
+  "$schema": "vscode://schemas/color-theme",
+  "name": "island",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#2b2118",
+    "editor.foreground": "#e8d5bc"
+  },
+  "tokenColors": [
+    {
+      "name": "Comment",
+      "scope": [
+        "comment",
+        "punctuation.definition.comment"
+      ],
+      "settings": {
+        "foreground": "#6b5e50"
+      }
+    },
+    {
+      "name": "String",
+      "scope": [
+        "string"
+      ],
+      "settings": {
+        "foreground": "#a8d4a0"
+      }
+    },
+    {
+      "name": "Number",
+      "scope": [
+        "constant.numeric"
+      ],
+      "settings": {
+        "foreground": "#a8d4a0"
+      }
+    },
+    {
+      "name": "Keyword, storage, constant language",
+      "scope": [
+        "keyword",
+        "storage",
+        "constant.language"
+      ],
+      "settings": {
+        "foreground": "#d4a0e0"
+      }
+    },
+    {
+      "name": "Function",
+      "scope": [
+        "entity.name.function",
+        "support.function",
+        "meta.function-call"
+      ],
+      "settings": {
+        "foreground": "#61afef"
+      }
+    },
+    {
+      "name": "Type, Class, Component",
+      "scope": [
+        "entity.name.type",
+        "entity.name.class",
+        "support.class",
+        "support.class.component"
+      ],
+      "settings": {
+        "foreground": "#80c0e0"
+      }
+    },
+    {
+      "name": "Tag",
+      "scope": [
+        "entity.name.tag"
+      ],
+      "settings": {
+        "foreground": "#e06c75"
+      }
+    },
+    {
+      "name": "Attribute, Prop",
+      "scope": [
+        "entity.other.attribute-name"
+      ],
+      "settings": {
+        "foreground": "#e8c87a"
+      }
+    },
+    {
+      "name": "Operator and Punctuation",
+      "scope": [
+        "keyword.operator",
+        "punctuation"
+      ],
+      "settings": {
+        "foreground": "#d4b896"
+      }
+    }
+  ]
+}

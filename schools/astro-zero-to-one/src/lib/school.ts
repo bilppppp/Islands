@@ -12,6 +12,13 @@ export interface ProfileField {
 }
 
 export interface SchoolConfig {
+	publication?: {
+		visibility?: "public" | "experimental";
+		origin?: string;
+		group?: string;
+		prerequisites?: string;
+		outcomes?: string;
+	};
 	chrome?: "island";
 	name: string;
 	publicName?: string;
