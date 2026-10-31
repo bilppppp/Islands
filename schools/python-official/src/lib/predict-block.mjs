@@ -113,51 +113,72 @@ export function parsePredictBlock(source) {
   };
 }
 
-export function collectPredictBlocks(markdown, fileName = 'lesson.md') {
+export function stripFrontmatter(markdown) {
   const text = String(markdown);
   const end = text.startsWith('---\n') ? text.indexOf('\n---\n', 4) : -1;
-  const body = end < 0 ? text : text.slice(end + 5);
+  return end < 0 ? text : text.slice(end + 5);
+}
 
+export function scanCodeFences(markdown) {
+  const body = stripFrontmatter(markdown);
   const blocks = [];
-  let currentFence = null;
-  let currentLines = null;
+  let current = null;
+  const lines = body.split('\n');
 
-  for (const line of body.split('\n')) {
-    if (!currentFence) {
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!current) {
       const match = line.match(/^[ \t]{0,3}(`{3,}|~{3,})(.*)$/);
       if (match) {
-        const marker = match[1];
-        const info = match[2].trim();
-        const isPredict = /^predict(?:\s|$)/.test(info);
-        if (isPredict) {
-          currentFence = { char: marker[0], length: marker.length, isPredict: true };
-          currentLines = [];
-        } else {
-          currentFence = { char: marker[0], length: marker.length, isPredict: false };
-        }
+        current = {
+          char: match[1][0],
+          length: match[1].length,
+          info: match[2].trim(),
+          startLine: i,
+          lines: [],
+        };
       }
       continue;
     }
 
     const closeMatch = line.match(/^[ \t]{0,3}(`{3,}|~{3,})[ \t]*$/);
-    if (closeMatch && closeMatch[1][0] === currentFence.char && closeMatch[1].length >= currentFence.length) {
-      if (currentFence.isPredict) {
-        blocks.push(currentLines.join('\n'));
-        currentLines = null;
-      }
-      currentFence = null;
+    if (closeMatch && closeMatch[1][0] === current.char && closeMatch[1].length >= current.length) {
+      blocks.push({
+        info: current.info,
+        code: current.lines.join('\n'),
+        startLine: current.startLine,
+        endLine: i,
+        closed: true,
+      });
+      current = null;
       continue;
     }
 
-    if (currentFence.isPredict) {
-      currentLines.push(line);
+    current.lines.push(line);
+  }
+
+  if (current) {
+    blocks.push({
+      info: current.info,
+      code: current.lines.join('\n'),
+      startLine: current.startLine,
+      endLine: lines.length - 1,
+      closed: false,
+    });
+  }
+
+  return blocks;
+}
+
+export function collectPredictBlocks(markdown, fileName = 'lesson.md') {
+  const blocks = [];
+  for (const fence of scanCodeFences(markdown)) {
+    if (!/^predict(?:\s|$)/.test(fence.info)) continue;
+    if (!fence.closed) {
+      fail(fileName, 'unclosed predict code fence');
     }
+    blocks.push(fence.code);
   }
-
-  if (currentFence?.isPredict) {
-    fail(fileName, 'unclosed predict code fence');
-  }
-
   return blocks;
 }
 

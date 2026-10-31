@@ -38,6 +38,8 @@ OVERLAY_FILES = (
     Path("src/lib/source-cite.d.mts"),
     Path("src/lib/predict-block.mjs"),
     Path("src/lib/predict-block.d.mts"),
+    Path("src/lib/run-block.mjs"),
+    Path("src/lib/run-block.d.mts"),
     Path("src/lib/student-id.ts"),
     Path("src/pages/api/enroll.ts"),
     Path("src/pages/api/lessons/index.ts"),
@@ -541,16 +543,18 @@ def ensure_npmrc(target: Path) -> bool:
 
 def ensure_gitignore(target: Path) -> bool:
     path = target / ".gitignore"
-    markers = {".school-data", ".school-data/"}
-    if path.exists():
-        lines = path.read_text().splitlines()
-        if any(line.strip() in markers for line in lines):
-            return False
-        text = path.read_text()
-        if text and not text.endswith("\n"):
-            text += "\n"
-        return write_if_changed(path, text + ".school-data/\n")
-    return write_if_changed(path, ".school-data/\n")
+    text = path.read_text() if path.exists() else ""
+    lines = [line.strip() for line in text.splitlines()]
+    needed = []
+    if not any(line in {".school-data", ".school-data/"} for line in lines):
+        needed.append(".school-data/")
+    if not any(line in {"public/vendor", "public/vendor/"} for line in lines):
+        needed.append("public/vendor/")
+    if not needed:
+        return False
+    if text and not text.endswith("\n"):
+        text += "\n"
+    return write_if_changed(path, text + "".join(f"{entry}\n" for entry in needed))
 
 
 def ensure_serve_executable(target: Path) -> None:

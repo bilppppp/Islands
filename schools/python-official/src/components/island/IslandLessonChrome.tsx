@@ -1,10 +1,63 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Button, CodeBlock, Countdown, Loading, Title } from "animal-island-ui";
+import { Button, Countdown, Loading, Title } from "animal-island-ui";
 import IslandPageIcon from "./IslandPageIcon";
 import IslandPredict from "./IslandPredict";
+import IslandRunBlock from "./IslandRunBlock";
 import { parsePredictBlock } from "../../lib/predict-block.mjs";
+
+function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
+	const slotRef = useRef<HTMLDivElement | null>(null);
+	const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
+	const timerRef = useRef<number | null>(null);
+
+	useEffect(() => {
+		const slot = slotRef.current;
+		if (slot && !slot.contains(pre)) {
+			slot.appendChild(pre);
+		}
+		return () => {
+			if (timerRef.current !== null) {
+				window.clearTimeout(timerRef.current);
+			}
+		};
+	}, [pre]);
+
+	const handleCopy = async () => {
+		if (timerRef.current !== null) {
+			window.clearTimeout(timerRef.current);
+		}
+		try {
+			await navigator.clipboard.writeText(pre.textContent ?? "");
+			setStatus("copied");
+		} catch {
+			setStatus("error");
+		}
+		timerRef.current = window.setTimeout(() => setStatus("idle"), 2000);
+	};
+
+	const labels = {
+		idle: { text: "复制", label: "复制代码" },
+		copied: { text: "已复制", label: "代码已复制" },
+		error: { text: "复制失败", label: "代码复制失败" },
+	};
+	const current = labels[status];
+
+	return (
+		<div className="island-shiki-host">
+			<div ref={slotRef} className="island-shiki-slot" />
+			<button
+				type="button"
+				className="island-code-copy-btn"
+				aria-label={current.label}
+				onClick={handleCopy}
+			>
+				{current.text}
+			</button>
+		</div>
+	);
+}
 
 declare global {
 	interface Window {
@@ -67,7 +120,8 @@ export default function IslandLessonChrome() {
 		if (article && article.dataset.islandEnhanced !== "1") {
 			article.dataset.islandEnhanced = "1";
 			article.querySelectorAll("pre").forEach((pre) => {
-				const lang = pre.getAttribute("data-language") ?? pre.dataset.language;
+				const rawLang = pre.getAttribute("data-language") ?? pre.dataset.language ?? "";
+				const lang = rawLang.toLowerCase().trim();
 				if (lang === "mermaid") {
 					return;
 				}
@@ -82,10 +136,18 @@ export default function IslandLessonChrome() {
 						return;
 					}
 				}
+				const isRun = pre.getAttribute("data-run") === "true" || pre.dataset.run === "true";
+				if (lang === "python" && isRun) {
+					const host = document.createElement("div");
+					host.className = "island-run-host";
+					pre.replaceWith(host);
+					createRoot(host).render(<IslandRunBlock initialCode={code} />);
+					return;
+				}
 				const host = document.createElement("div");
 				host.className = "island-code-host";
 				pre.replaceWith(host);
-				createRoot(host).render(<CodeBlock code={code} />);
+				createRoot(host).render(<IslandShikiBlock pre={pre} />);
 			});
 			const found: { id: string; text: string }[] = [];
 			let firstH2 = true;

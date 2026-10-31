@@ -1570,3 +1570,252 @@ button.source-cite:focus-visible {
   outline: 2px solid #11a89b;
   outline-offset: 2px;
 }
+
+/* Island Shiki Code Blocks */
+.island-shiki-host {
+  position: relative;
+  margin: 1em 0;
+  min-width: 0;
+}
+
+.island-shiki-host pre.astro-code,
+.island-shiki-host pre,
+[data-lesson-panel="read"] pre.astro-code {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 20px 24px !important;
+  padding-right: 96px !important;
+  background: #2b2118 !important;
+  color: #e8d5bc !important;
+  border-radius: 20px !important;
+  border: 1px solid #3d3028 !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace !important;
+  font-weight: 600 !important;
+  white-space: pre !important;
+  overflow-x: auto !important;
+  tab-size: 4 !important;
+}
+
+.island-code-copy-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  min-width: 62px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(232, 213, 188, 0.3);
+  border-radius: 50px;
+  background: #3d3028f0;
+  color: #e8d5bc;
+  font-family: var(--animal-font-family, "Nunito", "Noto Sans SC");
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--animal-motion-duration-base, 0.2s) var(--animal-motion-ease, cubic-bezier(0.4, 0, 0.2, 1));
+  z-index: 2;
+}
+
+.island-code-copy-btn:hover {
+  background: #4b3b31;
+  transform: translateY(-1px);
+}
+
+.island-code-copy-btn:active {
+  transform: translateY(0);
+}
+
+.island-code-copy-btn:focus-visible {
+  outline: 2px solid var(--animal-primary-color, #19c8b9);
+  outline-offset: 2px;
+}
+
+/* Island Run Blocks (Python in-browser execution) */
+.island-run-host {
+  margin: 1.5rem 0;
+  min-width: 0;
+}
+
+.island-run-card {
+  background: #fffdf8;
+  border: 1.5px solid #e4d5b7;
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  box-shadow: 0 3px 12px rgba(114, 93, 66, 0.06);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.island-run-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.island-run-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f3ebd7;
+  color: #725d42;
+  border: 1px solid #e4d5b7;
+}
+
+.island-run-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.island-run-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+}
+
+.island-run-primary {
+  background: #794f27;
+  color: #fffdf8;
+  border: 1px solid #5a3819;
+}
+
+.island-run-primary:hover:not(:disabled) {
+  background: #633f1c;
+  transform: translateY(-1px);
+}
+
+.island-run-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.island-run-reset {
+  background: transparent;
+  color: #725d42;
+  border: 1px dashed #c4b089;
+}
+
+.island-run-reset:hover:not(:disabled) {
+  background: #f7f3df;
+}
+
+.island-run-reset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.island-run-editor-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.island-run-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 14px 16px;
+  background: #2b2118;
+  border: 1px solid #3d3028;
+  border-radius: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #e8d5bc;
+  resize: none;
+  overflow-y: hidden;
+  outline: none;
+  tab-size: 4;
+}
+
+.island-run-textarea:focus-visible {
+  border-color: #19c8b9;
+  box-shadow: 0 0 0 2px rgba(25, 200, 185, 0.2);
+}
+
+.island-run-stdin-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.island-run-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8a6d4b;
+}
+
+.island-run-stdin-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  background: #fffbe7;
+  border: 1px solid #e4d5b7;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 12.5px;
+  color: #725d42;
+  resize: vertical;
+  outline: none;
+}
+
+.island-run-stdin-input:focus-visible {
+  border-color: #19c8b9;
+}
+
+.island-run-output {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 12px 14px;
+  background: #faf7eb;
+  border: 1px solid #e8dec3;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.island-run-status {
+  font-size: 12.5px;
+  color: #b7791f;
+  font-weight: 600;
+}
+
+.island-run-stdout {
+  margin: 0;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  color: #2b2118;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.island-run-stderr {
+  margin: 0;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  color: #c53030;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.island-run-empty {
+  font-size: 12.5px;
+  color: #a39073;
+  font-style: italic;
+}

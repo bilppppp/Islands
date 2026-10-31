@@ -19,6 +19,7 @@ ISLAND_DEPENDENCIES = {
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "naive-icons": "^1.6.0",
+    "pyodide": "314.0.7",
 }
 
 ISLAND_ASTRO_FILES = (
@@ -46,10 +47,13 @@ ISLAND_RUNTIME_FILES = (
     (ISLAND / "IslandModeTip.tsx", Path("src/components/island/IslandModeTip.tsx")),
     (ISLAND / "IslandLessonChrome.tsx", Path("src/components/island/IslandLessonChrome.tsx")),
     (ISLAND / "IslandPredict.tsx", Path("src/components/island/IslandPredict.tsx")),
+    (ISLAND / "IslandRunBlock.tsx", Path("src/components/island/IslandRunBlock.tsx")),
     (ISLAND / "IslandPageIcon.tsx", Path("src/components/island/IslandPageIcon.tsx")),
     (ISLAND / "IslandPromptNotice.tsx", Path("src/components/island/IslandPromptNotice.tsx")),
     (ISLAND / "LessonTabs.tsx", Path("src/components/island/LessonTabs.tsx")),
     (ISLAND / "island-icons.ts", Path("src/components/island/island-icons.ts")),
+    (ISLAND / "pyodide-worker.js", Path("public/pyodide-worker.js")),
+    (ISLAND / "island-theme.json", Path("src/styles/island-theme.json")),
 )
 
 
@@ -99,12 +103,24 @@ def island_astro_config_text(source: str) -> str:
         if marker not in text:
             raise ValueError("astro config has no MDX import")
         text = text.replace(marker, marker + '\nimport react from "@astrojs/react";', 1)
-    if "react()" not in text:
-        marker = "integrations: [mdx()]"
+    if 'from "./src/styles/island-theme.json"' not in text:
+        marker = 'import mdx from "@astrojs/mdx";'
         if marker not in text:
-            raise ValueError("astro config has no mdx() integration list")
-        text = text.replace(marker, "integrations: [mdx(), react()]", 1)
-    text = text.replace('theme: "vesper"', 'theme: "github-light"')
+            raise ValueError("astro config has no MDX import")
+        text = text.replace(marker, marker + '\nimport islandTheme from "./src/styles/island-theme.json";', 1)
+    if "react()" not in text:
+        if "integrations: [mdx(), pyodideVendorIntegration()]" in text:
+            text = text.replace(
+                "integrations: [mdx(), pyodideVendorIntegration()]",
+                "integrations: [mdx(), react(), pyodideVendorIntegration()]",
+                1,
+            )
+        elif "integrations: [mdx()]" in text:
+            text = text.replace("integrations: [mdx()]", "integrations: [mdx(), react()]", 1)
+        else:
+            raise ValueError("astro config has no recognized mdx integration list")
+    text = text.replace('theme: "vesper"', "theme: islandTheme")
+    text = text.replace('theme: "github-light"', "theme: islandTheme")
     if 'noExternal: ["animal-island-ui"]' not in text or "resolve:" not in text:
         marker = "\t\tdefine: {"
         if marker not in text:

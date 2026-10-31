@@ -62,6 +62,16 @@ NameError: name 'n' is not defined
 
 在交互模式下，还有一个小技巧：上一次成功打印的表达式结果会自动存放在内置变量 **`_`**（单个下划线）中，可以方便地用作后续连续计算。
 
+自己改改试试：
+
+```python run
+width = 20
+height = 5 * 9
+print("矩形面积：", width * height)
+print("经典除法 17 / 3 =", 17 / 3)
+print("向下取整 17 // 3 =", 17 // 3)
+```
+
 ## 文本与字符串（str）
 
 计算机不仅处理数字，还大量处理自然语言文本。在 Python 中，文本用**字符串（string，类型为 `str`）**表示。
@@ -203,6 +213,16 @@ TypeError: 'str' object does not support item assignment
 ```python
 >>> len(word)
 6
+```
+
+自己改改试试：
+
+```python run
+word = 'Python'
+prefix = word[:2]
+suffix = word[2:]
+print("拼接还原：", prefix + suffix)
+print("切片组合新词：", 'J' + word[1:])
 ```
 
 掌握了数字与字符串的运算，我们已经具备了处理单个数据的能力。接下来，我们将迈入复合数据容器的大门——列表。

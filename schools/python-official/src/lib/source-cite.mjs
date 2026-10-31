@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { scanCodeFences, stripFrontmatter } from './predict-block.mjs';
 
 const CITE_SOURCE = String.raw`\{\{cite\s+([^|\n]+?)\s+\|\s+path:\s*([^\s|]+)\s+\|\s+heading:\s+([^|\n]+?)\s+\|\s+url:\s+(https?:\/\/[^\s|]+)\s+\|\s+quote:\s+([\s\S]*?)\}\}`;
 
@@ -54,23 +55,18 @@ function parseCite(match, fileName) {
 }
 
 export function visibleProse(markdown) {
-  const text = String(markdown);
-  const end = text.startsWith('---\n') ? text.indexOf('\n---\n', 4) : -1;
-  const body = end < 0 ? text : text.slice(end + 5);
+  const body = stripFrontmatter(markdown);
+  const fences = scanCodeFences(markdown);
+  const lines = body.split('\n');
   const kept = [];
-  let fence = '';
-  for (const line of body.split('\n')) {
-    const marker = line.match(/^\s{0,3}(`{3,}|~{3,})/);
-    if (marker) {
-      const ticks = marker[1];
-      if (!fence) {
-        fence = `${ticks[0]}${ticks.length}`;
-        continue;
-      }
-      if (fence[0] === ticks[0] && ticks.length >= Number(fence.slice(1))) fence = '';
+  let fenceIdx = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const f = fences[fenceIdx];
+    if (f && i >= f.startLine && i <= f.endLine) {
+      if (i === f.endLine) fenceIdx++;
       continue;
     }
-    if (!fence) kept.push(line);
+    kept.push(lines[i]);
   }
   return kept.join('\n').replace(/`[^`\n]*`/g, '');
 }

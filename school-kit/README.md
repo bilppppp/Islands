@@ -95,6 +95,20 @@ checks call `assertPredictBlocks` to validate required fields and choice
 consistency. The block remains fully readable as plain text for AI teachers
 without querying any backend or recording progress.
 
+Lesson Markdown may also include fenced ```python run blocks for in-browser Python
+execution (see `generation/protocol.md`). The overlay ships `src/lib/run-block.mjs`
+(and `.d.mts`), configures a Shiki transformer in `astro.config.mjs` to tag
+`data-run="true"`, and provides an Astro integration that copies Pyodide core
+assets from `node_modules/pyodide` to `public/vendor/pyodide/` only when lessons in
+that School contain `python run` blocks. Island chrome mounts `IslandRunBlock` in
+place of `pre[data-language="python"][data-run="true"]`, providing an editable
+textarea (with 4-space Tab indentation and line auto-resizing), execution/reset
+controls, optional stdin input, and separate stdout/stderr displays. Pyodide
+executes inside a shared Web Worker created dynamically only upon the first
+click of "运行", isolating global state across executions and enforcing a 10-second
+timeout. Generation checks call `assertRunBlocks` to ensure `run` is only used on
+Python code without interactive `>>>` prompts.
+
 ## Website language
 
 Fixed UI copy uses `school.settings.json.language`: `zh` (default) or `en`
