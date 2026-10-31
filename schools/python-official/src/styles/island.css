@@ -1720,17 +1720,23 @@ button.source-cite:focus-visible {
   transform: none;
 }
 
-.island-run-reset {
+.island-run-reset,
+.island-run-fullscreen,
+.island-run-close {
   background: transparent;
   color: #725d42;
   border: 1px dashed #c4b089;
 }
 
-.island-run-reset:hover:not(:disabled) {
+.island-run-reset:hover:not(:disabled),
+.island-run-fullscreen:hover:not(:disabled),
+.island-run-close:hover:not(:disabled) {
   background: #f7f3df;
 }
 
-.island-run-reset:disabled {
+.island-run-reset:disabled,
+.island-run-fullscreen:disabled,
+.island-run-close:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -2011,6 +2017,114 @@ button.source-cite:focus-visible {
 .island-preview-log-error {
   color: #c53030;
   font-weight: 600;
+}
+
+/* Island Preview Modal */
+.island-preview-modal [class*="animal-header"] {
+  padding-left: 80px;
+  padding-right: 56px;
+}
+
+.island-preview-modal .island-run-header {
+  justify-content: flex-end;
+  padding: 0;
+}
+
+.island-preview-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #2b2118;
+  container-type: inline-size;
+  padding: 24px 56px;
+}
+
+.island-preview-modal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.85rem;
+  height: min(60vh, 540px);
+  min-height: min(60vh, 540px);
+  max-height: min(60vh, 540px);
+  box-sizing: border-box;
+}
+
+.island-preview-modal .island-preview-editor-col,
+.island-preview-modal .island-preview-view-col {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.island-preview-modal .island-run-editor-wrap {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.island-preview-modal .island-run-textarea {
+  height: 100% !important;
+  min-height: 0;
+  max-height: none;
+  flex: 1 1 auto;
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: pre;
+  overflow-x: auto;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.island-preview-modal .island-preview-frame-wrap {
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  box-sizing: border-box;
+}
+
+.island-preview-modal .island-preview-iframe {
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+@container (max-width: 719.98px) {
+  .island-preview-modal-grid {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .island-preview-modal .island-preview-editor-col,
+  .island-preview-modal .island-preview-view-col {
+    height: min(32vh, 240px);
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 719.98px) {
+  .island-preview-modal-grid {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .island-preview-modal .island-preview-editor-col,
+  .island-preview-modal .island-preview-view-col {
+    height: min(32vh, 240px);
+    min-height: 180px;
+  }
 }
 
 /* Island Numberline */

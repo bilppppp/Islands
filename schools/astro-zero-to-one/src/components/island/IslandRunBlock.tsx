@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Collapse } from "animal-island-ui";
+import { Collapse, Modal } from "animal-island-ui";
 import IslandAskTeacher, { t } from "./IslandAskTeacher";
 import {
 	buildPreviewDocument,
@@ -185,7 +185,11 @@ export default function IslandRunBlock({
 	const [status, setStatus] = useState("");
 	const [running, setRunning] = useState(false);
 	const [hasRun, setHasRun] = useState(false);
-	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const inlineTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const modalTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const fullscreenBtnRef = useRef<HTMLButtonElement | null>(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const isModalOpenRef = useRef(false);
 
 	// Preview states
 	const [previewDoc, setPreviewDoc] = useState("");
@@ -196,7 +200,8 @@ export default function IslandRunBlock({
 	const [pageText, setPageText] = useState("");
 	const previewDebounceTimerRef = useRef<number | null>(null);
 	const lastPreviewCodeRef = useRef<string | null>(null);
-	const iframeRef = useRef<HTMLIFrameElement | null>(null);
+	const inlineIframeRef = useRef<HTMLIFrameElement | null>(null);
+	const modalIframeRef = useRef<HTMLIFrameElement | null>(null);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const collapseRef = useRef<HTMLDivElement | null>(null);
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -218,12 +223,18 @@ export default function IslandRunBlock({
 							: "JavaScript";
 
 	const adjustTextareaHeight = () => {
-		const el = textareaRef.current;
+		const el = isModalOpenRef.current
+			? modalTextareaRef.current
+			: inlineTextareaRef.current;
 		if (el) {
 			el.style.height = "auto";
 			el.style.height = `${Math.max(72, el.scrollHeight)}px`;
 		}
 	};
+
+	useEffect(() => {
+		isModalOpenRef.current = isModalOpen;
+	}, [isModalOpen]);
 
 	useEffect(() => {
 		adjustTextareaHeight();
@@ -375,9 +386,11 @@ export default function IslandRunBlock({
 		if (mode !== "preview") return;
 
 		const handleMessage = (e: MessageEvent) => {
-			const iframe = iframeRef.current;
-			if (!iframe || !iframe.contentWindow) return;
-			if (e.source !== iframe.contentWindow) return;
+			const activeIframe = isModalOpenRef.current
+				? modalIframeRef.current
+				: inlineIframeRef.current;
+			if (!activeIframe || !activeIframe.contentWindow) return;
+			if (e.source !== activeIframe.contentWindow) return;
 
 			const data = e.data;
 			if (!data || typeof data !== "object") return;
@@ -509,23 +522,49 @@ export default function IslandRunBlock({
 		return lines.join("\n");
 	};
 
+	const handleOpenModal = () => {
+		setIsVisible(true);
+		isModalOpenRef.current = true;
+		setIsModalOpen(true);
+	};
+
+	const handleCloseModal = () => {
+		isModalOpenRef.current = false;
+		setIsModalOpen(false);
+		fullscreenBtnRef.current?.focus();
+		requestAnimationFrame(() => {
+			fullscreenBtnRef.current?.focus();
+			const el = inlineTextareaRef.current;
+			if (el) {
+				el.style.height = "auto";
+				el.style.height = `${Math.max(72, el.scrollHeight)}px`;
+			}
+		});
+	};
+
 	const renderHeader = ({
 		badgeSuffix,
 		showRunButton = false,
+		showFullscreenButton = false,
+		inModal = false,
 		teacherKind,
 		teacherDescribe,
 		teacherDisabled,
 	}: {
 		badgeSuffix: string;
 		showRunButton?: boolean;
+		showFullscreenButton?: boolean;
+		inModal?: boolean;
 		teacherKind: "run" | "preview";
 		teacherDescribe: () => string;
 		teacherDisabled?: boolean;
 	}) => (
 		<div className="island-run-header">
-			<span className="island-run-badge">
-				{langTitle} {badgeSuffix}
-			</span>
+			{!inModal ? (
+				<span className="island-run-badge">
+					{langTitle} {badgeSuffix}
+				</span>
+			) : null}
 			<div className="island-run-actions">
 				{showRunButton ? (
 					<button
@@ -545,6 +584,24 @@ export default function IslandRunBlock({
 				>
 					重置
 				</button>
+				{inModal ? (
+					<button
+						type="button"
+						className="island-run-btn island-run-close"
+						onClick={handleCloseModal}
+					>
+						{t("close")}
+					</button>
+				) : showFullscreenButton ? (
+					<button
+						ref={fullscreenBtnRef}
+						type="button"
+						className="island-run-btn island-run-fullscreen"
+						onClick={handleOpenModal}
+					>
+						{t("previewFullscreen")}
+					</button>
+				) : null}
 				<IslandAskTeacher
 					kind={teacherKind}
 					disabled={teacherDisabled}
@@ -554,10 +611,10 @@ export default function IslandRunBlock({
 		</div>
 	);
 
-	const renderEditor = () => (
+	const renderEditor = (inModal = false) => (
 		<div className="island-run-editor-wrap">
 			<textarea
-				ref={textareaRef}
+				ref={inModal ? modalTextareaRef : inlineTextareaRef}
 				className="island-run-textarea"
 				value={code}
 				spellCheck={false}
@@ -573,10 +630,59 @@ export default function IslandRunBlock({
 		</div>
 	);
 
-	if (mode === "preview") {
-		const placeholder = t("previewScrollToRender");
-		const hasConsoleOutput = consoleLogs.length > 0 || Boolean(previewError);
+	const placeholder = t("previewScrollToRender");
 
+	const renderPreviewFrame = (inModal = false) => (
+		<div className="island-preview-frame-wrap">
+			{isVisible ? (
+				<iframe
+					ref={inModal ? modalIframeRef : inlineIframeRef}
+					sandbox="allow-scripts"
+					srcDoc={previewDoc}
+					className="island-preview-iframe"
+					title={`${langTitle} 预览页面`}
+				/>
+			) : (
+				<div className="island-preview-placeholder">
+					{placeholder}
+				</div>
+			)}
+		</div>
+	);
+
+	const renderConsole = () => {
+		const hasConsoleOutput = consoleLogs.length > 0 || Boolean(previewError);
+		return (
+			<div className="island-preview-console" aria-live="polite">
+				{hasConsoleOutput ? (
+					<>
+						<div className="island-preview-console-header">控制台</div>
+						<div className="island-preview-console-body">
+							{consoleLogs.map((log, idx) => (
+								<div
+									key={idx}
+									className={`island-preview-log island-preview-log-${log.level}`}
+								>
+									{log.text}
+								</div>
+							))}
+							{previewError ? (
+								<div className="island-preview-log island-preview-log-error">
+									{previewError}
+								</div>
+							) : null}
+						</div>
+					</>
+				) : (
+					<div className="island-preview-console-empty">
+						控制台（无输出）
+					</div>
+				)}
+			</div>
+		);
+	};
+
+	if (mode === "preview") {
 		return (
 			<div
 				ref={collapseRef}
@@ -591,6 +697,7 @@ export default function IslandRunBlock({
 							{renderHeader({
 								badgeSuffix: "预览",
 								showRunButton: true,
+								showFullscreenButton: true,
 								teacherKind: "preview",
 								teacherDescribe: describePreview,
 							})}
@@ -601,53 +708,46 @@ export default function IslandRunBlock({
 								</div>
 
 								<div className="island-preview-view-col">
-									<div className="island-preview-frame-wrap">
-										{isVisible ? (
-											<iframe
-												ref={iframeRef}
-												sandbox="allow-scripts"
-												srcDoc={previewDoc}
-												className="island-preview-iframe"
-												title={`${langTitle} 预览页面`}
-											/>
-										) : (
-											<div className="island-preview-placeholder">
-												{placeholder}
-											</div>
-										)}
-									</div>
+									{renderPreviewFrame()}
 								</div>
 							</div>
 
-							<div className="island-preview-console" aria-live="polite">
-								{hasConsoleOutput ? (
-									<>
-										<div className="island-preview-console-header">控制台</div>
-										<div className="island-preview-console-body">
-											{consoleLogs.map((log, idx) => (
-												<div
-													key={idx}
-													className={`island-preview-log island-preview-log-${log.level}`}
-												>
-													{log.text}
-												</div>
-											))}
-											{previewError ? (
-												<div className="island-preview-log island-preview-log-error">
-													{previewError}
-												</div>
-											) : null}
-										</div>
-									</>
-								) : (
-									<div className="island-preview-console-empty">
-										控制台（无输出）
-									</div>
-								)}
-							</div>
+							{renderConsole()}
 						</div>
 					}
 				/>
+				<Modal
+					open={isModalOpen}
+					onClose={handleCloseModal}
+					width="min(1200px, 94vw)"
+					typewriter={false}
+					footer={null}
+					maskClosable
+					title={t("previewModalTitle", { lang: langTitle })}
+					className="island-preview-modal"
+				>
+					<div className="island-preview-modal-content">
+						{renderHeader({
+							badgeSuffix: "预览",
+							showRunButton: true,
+							inModal: true,
+							teacherKind: "preview",
+							teacherDescribe: describePreview,
+						})}
+
+						<div className="island-preview-modal-grid">
+							<div className="island-preview-editor-col">
+								{renderEditor(true)}
+							</div>
+
+							<div className="island-preview-view-col">
+								{renderPreviewFrame(true)}
+							</div>
+						</div>
+
+						{renderConsole()}
+					</div>
+				</Modal>
 			</div>
 		);
 	}
