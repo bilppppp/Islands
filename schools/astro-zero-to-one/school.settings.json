@@ -8,6 +8,7 @@
   "language": "中文",
   "requireLessonSources": true,
   "port": 4331,
+  "customDomain": "astro.learnislands.com",
   "request": "学习 https://docs.astro.build/zh-cn/getting-started/ 。我是还没有接触过前端框架的初学者，希望课程顺序、术语和示例尽量与 Astro 官方中文文档一致，讲解详尽、易懂，能跟着一步步做完。",
   "sources": [
     "https://docs.astro.build/zh-cn/getting-started/"
