@@ -107,6 +107,8 @@ function getKindName(kind: string): string {
 	switch (kind) {
 		case "run":
 			return t("askTeacherKindRun");
+		case "preview":
+			return t("askTeacherKindPreview");
 		case "predict":
 			return t("askTeacherKindPredict");
 		case "numberline":
@@ -126,6 +128,8 @@ function getButtonLabel(kind: string, status: CopyStatus): string {
 	switch (kind) {
 		case "run":
 			return t("askTeacherBtnRun");
+		case "preview":
+			return t("askTeacherBtnPreview");
 		case "predict":
 			return t("askTeacherBtnPredict");
 		case "numberline":

@@ -36,6 +36,9 @@ const runBlockTransformer = {
 		if (/(?:^|\s)run(?:\s|$)/.test(rawMeta)) {
 			node.properties["data-run"] = "true";
 		}
+		if (/(?:^|\s)preview(?:\s|$)/.test(rawMeta)) {
+			node.properties["data-preview"] = "true";
+		}
 	},
 };
 
@@ -132,6 +135,23 @@ function omitUnusedProgressStores() {
 	};
 }
 
+function preactUmdPlugin() {
+	return {
+		name: "preact-umd-raw",
+		enforce: "pre",
+		resolveId(id) {
+			if (id.startsWith("preact/dist/preact.umd.js")) {
+				const query = id.slice("preact/dist/preact.umd.js".length);
+				return fileURLToPath(new URL("./node_modules/preact/dist/preact.umd.js", import.meta.url)) + query;
+			}
+			if (id.startsWith("preact/hooks/dist/hooks.umd.js")) {
+				const query = id.slice("preact/hooks/dist/hooks.umd.js".length);
+				return fileURLToPath(new URL("./node_modules/preact/hooks/dist/hooks.umd.js", import.meta.url)) + query;
+			}
+		},
+	};
+}
+
 export default defineConfig({
 	session: {
 		driver: sessionDrivers["null"](),
@@ -162,7 +182,7 @@ export default defineConfig({
 	vite: {
 		server: { strictPort: true },
 		cacheDir: "./.vite",
-		plugins: [tailwindcss(), omitUnusedProgressStores()].filter(Boolean),
+		plugins: [tailwindcss(), omitUnusedProgressStores(), preactUmdPlugin()].filter(Boolean),
 		ssr: {
 			noExternal: ["animal-island-ui"],
 		},

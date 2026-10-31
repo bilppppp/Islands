@@ -21,6 +21,7 @@ ISLAND_DEPENDENCIES = {
     "naive-icons": "^1.6.0",
     "pyodide": "314.0.7",
     "sucrase": "3.35.1",
+    "preact": "10.29.8",
 }
 
 ISLAND_ASTRO_FILES = (

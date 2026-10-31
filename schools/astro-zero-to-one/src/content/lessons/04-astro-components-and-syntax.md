@@ -152,12 +152,28 @@ const goal = 3;
     </ul>
 ```
 
-你也可以在浏览器里直接运行下面的普通 JavaScript，观察 `.map()` 是如何把技能数组加工成带标签的文本列表的：
+下面是上面那段 Astro 代码最终输出的 HTML，你可以改改看效果：
 
-```js run
-const skills = ["HTML", "CSS", "JavaScript", "React", "Astro", "编写文档"];
-const listItems = skills.map((skill) => `<li>${skill}</li>`);
-console.log(listItems.join("\n"));
+```html preview
+<style>
+  ul {
+    list-style-type: square;
+    padding-left: 20px;
+    font-family: sans-serif;
+  }
+  li {
+    margin: 4px 0;
+    color: #2b2118;
+  }
+</style>
+<ul>
+  <li>HTML</li>
+  <li>CSS</li>
+  <li>JavaScript</li>
+  <li>React</li>
+  <li>Astro</li>
+  <li>编写文档</li>
+</ul>
 ```
 
 ### 第四步：使用条件渲染控制内容展示

@@ -8,7 +8,7 @@ import IslandRunBlock from "./IslandRunBlock";
 import IslandNumberline from "./IslandNumberline";
 import { useClipboardCopy } from "./IslandAskTeacher";
 import { parsePredictBlock, parseNumberlineBlock } from "../../lib/predict-block.mjs";
-import { isRunnableLang } from "../../lib/run-block.mjs";
+import { isRunnableLang, isPreviewLang } from "../../lib/run-block.mjs";
 
 function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
 	const slotRef = useRef<HTMLDivElement | null>(null);
@@ -136,12 +136,20 @@ export default function IslandLessonChrome() {
 						return;
 					}
 				}
+				const isPreview = pre.getAttribute("data-preview") === "true" || pre.dataset.preview === "true";
+				if (isPreview && isPreviewLang(lang)) {
+					const host = document.createElement("div");
+					host.className = "island-run-host island-preview-host";
+					pre.replaceWith(host);
+					createRoot(host).render(<IslandRunBlock initialCode={code} lang={lang} mode="preview" />);
+					return;
+				}
 				const isRun = pre.getAttribute("data-run") === "true" || pre.dataset.run === "true";
 				if (isRun && isRunnableLang(lang)) {
 					const host = document.createElement("div");
 					host.className = "island-run-host";
 					pre.replaceWith(host);
-					createRoot(host).render(<IslandRunBlock initialCode={code} lang={lang} />);
+					createRoot(host).render(<IslandRunBlock initialCode={code} lang={lang} mode="run" />);
 					return;
 				}
 				const host = document.createElement("div");

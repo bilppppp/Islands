@@ -145,6 +145,33 @@ export default function Greeting({ messages }) {
 }
 ```
 
+你可以直接在下面的实时预览中点击按钮试试看效果：
+
+```jsx preview
+import { useState } from 'preact/hooks';
+
+function Greeting({ messages }) {
+  const randomMessage = () => messages[Math.floor(Math.random() * messages.length)];
+  const [greeting, setGreeting] = useState(messages[0]);
+
+  return (
+    <div style={{ padding: '1rem', border: '1px solid #e4d5b7', borderRadius: '8px', background: '#fffdf8' }}>
+      <h3 style={{ margin: '0 0 0.75rem 0', color: '#2b2118' }}>{greeting}！感谢你的访问！</h3>
+      <button
+        onClick={() => setGreeting(randomMessage())}
+        style={{ padding: '0.5rem 1rem', background: '#794f27', color: '#fffdf8', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+      >
+        换一句新的问候语
+      </button>
+    </div>
+  );
+}
+
+export default function App() {
+  return <Greeting messages={["你好", "早安", "欢迎光临", "很高兴见到你"]} />;
+}
+```
+
 ### 第三步：体验“默认零 JS”的反直觉现象
 现在，打开 `src/pages/index.astro`，在其中引入并直接调用 `<Greeting />`：
 
