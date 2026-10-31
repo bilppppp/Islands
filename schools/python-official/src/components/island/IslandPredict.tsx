@@ -1,4 +1,5 @@
 import { useState } from "react";
+import IslandAskTeacher, { t } from "./IslandAskTeacher";
 
 export interface IslandPredictProps {
 	block: {
@@ -44,6 +45,24 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 	const handleReset = () => {
 		setSelected(null);
 		setRevealed(false);
+	};
+
+	const describePredict = (): string => {
+		if (hasChoices) {
+			const result = isCorrect
+				? t("askTeacherPredictCorrect")
+				: t("askTeacherPredictWrong");
+			return t("askTeacherPredictChoice", {
+				question: block.question,
+				prediction: selected ?? "",
+				answer: block.answer,
+				result,
+			});
+		}
+		return t("askTeacherPredictOpen", {
+			question: block.question,
+			answer: block.answer,
+		});
 	};
 
 	return (
@@ -152,6 +171,7 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 						</div>
 
 						<div className="island-predict-footer">
+							<IslandAskTeacher kind="predict" describe={describePredict} />
 							<button
 								type="button"
 								className="island-predict-reset-btn"

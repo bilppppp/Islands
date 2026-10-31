@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import IslandAskTeacher, { t } from "./IslandAskTeacher";
 import type { NumberlineBlock, NumberlinePoint } from "../../lib/predict-block.mjs";
 
 export interface IslandNumberlineProps {
@@ -144,6 +145,27 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 		const dist = Math.abs(points[0].value - points[1].value);
 		distanceReadout = `两点距离 |${points[0].label} − ${points[1].label}| = ${formatNumber(dist)}`;
 	}
+
+	const describeNumberline = (): string => {
+		const lines: string[] = [
+			t("askTeacherNumberlineRange", {
+				min: formatNumber(min),
+				max: formatNumber(max),
+			}),
+		];
+		if (block.caption) {
+			lines.push(
+				t("askTeacherNumberlineCaption", {
+					caption: block.caption,
+				}),
+			);
+		}
+		lines.push(...readouts);
+		if (distanceReadout) {
+			lines.push(distanceReadout);
+		}
+		return lines.join("\n");
+	};
 
 	return (
 		<div className="island-predict-card island-numberline-card">
@@ -455,8 +477,9 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 				)}
 			</div>
 
-			{isModified && (
-				<div className="island-numberline-footer">
+			<div className="island-numberline-footer">
+				<IslandAskTeacher kind="numberline" describe={describeNumberline} />
+				{isModified && (
 					<button
 						type="button"
 						className="island-numberline-reset-btn"
@@ -464,8 +487,8 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 					>
 						复位
 					</button>
-				</div>
-			)}
+				)}
+			</div>
 		</div>
 	);
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import IslandAskTeacher, { t } from "./IslandAskTeacher";
 
 interface RunResult {
 	stdout: string;
@@ -88,6 +89,7 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 	const [stderr, setStderr] = useState("");
 	const [status, setStatus] = useState("");
 	const [running, setRunning] = useState(false);
+	const [hasRun, setHasRun] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
 	const adjustTextareaHeight = () => {
@@ -132,6 +134,7 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 			setStderr(res.stderr);
 		} finally {
 			setRunning(false);
+			setHasRun(true);
 		}
 	};
 
@@ -141,6 +144,22 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 		setStdout("");
 		setStderr("");
 		setStatus("");
+		setHasRun(false);
+	};
+
+	const describeRun = (): string => {
+		const lines: string[] = [
+			t("askTeacherRunCode"),
+			"```python",
+			code,
+			"```",
+			t("askTeacherRunOutput"),
+			stdout.trim() ? stdout.trim() : t("askTeacherRunNoOutput"),
+		];
+		if (stderr.trim()) {
+			lines.push(t("askTeacherRunError"), stderr.trim());
+		}
+		return lines.join("\n");
 	};
 
 	const needsStdin = code.includes("input(");
@@ -167,6 +186,11 @@ export default function IslandRunBlock({ initialCode }: { initialCode: string })
 					>
 						重置
 					</button>
+					<IslandAskTeacher
+						kind="run"
+						disabled={!hasRun || running}
+						describe={describeRun}
+					/>
 				</div>
 			</div>
 

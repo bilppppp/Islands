@@ -1546,6 +1546,9 @@ button.source-cite:focus-visible {
 .island-predict-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .island-predict-reset-btn {
@@ -1655,6 +1658,7 @@ button.source-cite:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .island-run-badge {
@@ -1673,6 +1677,7 @@ button.source-cite:focus-visible {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .island-run-btn {
@@ -1897,7 +1902,10 @@ button.source-cite:focus-visible {
 .island-numberline-footer {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
   margin-top: 0.75rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .island-numberline-reset-btn {
@@ -1915,4 +1923,52 @@ button.source-cite:focus-visible {
 .island-numberline-reset-btn:hover {
   background: #efe9cb;
   border-color: #cbba95;
+}
+
+/* Island Ask Teacher Button */
+.island-ask-teacher-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  height: 32px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  background: #fffdf8;
+  color: #794f27;
+  border: 1px solid #c4b089;
+  white-space: nowrap;
+}
+
+.island-ask-teacher-btn:hover:not(:disabled) {
+  background: #f7f3df;
+  border-color: #8a6d4b;
+  color: #543d22;
+  transform: translateY(-1px);
+}
+
+.island-ask-teacher-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.island-ask-teacher-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.island-ask-teacher-btn.is-copied {
+  background: #e8f5e9;
+  border-color: #81c784;
+  color: #2e7d32;
+}
+
+.island-ask-teacher-btn.is-error {
+  background: #ffebee;
+  border-color: #e57373;
+  color: #c62828;
 }

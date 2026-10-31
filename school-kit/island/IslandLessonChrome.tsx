@@ -6,36 +6,22 @@ import IslandPageIcon from "./IslandPageIcon";
 import IslandPredict from "./IslandPredict";
 import IslandRunBlock from "./IslandRunBlock";
 import IslandNumberline from "./IslandNumberline";
+import { useClipboardCopy } from "./IslandAskTeacher";
 import { parsePredictBlock, parseNumberlineBlock } from "../../lib/predict-block.mjs";
 
 function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
 	const slotRef = useRef<HTMLDivElement | null>(null);
-	const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
-	const timerRef = useRef<number | null>(null);
+	const { status, copy } = useClipboardCopy();
 
 	useEffect(() => {
 		const slot = slotRef.current;
 		if (slot && !slot.contains(pre)) {
 			slot.appendChild(pre);
 		}
-		return () => {
-			if (timerRef.current !== null) {
-				window.clearTimeout(timerRef.current);
-			}
-		};
 	}, [pre]);
 
-	const handleCopy = async () => {
-		if (timerRef.current !== null) {
-			window.clearTimeout(timerRef.current);
-		}
-		try {
-			await navigator.clipboard.writeText(pre.textContent ?? "");
-			setStatus("copied");
-		} catch {
-			setStatus("error");
-		}
-		timerRef.current = window.setTimeout(() => setStatus("idle"), 2000);
+	const handleCopy = () => {
+		copy(pre.textContent ?? "");
 	};
 
 	const labels = {
@@ -98,6 +84,8 @@ function mountHeading(heading: HTMLElement, variant: "tab" | "layer", withIcon: 
 	const nodes = contentNodes(heading);
 	const host = document.createElement("div");
 	if (heading.id) host.id = heading.id;
+	host.dataset.heading = heading.tagName.toLowerCase();
+	host.dataset.headingText = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
 	if (withIcon) host.className = "island-heading-mark";
 	heading.replaceWith(host);
 	createRoot(host).render(
