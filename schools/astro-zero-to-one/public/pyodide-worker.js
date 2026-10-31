@@ -1,7 +1,7 @@
 let pyodide = null;
 let pyodideReadyPromise = null;
 
-const PYTHON_BOOTSTRAP = `
+export const PYTHON_BOOTSTRAP = `
 import sys, io, traceback
 
 class _StdinMock:
@@ -74,41 +74,53 @@ async function getPyodide(indexURL) {
   return pyodideReadyPromise;
 }
 
-self.onmessage = async (event) => {
-  const { id, type, code, stdin = "", indexURL = "/vendor/pyodide/" } = event.data;
-  if (type === "run") {
-    try {
-      if (!pyodide) {
-        self.postMessage({ id, type: "status", text: "正在准备 Python（首次约需几秒）" });
-      }
-      const py = await getPyodide(indexURL);
-      self.postMessage({ id, type: "started" });
+export function runPythonSnippet(py, code, stdin = "") {
+  const runner = py.globals.get("_run_snippet");
+  const tuple = runner(code, stdin);
+  const [stdout, stderr, error] = tuple.toJs();
+  tuple.destroy();
 
-      const runner = py.globals.get("_run_snippet");
-      const tuple = runner(code, stdin);
-      const [stdout, stderr, error] = tuple.toJs();
-      tuple.destroy();
-
-      let finalStderr = stderr || "";
-      if (error) {
-        finalStderr = finalStderr ? finalStderr + "\n" + error : error;
-      }
-
-      self.postMessage({
-        id,
-        type: "result",
-        stdout: stdout || "",
-        stderr: finalStderr || "",
-        ok: !error,
-      });
-    } catch (err) {
-      self.postMessage({
-        id,
-        type: "result",
-        stdout: "",
-        stderr: String(err?.message || err),
-        ok: false,
-      });
-    }
+  let finalStderr = stderr || "";
+  if (error) {
+    finalStderr = finalStderr ? finalStderr + "\n" + error : error;
   }
-};
+
+  return {
+    stdout: stdout || "",
+    stderr: finalStderr || "",
+    error: error || null,
+  };
+}
+
+if (typeof self !== "undefined" && typeof self.postMessage === "function") {
+  self.onmessage = async (event) => {
+    const { id, type, code, stdin = "", indexURL = "/vendor/pyodide/" } = event.data;
+    if (type === "run") {
+      try {
+        if (!pyodide) {
+          self.postMessage({ id, type: "status", text: "正在准备 Python（首次约需几秒）" });
+        }
+        const py = await getPyodide(indexURL);
+        self.postMessage({ id, type: "started" });
+
+        const { stdout, stderr, error } = runPythonSnippet(py, code, stdin);
+
+        self.postMessage({
+          id,
+          type: "result",
+          stdout,
+          stderr,
+          ok: !error,
+        });
+      } catch (err) {
+        self.postMessage({
+          id,
+          type: "result",
+          stdout: "",
+          stderr: String(err?.message || err),
+          ok: false,
+        });
+      }
+    }
+  };
+}

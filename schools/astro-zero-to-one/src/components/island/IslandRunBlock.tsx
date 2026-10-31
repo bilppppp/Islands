@@ -5,6 +5,8 @@ import {
 	buildPreviewDocument,
 	normalizeRunLang,
 	resolvePreviewRuntime,
+	previewTransformOptions,
+	tsRunTransformOptions,
 } from "../../lib/run-block.mjs";
 
 interface RunResult {
@@ -147,9 +149,7 @@ export async function runCode(
 
 	if (normalized === "typescript") {
 		try {
-			codeToRun = await transformWithSucrase(code, {
-				transforms: ["typescript"],
-			});
+			codeToRun = await transformWithSucrase(code, tsRunTransformOptions);
 		} catch (err: unknown) {
 			const msg = err instanceof Error ? err.message : String(err);
 			return {
@@ -277,15 +277,10 @@ export default function IslandRunBlock({
 
 			let transformedCode = "";
 			try {
-				const transforms =
-					normalizedLang === "tsx"
-						? ["jsx", "imports", "typescript"]
-						: ["jsx", "imports"];
-				transformedCode = await transformWithSucrase(codeToRender, {
-					transforms,
-					jsxPragma: runtime === "react" ? "React.createElement" : "h",
-					jsxFragmentPragma: runtime === "react" ? "React.Fragment" : "Fragment",
-				});
+				transformedCode = await transformWithSucrase(
+					codeToRender,
+					previewTransformOptions(normalizedLang, runtime),
+				);
 			} catch (err: unknown) {
 				const msg = err instanceof Error ? err.message : String(err);
 				setPreviewError(`语法错误：${msg}`);

@@ -1,6 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
@@ -12,8 +13,30 @@ import {
   assertRunBlocks,
   buildPreviewDocument,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
+import {
+  verifyLessonBlocks,
+  formatBlockErrors,
+} from './verify-lesson-blocks.mjs';
+import { runJsCode } from '../school-kit/island/js-worker.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const defaultSchoolDir = process.env.ISLANDS_DEPS_SCHOOL || resolve(root, 'schools/astro-zero-to-one');
+
+function checkDeps(schoolDir = defaultSchoolDir) {
+  try {
+    const req = createRequire(resolve(schoolDir, 'package.json'));
+    req.resolve('pyodide');
+    req.resolve('sucrase');
+    req.resolve('preact');
+    req.resolve('react');
+    req.resolve('react-dom');
+    return true;
+  } catch {
+    return false;
+  }
+}
+const hasIslandDeps = checkDeps();
+const depsSkipReason = '缺少依赖，请在 schools/astro-zero-to-one 执行 npm ci';
 
 function lesson(body) {
   return `---\ntitle: Example\norder: 1\n---\n\n${body}\n`;
@@ -160,131 +183,82 @@ npm run build
     assert.deepEqual(assertRunBlocks(text), []);
   });
 
-  it('executes pilot lesson python run blocks with pyodide in Node', async () => {
-    const lessonPath = resolve(root, 'schools/python-official/src/content/lessons/02-numbers-and-strings.md');
+  it('executes pilot lesson python run blocks with verifyLessonBlocks', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const lessonPath = resolve(root, 'scripts/fixtures/lessons/python-official-02-numbers-and-strings.md');
     const content = readFileSync(lessonPath, 'utf8');
-    const blocks = assertRunBlocks(content, '02-numbers-and-strings.md');
-    assert.equal(blocks.length, 2, 'Pilot lesson must have exactly 2 python run blocks');
-
-    const pyodideMjs = resolve(root, 'schools/python-official/node_modules/pyodide/pyodide.mjs');
-    const { loadPyodide } = await import(pathToFileURL(pyodideMjs).href);
-    const pyodide = await loadPyodide();
-
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i];
-      let output = '';
-      pyodide.setStdout({
-        batched: (str) => {
-          output += str + '\n';
-        },
-      });
-      pyodide.runPython(block.code);
-      console.log(`[Pyodide Test] Pilot Block ${i + 1} Output:\n${output.trim()}`);
-      assert.ok(output.trim().length > 0, `Block ${i + 1} should produce output`);
+    const result = verifyLessonBlocks(content, 'python-official-02-numbers-and-strings.md', { schoolDir: defaultSchoolDir });
+    assert.equal(result.ok, true, `Python pilot blocks must pass: ${formatBlockErrors(result, '02-numbers-and-strings.md')}`);
+    assert.equal(result.blocks.length, 2, 'Pilot lesson must have exactly 2 python run blocks');
+    for (let i = 0; i < result.blocks.length; i++) {
+      const block = result.blocks[i];
+      assert.equal(block.ok, true);
+      assert.equal(block.lang, 'python');
+      assert.equal(block.mode, 'run');
+      assert.ok(block.stdout.trim().length > 0, `Block ${i + 1} should produce output`);
     }
   });
 
-  it('executes pilot lesson ts run block with vm in Node', async () => {
-    const astroDir = resolve(root, 'schools/astro-zero-to-one');
-    const sucrasePath = resolve(astroDir, 'node_modules/sucrase/dist/index.js');
-    const { transform } = await import(pathToFileURL(sucrasePath).href);
-    const vm = await import('node:vm');
-
-    // Lesson 09 (ts run)
-    const lesson09Path = resolve(astroDir, 'src/content/lessons/09-dynamic-routes-and-astro-api.md');
-    const lesson09Content = readFileSync(lesson09Path, 'utf8');
-    const tsBlocks = assertRunBlocks(lesson09Content, '09-dynamic-routes-and-astro-api.md');
-    assert.equal(tsBlocks.length, 1, 'Lesson 09 must have exactly 1 run block');
-    assert.equal(tsBlocks[0].lang, 'typescript');
-    assert.equal(tsBlocks[0].mode, 'run');
-
-    const transformed = transform(tsBlocks[0].code, { transforms: ['typescript'] });
-    let tsOutput = '';
-    const tsContext = vm.createContext({
-      console: {
-        log: (...args) => {
-          tsOutput += args.map((a) => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' ') + '\n';
-        },
-      },
-      Set,
-      Array,
-    });
-    vm.runInContext(transformed.code, tsContext);
-    console.log('[TS Pilot Test] Lesson 09 Output:\n' + tsOutput.trim());
-    assert.ok(tsOutput.includes('"tag": "astro"'), 'Output should contain astro tag');
+  it('executes pilot lesson ts run block with verifyLessonBlocks', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const lessonPath = resolve(root, 'scripts/fixtures/lessons/astro-zero-to-one-09-dynamic-routes-and-astro-api.md');
+    const content = readFileSync(lessonPath, 'utf8');
+    const result = verifyLessonBlocks(content, 'astro-zero-to-one-09-dynamic-routes-and-astro-api.md', { schoolDir: defaultSchoolDir });
+    assert.equal(result.ok, true, `TS pilot block must pass: ${formatBlockErrors(result, '09-dynamic-routes-and-astro-api.md')}`);
+    assert.equal(result.blocks.length, 1);
+    const block = result.blocks[0];
+    assert.equal(block.ok, true);
+    assert.equal(block.lang, 'typescript');
+    assert.equal(block.mode, 'run');
+    assert.ok(block.stdout.trim().length > 0);
+    assert.ok(block.stdout.includes('"tag": "astro"'));
   });
 
-  it('validates pilot lesson html and jsx preview blocks', async () => {
-    const astroDir = resolve(root, 'schools/astro-zero-to-one');
-
+  it('validates and executes pilot lesson html and jsx preview blocks with verifyLessonBlocks', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
     // Lesson 04 (html preview)
-    const lesson04Path = resolve(astroDir, 'src/content/lessons/04-astro-components-and-syntax.md');
-    const lesson04Content = readFileSync(lesson04Path, 'utf8');
-    const htmlBlocks = assertRunBlocks(lesson04Content, '04-astro-components-and-syntax.md');
-    assert.equal(htmlBlocks.length, 1, 'Lesson 04 must have exactly 1 preview block');
-    assert.equal(htmlBlocks[0].lang, 'html');
-    assert.equal(htmlBlocks[0].mode, 'preview');
-    assert.ok(htmlBlocks[0].code.includes('<li>HTML</li>'), 'Lesson 04 html preview should contain list items');
+    const lesson04Path = resolve(root, 'scripts/fixtures/lessons/astro-zero-to-one-04-astro-components-and-syntax.md');
+    const content04 = readFileSync(lesson04Path, 'utf8');
+    const res04 = verifyLessonBlocks(content04, 'astro-zero-to-one-04-astro-components-and-syntax.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res04.ok, true);
+    assert.equal(res04.blocks.length, 1);
+    assert.equal(res04.blocks[0].lang, 'html');
+    assert.equal(res04.blocks[0].mode, 'preview');
+    assert.ok(res04.blocks[0].html.includes('<li>HTML</li>'));
 
     // Lesson 10 (jsx preview)
-    const lesson10Path = resolve(astroDir, 'src/content/lessons/10-islands-and-client-directives.md');
-    const lesson10Content = readFileSync(lesson10Path, 'utf8');
-    const jsxBlocks = assertRunBlocks(lesson10Content, '10-islands-and-client-directives.md');
-    const previewBlocks = jsxBlocks.filter((b) => b.mode === 'preview');
-    assert.equal(previewBlocks.length, 1, 'Lesson 10 must have exactly 1 preview block');
-    assert.equal(previewBlocks[0].lang, 'jsx');
-    assert.equal(previewBlocks[0].mode, 'preview');
-    assert.ok(previewBlocks[0].code.includes('export default function App'), 'Lesson 10 jsx preview should export default App');
+    const lesson10Path = resolve(root, 'scripts/fixtures/lessons/astro-zero-to-one-10-islands-and-client-directives.md');
+    const content10 = readFileSync(lesson10Path, 'utf8');
+    const res10 = verifyLessonBlocks(content10, 'astro-zero-to-one-10-islands-and-client-directives.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res10.ok, true);
+    assert.equal(res10.blocks.length, 1);
+    assert.equal(res10.blocks[0].lang, 'jsx');
+    assert.equal(res10.blocks[0].mode, 'preview');
+    assert.equal(res10.blocks[0].ok, true);
+    assert.ok(res10.blocks[0].html.length > 0);
   });
 
-  it('executes lesson 10 jsx preview block with sucrase and vm in Node', async () => {
-    const astroDir = resolve(root, 'schools/astro-zero-to-one');
-    const sucrasePath = resolve(astroDir, 'node_modules/sucrase/dist/index.js');
-    const { transform } = await import(pathToFileURL(sucrasePath).href);
-    const vm = await import('node:vm');
-    const { createRequire } = await import('node:module');
-    const req = createRequire(resolve(astroDir, 'package.json'));
-    const preact = req('preact');
-    const preactHooks = req('preact/hooks');
-
-    const lesson10Path = resolve(astroDir, 'src/content/lessons/10-islands-and-client-directives.md');
-    const lesson10Content = readFileSync(lesson10Path, 'utf8');
-    const blocks = assertRunBlocks(lesson10Content, '10-islands-and-client-directives.md');
-    const previewBlocks = blocks.filter((b) => b.mode === 'preview');
-    assert.equal(previewBlocks.length, 1, 'Lesson 10 must have exactly 1 preview block');
-    assert.equal(previewBlocks[0].lang, 'jsx');
-
-    const transformed = transform(previewBlocks[0].code, {
-      transforms: ['jsx', 'imports'],
-      jsxPragma: 'h',
-      jsxFragmentPragma: 'Fragment',
-    });
-
-    const context = vm.createContext({
-      require: (name) => {
-        if (name === 'preact') return preact;
-        if (name === 'preact/hooks') return preactHooks;
-        throw new Error(`Cannot find module '${name}'`);
-      },
-      exports: {},
-      console,
-      h: preact.h,
-      Fragment: preact.Fragment,
-    });
-    vm.runInContext(transformed.code, context);
-    console.log('[JSX Pilot Test] Lesson 10 App exported:', typeof context.exports.default);
-    assert.equal(typeof context.exports.default, 'function', 'exports.default must be a component function');
-  });
-
-  it('executes complete preview document for lesson 10 jsx preview block', async () => {
-    const astroDir = resolve(root, 'schools/astro-zero-to-one');
-    const sucrasePath = resolve(astroDir, 'node_modules/sucrase/dist/index.js');
-    const { transform } = await import(pathToFileURL(sucrasePath).href);
+  it('executes complete preview document for lesson 10 jsx preview block', async (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const req = createRequire(resolve(defaultSchoolDir, 'package.json'));
+    const { transform } = req('sucrase');
     const vm = await import('node:vm');
 
-    const lesson10Path = resolve(astroDir, 'src/content/lessons/10-islands-and-client-directives.md');
+    const lesson10Path = resolve(root, 'scripts/fixtures/lessons/astro-zero-to-one-10-islands-and-client-directives.md');
     const lesson10Content = readFileSync(lesson10Path, 'utf8');
-    const blocks = assertRunBlocks(lesson10Content, '10-islands-and-client-directives.md');
+    const blocks = assertRunBlocks(lesson10Content, 'astro-zero-to-one-10-islands-and-client-directives.md');
     const previewBlocks = blocks.filter((b) => b.mode === 'preview');
     assert.equal(previewBlocks.length, 1, 'Lesson 10 must have exactly 1 preview block');
 
@@ -347,11 +321,16 @@ npm run build
     assert.equal(consoleErrors.length, 0, `console.error should not be called: ${JSON.stringify(consoleErrors)}`);
   });
 
-  it('highlights code with island shiki theme matching palette', async () => {
+  it('highlights code with island shiki theme matching palette', async (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
     const themePath = resolve(root, 'school-kit/island/island-theme.json');
     const theme = JSON.parse(readFileSync(themePath, 'utf8'));
-    const shikiMjs = resolve(root, 'schools/python-official/node_modules/shiki/dist/index.mjs');
-    const { codeToTokensBase, codeToHtml } = await import(pathToFileURL(shikiMjs).href);
+    const req = createRequire(resolve(defaultSchoolDir, 'package.json'));
+    const shikiEntry = req.resolve('shiki');
+    const { codeToTokensBase, codeToHtml } = await import(pathToFileURL(shikiEntry).href);
 
     const pyCode = 'print("向下取整", 17 // 3)  # 注释';
     const pyTokens = await codeToTokensBase(pyCode, { lang: 'python', theme });
@@ -556,62 +535,41 @@ describe('preview blocks', () => {
     assert.ok(reactOut.includes('__islandRootInstance.render'), 'React document must call render');
   });
 
-  it('renders pilot lesson react preview blocks with real React in Node', async () => {
-    const reactSchoolDir = resolve(root, 'schools/react-official');
-    const req = createRequire(resolve(reactSchoolDir, 'package.json'));
-    const React = req('react');
-    const ReactDOMServer = req('react-dom/server');
-    const { transform } = req('sucrase');
-    const vm = await import('node:vm');
-
-    const lesson14Path = resolve(reactSchoolDir, 'src/content/lessons/14-state-a-components-memory.md');
-    const lesson14Blocks = assertRunBlocks(readFileSync(lesson14Path, 'utf8'), '14-state-a-components-memory.md');
-    const preview14 = lesson14Blocks.filter((b) => b.mode === 'preview');
-    assert.equal(preview14.length, 1, 'Lesson 14 must have exactly 1 preview block');
-    assert.equal(preview14[0].runtime, 'react');
-
-    const lesson16Path = resolve(reactSchoolDir, 'src/content/lessons/16-state-as-a-snapshot.md');
-    const lesson16Blocks = assertRunBlocks(readFileSync(lesson16Path, 'utf8'), '16-state-as-a-snapshot.md');
-    const preview16 = lesson16Blocks.filter((b) => b.mode === 'preview');
-    assert.equal(preview16.length, 1, 'Lesson 16 must have exactly 1 preview block');
-    assert.equal(preview16[0].runtime, 'react');
-
-    const pilots = [
-      { name: 'Lesson 14 (Counter/Gallery)', block: preview14[0] },
-      { name: 'Lesson 16 (State as snapshot)', block: preview16[0] },
-    ];
-
-    for (const pilot of pilots) {
-      const transformed = transform(pilot.block.code, {
-        transforms: ['jsx', 'imports'],
-        jsxPragma: 'React.createElement',
-        jsxFragmentPragma: 'React.Fragment',
-      });
-      const context = vm.createContext({
-        require: (name) => {
-          if (name === 'react') return React;
-          if (name === 'react-dom/client') return req('react-dom/client');
-          throw new Error(`Cannot find module '${name}'`);
-        },
-        exports: {},
-        React,
-      });
-      vm.runInContext(transformed.code, context);
-      assert.equal(typeof context.exports.default, 'function', `${pilot.name} must export a default component`);
-      const html = ReactDOMServer.renderToString(React.createElement(context.exports.default));
-      assert.ok(typeof html === 'string' && html.length > 0, `${pilot.name} renderToString must produce HTML`);
-      console.log(`[React Pilot Render] ${pilot.name} HTML (first 200 chars):\n${html.slice(0, 200)}`);
+  it('renders pilot lesson react preview blocks with verifyLessonBlocks', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
     }
+    const lesson14Path = resolve(root, 'scripts/fixtures/lessons/react-official-14-state-a-components-memory.md');
+    const res14 = verifyLessonBlocks(readFileSync(lesson14Path, 'utf8'), 'react-official-14-state-a-components-memory.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res14.ok, true, `Lesson 14 must pass: ${formatBlockErrors(res14, 'react-official-14')}`);
+    assert.equal(res14.blocks.length, 1);
+    assert.equal(res14.blocks[0].lang, 'jsx');
+    assert.equal(res14.blocks[0].runtime, 'react');
+    assert.equal(res14.blocks[0].ok, true);
+    assert.ok(res14.blocks[0].html.length > 0, 'Lesson 14 preview must produce HTML');
+
+    const lesson16Path = resolve(root, 'scripts/fixtures/lessons/react-official-16-state-as-a-snapshot.md');
+    const res16 = verifyLessonBlocks(readFileSync(lesson16Path, 'utf8'), 'react-official-16-state-as-a-snapshot.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res16.ok, true, `Lesson 16 must pass: ${formatBlockErrors(res16, 'react-official-16')}`);
+    assert.equal(res16.blocks.length, 1);
+    assert.equal(res16.blocks[0].lang, 'jsx');
+    assert.equal(res16.blocks[0].runtime, 'react');
+    assert.equal(res16.blocks[0].ok, true);
+    assert.ok(res16.blocks[0].html.length > 0, 'Lesson 16 preview must produce HTML');
   });
 
-  it('executes complete preview document for react preview block with stubs', async () => {
-    const reactSchoolDir = resolve(root, 'schools/react-official');
-    const req = createRequire(resolve(reactSchoolDir, 'package.json'));
+  it('executes complete preview document for react preview block with stubs', async (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const req = createRequire(resolve(defaultSchoolDir, 'package.json'));
     const { transform } = req('sucrase');
     const vm = await import('node:vm');
 
-    const lesson14Path = resolve(reactSchoolDir, 'src/content/lessons/14-state-a-components-memory.md');
-    const blocks = assertRunBlocks(readFileSync(lesson14Path, 'utf8'), '14-state-a-components-memory.md');
+    const lesson14Path = resolve(root, 'scripts/fixtures/lessons/react-official-14-state-a-components-memory.md');
+    const blocks = assertRunBlocks(readFileSync(lesson14Path, 'utf8'), 'react-official-14-state-a-components-memory.md');
     const preview14 = blocks.find((b) => b.mode === 'preview');
     assert.ok(preview14, 'Lesson 14 must have preview block');
 
@@ -680,6 +638,148 @@ describe('preview blocks', () => {
 
     assert.equal(renderCalls.length, 1, 'ReactDOMClient.createRoot().render should be called once');
     assert.equal(consoleErrors.length, 0, `console.error should not be called: ${JSON.stringify(consoleErrors)}`);
+  });
+});
+
+describe('verifyLessonBlocks execution tests', () => {
+  it('handles python and js infinite loops with timeout and bounded duration', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    // Python infinite loop
+    const pyLoopDoc = lesson('```python run\nwhile True:\n    pass\n```');
+    const pyStart = Date.now();
+    const pyRes = verifyLessonBlocks(pyLoopDoc, 'py-loop.md', {
+      schoolDir: defaultSchoolDir,
+      fileTimeoutMs: 1500,
+      blockTimeoutMs: 800,
+    });
+    const pyElapsed = Date.now() - pyStart;
+    assert.equal(pyRes.ok, false);
+    assert.equal(pyRes.blocks.length, 1);
+    assert.equal(pyRes.blocks[0].ok, false);
+    assert.match(pyRes.blocks[0].error, /超时/);
+    assert.ok(pyElapsed < 4000, `Python loop must terminate within reasonable bound, took ${pyElapsed}ms`);
+
+    // JS infinite loop
+    const jsLoopDoc = lesson('```javascript run\nwhile (true) {}\n```');
+    const jsStart = Date.now();
+    const jsRes = verifyLessonBlocks(jsLoopDoc, 'js-loop.md', {
+      schoolDir: defaultSchoolDir,
+      fileTimeoutMs: 3000,
+      blockTimeoutMs: 500,
+    });
+    const jsElapsed = Date.now() - jsStart;
+    assert.equal(jsRes.ok, false);
+    assert.equal(jsRes.blocks.length, 1);
+    assert.equal(jsRes.blocks[0].ok, false);
+    assert.match(jsRes.blocks[0].error, /timed out|超时/);
+    assert.ok(jsElapsed < 3000, `JS loop must terminate within block timeout, took ${jsElapsed}ms`);
+  });
+
+  it('fails python block on 1/0 with ZeroDivisionError and line number', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const doc = lesson('```python run\na = 1\nb = 1 / 0\n```');
+    const res = verifyLessonBlocks(doc, 'zero-div.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res.ok, false);
+    assert.equal(res.blocks.length, 1);
+    assert.equal(res.blocks[0].ok, false);
+    assert.match(res.blocks[0].error, /ZeroDivisionError/);
+    assert.match(res.blocks[0].error, /line 2/);
+  });
+
+  it('fails run block that produces no stdout', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const doc = lesson('```javascript run\nconst a = 1 + 2;\n```');
+    const res = verifyLessonBlocks(doc, 'no-output.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res.ok, false);
+    assert.equal(res.blocks.length, 1);
+    assert.equal(res.blocks[0].ok, false);
+    assert.equal(res.blocks[0].error, '运行块没有输出，学习者看不到结果');
+  });
+
+  it('fails React component that throws during render', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const doc = lesson(`\`\`\`jsx preview react
+export default function App() {
+  throw new Error("React render exploded");
+}
+\`\`\``);
+    const res = verifyLessonBlocks(doc, 'react-throw.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res.ok, false);
+    assert.equal(res.blocks.length, 1);
+    assert.equal(res.blocks[0].ok, false);
+    assert.match(res.blocks[0].error, /React render exploded/);
+  });
+
+  it('fails Preact component referencing undefined variable in body', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const doc = lesson(`\`\`\`jsx preview preact
+export default function App() {
+  return <div>{notDefinedVariable}</div>;
+}
+\`\`\``);
+    const res = verifyLessonBlocks(doc, 'preact-undef.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res.ok, false);
+    assert.equal(res.blocks.length, 1);
+    assert.equal(res.blocks[0].ok, false);
+    assert.match(res.blocks[0].error, /notDefinedVariable is not defined/);
+  });
+
+  it('fails python block with input() prompting that input is needed', (t) => {
+    if (!hasIslandDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const doc = lesson('```python run\nname = input("Enter: ")\nprint(name)\n```');
+    const res = verifyLessonBlocks(doc, 'input.md', { schoolDir: defaultSchoolDir });
+    assert.equal(res.ok, false);
+    assert.equal(res.blocks.length, 1);
+    assert.equal(res.blocks[0].ok, false);
+    assert.match(res.blocks[0].error, /需要输入/);
+  });
+
+  it('returns overall error when dependencies are missing in schoolDir', () => {
+    const tmpDir = mkdtempSync(resolve(tmpdir(), 'empty-school-'));
+    try {
+      const doc = lesson('```python run\nprint(1)\n```');
+      const res = verifyLessonBlocks(doc, 'missing-deps.md', { schoolDir: tmpDir });
+      assert.equal(res.ok, false);
+      assert.match(res.error, /缺少依赖/);
+      assert.deepEqual(res.blocks, []);
+    } finally {
+      rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('exports runJsCode with consistent browser formatting (object JSON, Map/Set, circular)', async () => {
+    // Object JSON
+    const objRes = await runJsCode('console.log({ a: 1, b: "hello" });');
+    assert.equal(objRes.error, null);
+    assert.equal(objRes.stdout, '{\n  "a": 1,\n  "b": "hello"\n}\n');
+
+    // Map and Set
+    const mapSetRes = await runJsCode('console.log(new Map([["x", 10]]), new Set([1, 2]));');
+    assert.equal(mapSetRes.error, null);
+    assert.equal(mapSetRes.stdout, 'Map(1) { x => 10 } Set(2) { 1, 2 }\n');
+
+    // Circular reference
+    const circularRes = await runJsCode('const o = { name: "loop" }; o.self = o; console.log(o);');
+    assert.equal(circularRes.error, null);
+    assert.ok(circularRes.stdout.includes('"self": "[Circular]"'));
   });
 });
 

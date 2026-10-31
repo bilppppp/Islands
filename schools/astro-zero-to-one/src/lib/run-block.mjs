@@ -24,6 +24,23 @@ export function isPreviewLang(lang) {
   return SUPPORTED_PREVIEW_LANGS.has(normalizeRunLang(lang));
 }
 
+export const tsRunTransformOptions = {
+  transforms: ['typescript'],
+};
+
+export function previewTransformOptions(lang, runtime) {
+  const normalized = normalizeRunLang(lang);
+  const transforms =
+    normalized === 'tsx'
+      ? ['jsx', 'imports', 'typescript']
+      : ['jsx', 'imports'];
+  return {
+    transforms,
+    jsxPragma: runtime === 'react' ? 'React.createElement' : 'h',
+    jsxFragmentPragma: runtime === 'react' ? 'React.Fragment' : 'Fragment',
+  };
+}
+
 function fail(fileName, message) {
   throw new Error(`Run block in ${fileName}: ${message}`);
 }
