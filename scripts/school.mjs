@@ -271,6 +271,7 @@ async function main() {
     }
     await buildSchool(path);
     console.log(`School 已检查并构建：${basename(path)}（${count} 关）。启动：npm run school -- start ${basename(path)}。真实教学尚未验证。`);
+    console.log('引用检查只证明被标记的原句存在于已保存文件中，不证明课文其他内容已核实。');
     if (warnings.length > 0) {
       console.log(`\n${formatWarnings(warnings)}`);
     }

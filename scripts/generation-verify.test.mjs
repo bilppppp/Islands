@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve, dirname, join, basename, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +9,7 @@ import { createRequire } from 'node:module';
 import {
   verifySchoolLessons,
   collectSchoolWarnings,
+  extractTechnicalIdentifier,
 } from './verify-lesson-blocks.mjs';
 
 import {
@@ -597,6 +598,290 @@ title: Ancient History
     });
 
     assert.equal(res, 5);
+    assert.equal(validateCalls, 1);
+    assert.equal(repairCalls, 0);
+  });
+
+  it('warns about unsourced technical identifiers with source comparison rules', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'unsourced-id-'));
+    try {
+      const sourcesDir = join(tempDir, 'public/sources');
+      mkdirSync(join(sourcesDir, 'material-1'), { recursive: true });
+      writeFileSync(
+        join(sourcesDir, 'material-1/doc.txt'),
+        'Here is the document describing --sandbox options.',
+        'utf8'
+      );
+
+      // sources contains --sandbox but not workspace-write -> only reports workspace-write
+      const lessonWithBoth = [
+        {
+          file: '01.md',
+          text: `---
+title: Lesson 1
+sources:
+  - material-1/doc.txt
+---
+Here is \`--sandbox\` and \`workspace-write\`.
+`,
+        },
+      ];
+      const w1 = collectSchoolWarnings(lessonWithBoth, { sourcesDir });
+      const u1 = w1.filter((w) => w.code === 'unsourced-identifier');
+      assert.equal(u1.length, 1);
+      assert.equal(u1[0].level, 'warning');
+      assert.deepEqual(u1[0].identifiers, ['workspace-write']);
+      assert.ok(u1[0].message.includes('workspace-write'));
+      assert.ok(!u1[0].message.includes('--sandbox'));
+
+      // all identifiers in sources -> no warning
+      const lessonAllInSources = [
+        {
+          file: '02.md',
+          text: `---
+title: Lesson 2
+sources:
+  - material-1/doc.txt
+---
+Here is \`--sandbox\` only.
+`,
+        },
+      ];
+      const w2 = collectSchoolWarnings(lessonAllInSources, { sourcesDir });
+      const u2 = w2.filter((w) => w.code === 'unsourced-identifier');
+      assert.equal(u2.length, 0);
+
+      // no sources -> no warning
+      const lessonNoSources = [
+        {
+          file: '03.md',
+          text: `---
+title: Lesson 3
+---
+Here is \`workspace-write\` without sources.
+`,
+        },
+      ];
+      const w3 = collectSchoolWarnings(lessonNoSources, { sourcesDir });
+      const u3 = w3.filter((w) => w.code === 'unsourced-identifier');
+      assert.equal(u3.length, 0);
+
+      // snippet containing spaces is split into words
+      const lessonWithSpaces = [
+        {
+          file: '04.md',
+          text: `---
+title: Lesson 4
+sources:
+  - material-1/doc.txt
+---
+Command: \`codex --sandbox workspace-write\`.
+`,
+        },
+      ];
+      const w4 = collectSchoolWarnings(lessonWithSpaces, { sourcesDir });
+      const u4 = w4.filter((w) => w.code === 'unsourced-identifier');
+      assert.equal(u4.length, 1);
+      assert.deepEqual(u4[0].identifiers, ['workspace-write']);
+
+      // .html prioritizes companion .txt
+      writeFileSync(
+        join(sourcesDir, 'material-1/page.html'),
+        '<html><body>workspace-write is here</body></html>',
+        'utf8'
+      );
+      writeFileSync(
+        join(sourcesDir, 'material-1/page.html.txt'),
+        'extracted text only has --sandbox',
+        'utf8'
+      );
+      const lessonHtml = [
+        {
+          file: '05.md',
+          text: `---
+title: Lesson 5
+sources:
+  - material-1/page.html
+---
+Check \`--sandbox\` and \`workspace-write\`.
+`,
+        },
+      ];
+      const w5 = collectSchoolWarnings(lessonHtml, { sourcesDir });
+      const u5 = w5.filter((w) => w.code === 'unsourced-identifier');
+      assert.equal(u5.length, 1);
+      assert.deepEqual(u5[0].identifiers, ['workspace-write']);
+
+      // tightened identifier assertions: paths/keys ignored, flags/home-paths/kebab-snake recognized
+      assert.equal(extractTechnicalIdentifier('src/pages/about.astro'), null);
+      assert.equal(extractTechnicalIdentifier('post-2.md'), null);
+      assert.equal(extractTechnicalIdentifier('./run.sh'), null);
+      assert.equal(extractTechnicalIdentifier('Ctrl-D'), null);
+
+      assert.equal(extractTechnicalIdentifier('--sandbox'), '--sandbox');
+      assert.equal(extractTechnicalIdentifier('~/.codex/AGENTS.md'), '~/.codex/AGENTS.md');
+      assert.equal(extractTechnicalIdentifier('workspace-write'), 'workspace-write');
+      assert.equal(extractTechnicalIdentifier('on_request'), 'on_request');
+
+      const lessonTightened = [
+        {
+          file: '06.md',
+          text: `---
+title: Lesson 6
+sources:
+  - material-1/doc.txt
+---
+Here are \`src/pages/about.astro\`, \`post-2.md\`, \`./run.sh\`, \`Ctrl-D\`, \`~/.codex/AGENTS.md\`, and \`on_request\`.
+`,
+        },
+      ];
+      const w6 = collectSchoolWarnings(lessonTightened, { sourcesDir });
+      const u6 = w6.filter((w) => w.code === 'unsourced-identifier');
+      assert.equal(u6.length, 1);
+      assert.deepEqual(u6[0].identifiers, ['~/.codex/AGENTS.md', 'on_request']);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('warns about echo-only run blocks when the language is not taught', () => {
+    const jsEchoCode = 'const a=["甲","乙"]; console.log("清单："+a.join("、"))';
+    const jsEchoLesson = [
+      {
+        file: '01.md',
+        text: `---
+title: CLI Lesson
+---
+\`\`\`javascript run
+${jsEchoCode}
+\`\`\`
+`,
+      },
+    ];
+
+    // JS run block with join, no other js fence -> warn
+    const blocks1 = [
+      {
+        file: '01.md',
+        line: 5,
+        lang: 'javascript',
+        mode: 'run',
+        code: jsEchoCode,
+        stdout: '清单：甲、乙\n',
+        ok: true,
+      },
+    ];
+    const w1 = collectSchoolWarnings(jsEchoLesson, { blocks: blocks1 });
+    const echo1 = w1.filter((w) => w.code === 'echo-only-run-block');
+    assert.equal(echo1.length, 1);
+    assert.equal(echo1[0].level, 'warning');
+    assert.equal(echo1[0].file, '01.md');
+    assert.equal(echo1[0].line, 5);
+    assert.match(echo1[0].message, /只打印写死的文字/);
+
+    // Same block, but course has other js normal code fence -> no warning
+    const jsTaughtLesson = [
+      {
+        file: '01.md',
+        text: `---
+title: JS Lesson
+---
+\`\`\`javascript
+const x = 1;
+\`\`\`
+
+\`\`\`javascript run
+${jsEchoCode}
+\`\`\`
+`,
+      },
+    ];
+    const w2 = collectSchoolWarnings(jsTaughtLesson, { blocks: blocks1 });
+    const echo2 = w2.filter((w) => w.code === 'echo-only-run-block');
+    assert.equal(echo2.length, 0);
+
+    // console.log(1+2) -> 3 is not in literals -> no warning
+    const mathCode = 'console.log(1+2)';
+    const mathLesson = [
+      {
+        file: '02.md',
+        text: `---
+title: Math Lesson
+---
+\`\`\`javascript run
+${mathCode}
+\`\`\`
+`,
+      },
+    ];
+    const blocksMath = [
+      {
+        file: '02.md',
+        line: 5,
+        lang: 'javascript',
+        mode: 'run',
+        code: mathCode,
+        stdout: '3\n',
+        ok: true,
+      },
+    ];
+    const w3 = collectSchoolWarnings(mathLesson, { blocks: blocksMath });
+    const echo3 = w3.filter((w) => w.code === 'echo-only-run-block');
+    assert.equal(echo3.length, 0);
+
+    // Python lesson print("Hello, world") + has other python fence -> no warning
+    const pyCode = 'print("Hello, world")';
+    const pyLesson = [
+      {
+        file: '03.md',
+        text: `---
+title: Python Lesson
+---
+\`\`\`python
+def greet(): pass
+\`\`\`
+
+\`\`\`python run
+${pyCode}
+\`\`\`
+`,
+      },
+    ];
+    const blocksPy = [
+      {
+        file: '03.md',
+        line: 9,
+        lang: 'python',
+        mode: 'run',
+        code: pyCode,
+        stdout: 'Hello, world\n',
+        ok: true,
+      },
+    ];
+    const w4 = collectSchoolWarnings(pyLesson, { blocks: blocksPy });
+    const echo4 = w4.filter((w) => w.code === 'echo-only-run-block');
+    assert.equal(echo4.length, 0);
+  });
+
+  it('repairUntilValid does not trigger repair on unsourced-identifier or echo-only-run-block warnings', async () => {
+    let validateCalls = 0;
+    let repairCalls = 0;
+
+    const fakeValidate = async () => {
+      validateCalls++;
+      // Return successfully even when warnings exist
+      return 6;
+    };
+
+    const res = await repairUntilValid({
+      validate: fakeValidate,
+      repair: async () => {
+        repairCalls++;
+      },
+      maxRounds: 2,
+    });
+
+    assert.equal(res, 6);
     assert.equal(validateCalls, 1);
     assert.equal(repairCalls, 0);
   });

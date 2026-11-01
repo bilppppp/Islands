@@ -4,6 +4,7 @@ import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   scanCodeFences,
+  stripFrontmatter,
   collectPredictBlocks,
   collectNumberlineBlocks,
 } from '../school-kit/overlay/src/lib/predict-block.mjs';
@@ -11,11 +12,51 @@ import {
   assertRunFence,
   collectRunBlocks,
   PROGRAMMING_LANGUAGES,
+  normalizeRunLang,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
+import { parseFrontmatter } from './source-state.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const CHILD_SCRIPT = resolve(__dirname, 'verify-lesson-blocks-child.mjs');
+
+export function extractStringLiterals(code) {
+  const literals = [];
+  for (const m of (code || '').matchAll(/'((?:\\.|[^'\\])*)'/g)) literals.push(m[1]);
+  for (const m of (code || '').matchAll(/"((?:\\.|[^"\\])*)"/g)) literals.push(m[1]);
+  for (const m of (code || '').matchAll(/`((?:\\.|[^`\\])*)`/gs)) literals.push(m[1].replace(/\$\{[^}]*\}/g, ''));
+  return literals.join('\n');
+}
+
+export function isEchoOnly(code, stdout) {
+  if (!stdout || !stdout.trim()) return false;
+  const literals = extractStringLiterals(code);
+  if (!literals) return false;
+
+  const cjkSegments = stdout.match(/[\u4e00-\u9fff]+/g) || [];
+  const asciiWords = stdout.match(/[a-zA-Z0-9]+/g) || [];
+  const allTokens = [...cjkSegments, ...asciiWords];
+
+  if (allTokens.length === 0) return false;
+  return allTokens.every((tok) => literals.includes(tok));
+}
+
+export function extractTechnicalIdentifier(token) {
+  if (!token || typeof token !== 'string') return null;
+  const w = token.replace(/^[('"`<]+|[)'"`>,;:.]+$/g, '');
+  if (!w) return null;
+
+  if (/^--[a-z0-9][a-z0-9-]*$/i.test(w)) {
+    return w;
+  }
+  if (w.startsWith('~/') && /^~\/[a-zA-Z0-9_.~/*+-]+$/.test(w)) {
+    return w;
+  }
+  if (w.length >= 4 && /^[a-z0-9]+(?:[-_][a-z0-9]+)+$/.test(w)) {
+    return w;
+  }
+  return null;
+}
 
 export function getFenceStartLine(markdown, fence) {
   const text = String(markdown);
@@ -227,7 +268,13 @@ export function verifyLessonBlocks(
       };
     }
 
+    const codeMap = new Map(blocksToRun.map((b) => [b.index, b.code]));
     const allBlocks = [...blockResults, ...(childResult.blocks || [])];
+    for (const b of allBlocks) {
+      if (!b.code && codeMap.has(b.index)) {
+        b.code = codeMap.get(b.index);
+      }
+    }
     allBlocks.sort((a, b) => a.index - b.index);
 
     return {
@@ -281,6 +328,9 @@ export function collectSchoolWarnings(target, options = {}) {
   let lessonsList = [];
   let courseMdText = options.courseMdText || options.courseMd || '';
   let courseFile = options.courseFile || 'COURSE.md';
+  let schoolDir = options.schoolDir || null;
+  let sourcesDir = options.sourcesDir || null;
+  let blocks = options.blocks || null;
 
   if (Array.isArray(target)) {
     lessonsList = target.map((item, idx) => ({
@@ -288,7 +338,7 @@ export function collectSchoolWarnings(target, options = {}) {
       text: typeof item === 'string' ? item : (item.text || ''),
     }));
   } else if (typeof target === 'string') {
-    let schoolDir = target;
+    schoolDir = target;
     let lessonsDir = join(schoolDir, 'src/content/lessons');
     if (!existsSync(lessonsDir) && existsSync(schoolDir)) {
       lessonsDir = schoolDir;
@@ -320,6 +370,9 @@ export function collectSchoolWarnings(target, options = {}) {
     if (target.courseFile) {
       courseFile = target.courseFile;
     }
+    if (target.schoolDir) schoolDir = target.schoolDir;
+    if (target.sourcesDir) sourcesDir = target.sourcesDir;
+    if (target.blocks) blocks = target.blocks;
   }
 
   if (options.lessons && Array.isArray(options.lessons)) {
@@ -328,11 +381,15 @@ export function collectSchoolWarnings(target, options = {}) {
       text: typeof item === 'string' ? item : (item.text || ''),
     }));
   }
+  if (!sourcesDir && schoolDir) {
+    sourcesDir = join(schoolDir, 'public/sources');
+  }
 
   const warnings = [];
   let hasCodeBlock = false;
   const htmlPreviewBlocks = [];
   let totalInteractiveBlocks = 0;
+  const taughtLanguages = new Set();
 
   for (const { file, text } of lessonsList) {
     const fences = scanCodeFences(text);
@@ -372,6 +429,10 @@ export function collectSchoolWarnings(target, options = {}) {
         if (rawLang && PROGRAMMING_LANGUAGES.has(rawLang)) {
           hasCodeBlock = true;
         }
+        if (rawLang && rawLang !== 'predict' && rawLang !== 'numberline') {
+          const norm = rawLang === 'py' ? 'python' : normalizeRunLang(rawLang);
+          taughtLanguages.add(norm);
+        }
       }
     }
 
@@ -383,6 +444,124 @@ export function collectSchoolWarnings(target, options = {}) {
         line: interactiveLines[3],
         message: `该关卡包含 ${interactiveLines.length} 个交互块（predict、numberline、run、preview），超过了建议的上限（最多 3 个）。`,
       });
+    }
+  }
+
+  if (Array.isArray(blocks)) {
+    for (const block of blocks) {
+      if (block.mode !== 'run' || !block.ok || !block.stdout) continue;
+      const blockLang = block.lang === 'py' ? 'python' : normalizeRunLang(block.lang);
+      if (!taughtLanguages.has(blockLang)) {
+        let code = block.code;
+        if (!code && block.file) {
+          const lesson = lessonsList.find((l) => l.file === block.file);
+          if (lesson) {
+            const fences = scanCodeFences(lesson.text);
+            for (const f of fences) {
+              const line = getFenceStartLine(lesson.text, f);
+              if (line === block.line) {
+                code = f.code;
+                break;
+              }
+            }
+          }
+        }
+        if (code && isEchoOnly(code, block.stdout)) {
+          warnings.push({
+            level: 'warning',
+            code: 'echo-only-run-block',
+            file: block.file,
+            line: block.line,
+            message: '这个 run 块只打印写死的文字，且课程并不教这门语言；考虑改成正文、表格或 predict 块。',
+          });
+        }
+      }
+    }
+  }
+
+  if (sourcesDir && existsSync(sourcesDir)) {
+    for (const { file, text } of lessonsList) {
+      const frontmatter = parseFrontmatter(text);
+      const sources = frontmatter?.sources;
+      if (!sources || !Array.isArray(sources) || sources.length === 0) continue;
+
+      let combinedSourceText = '';
+      let readCount = 0;
+      for (const s of sources) {
+        const full = join(sourcesDir, s);
+        if (s.endsWith('.html') || s.endsWith('.htm')) {
+          const companion1 = full + '.txt';
+          const companion2 = full.replace(/\.html?$/i, '.txt');
+          if (existsSync(companion1)) {
+            combinedSourceText += '\n' + readFileSync(companion1, 'utf8');
+            readCount++;
+          } else if (existsSync(companion2)) {
+            combinedSourceText += '\n' + readFileSync(companion2, 'utf8');
+            readCount++;
+          } else if (existsSync(full)) {
+            combinedSourceText += '\n' + readFileSync(full, 'utf8').replace(/<[^>]*>/g, ' ');
+            readCount++;
+          }
+        } else if (existsSync(full)) {
+          combinedSourceText += '\n' + readFileSync(full, 'utf8');
+          readCount++;
+        }
+      }
+
+      if (readCount === 0) continue;
+
+      const sourceLower = combinedSourceText.toLowerCase();
+      const frontmatterEnd = text.startsWith('---\n') ? text.indexOf('\n---\n', 4) : -1;
+      const frontmatterLineCount = frontmatterEnd >= 0
+        ? (text.slice(0, frontmatterEnd + 5).match(/\n/g) || []).length
+        : 0;
+      const body = stripFrontmatter(text);
+      const fences = scanCodeFences(text);
+      const lines = body.split('\n');
+      let fenceIdx = 0;
+      const unsourcedMap = new Map();
+
+      for (let i = 0; i < lines.length; i++) {
+        const fence = fences[fenceIdx];
+        if (fence && i >= fence.startLine && i <= fence.endLine) {
+          if (i === fence.endLine) fenceIdx++;
+          continue;
+        }
+        const line = lines[i];
+        const fileLineNo = i + frontmatterLineCount + 1;
+        for (const m of line.matchAll(/(?<!`)(`+)(.+?)\1(?!`)/g)) {
+          if (m[1].length >= 3) continue;
+          const snippet = m[2];
+          const words = snippet.trim().split(/\s+/);
+          for (const raw of words) {
+            const w = extractTechnicalIdentifier(raw);
+            if (!w) continue;
+            const target = w.toLowerCase();
+            const altTarget = target.replace(/\/+$/, '');
+            if (!sourceLower.includes(target) && (!altTarget || !sourceLower.includes(altTarget))) {
+              if (!unsourcedMap.has(w)) {
+                unsourcedMap.set(w, fileLineNo);
+              }
+            }
+          }
+        }
+      }
+
+      if (unsourcedMap.size > 0) {
+        const uniqueIds = Array.from(unsourcedMap.keys());
+        const firstLine = Math.min(...unsourcedMap.values());
+        const displayed = uniqueIds.slice(0, 10);
+        const remaining = uniqueIds.length - 10;
+        const idListStr = remaining > 0 ? `${displayed.join('、')} 等 ${remaining} 个` : displayed.join('、');
+        warnings.push({
+          level: 'warning',
+          code: 'unsourced-identifier',
+          file,
+          line: firstLine,
+          identifiers: uniqueIds,
+          message: `这些技术词在本课 sources 的原文里找不到，请核对是否有来源支持，或改用已保存的来源：${idListStr}。`,
+        });
+      }
     }
   }
 
@@ -527,7 +706,10 @@ export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
     lessons: lessonEntries,
     courseMdText,
     courseFile: 'COURSE.md',
-  });
+    schoolDir,
+    sourcesDir: join(schoolDir, 'public/sources'),
+    blocks: allBlocks,
+  }, options);
 
   return {
     ok: allOk && failedBlocks === 0,
