@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { createRequire } from 'node:module';
+import { join, resolve } from 'node:path';
 import { scanCodeFences, stripFrontmatter } from './predict-block.mjs';
 
 const CITE_SOURCE = String.raw`\{\{cite\s+([^|\n]+?)\s+\|\s+path:\s*([^\s|]+)\s+\|\s+heading:\s+([^|\n]+?)\s+\|\s+url:\s+(https?:\/\/[^\s|]+)\s+\|\s+quote:\s+([\s\S]*?)\}\}`;
@@ -180,16 +181,40 @@ function expandText(value, fileName, sourcesRoot, cache) {
   return nodes;
 }
 
-function transformNode(node, fileName, sourcesRoot, cache) {
+function transformNode(node, fileName, sourcesRoot, cache, rawSource) {
   if (!node || !Array.isArray(node.children)) return;
   if (node.type === 'code' || node.type === 'inlineCode') return;
   const next = [];
-  for (const child of node.children) {
-    if (child.type === 'text') {
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    if (child.type === 'text' && child.value.includes('{{cite')) {
+      let endIdx = -1;
+      const startOffset = child.position?.start?.offset;
+      if (typeof rawSource === 'string' && rawSource.length > 0 && typeof startOffset === 'number') {
+        for (let j = i; j < node.children.length; j++) {
+          const endOffset = node.children[j]?.position?.end?.offset;
+          if (typeof endOffset !== 'number') break;
+          const sub = rawSource.slice(startOffset, endOffset);
+          const lastOpen = sub.lastIndexOf('{{cite');
+          const lastClose = sub.lastIndexOf('}}');
+          if (lastClose !== -1 && lastClose > lastOpen) {
+            endIdx = j;
+            break;
+          }
+        }
+      }
+      if (endIdx !== -1) {
+        const endOffset = node.children[endIdx].position.end.offset;
+        const slice = rawSource.slice(startOffset, endOffset);
+        const parts = expandText(slice, fileName, sourcesRoot, cache);
+        next.push(...(parts || node.children.slice(i, endIdx + 1)));
+        i = endIdx;
+        continue;
+      }
       const parts = expandText(child.value, fileName, sourcesRoot, cache);
       next.push(...(parts || [child]));
     } else {
-      transformNode(child, fileName, sourcesRoot, cache);
+      transformNode(child, fileName, sourcesRoot, cache, rawSource);
       next.push(child);
     }
   }
@@ -199,7 +224,52 @@ function transformNode(node, fileName, sourcesRoot, cache) {
 export function remarkSourceCite() {
   return (tree, file) => {
     const fileName = file?.path || 'lesson.md';
-    const sourcesRoot = join(file?.cwd || process.cwd(), 'public/sources');
-    transformNode(tree, fileName, sourcesRoot, new Map());
+    const sourcesRoot = file?.sourcesRoot || join(file?.cwd || process.cwd(), 'public/sources');
+    let rawSource = '';
+    if (typeof file?.value === 'string') {
+      rawSource = file.value;
+    } else if (file && typeof file.toString === 'function') {
+      const str = file.toString();
+      if (str && str !== '[object Object]') rawSource = str;
+    }
+    transformNode(tree, fileName, sourcesRoot, new Map(), rawSource);
   };
+}
+
+export function parseGfm(markdownText, schoolDir = null) {
+  const targetDir = schoolDir || process.cwd();
+  let req = null;
+  try {
+    const pkgPath = resolve(targetDir, 'package.json');
+    if (existsSync(pkgPath)) {
+      const candidateReq = createRequire(pkgPath);
+      candidateReq.resolve('mdast-util-from-markdown');
+      candidateReq.resolve('micromark-extension-gfm');
+      candidateReq.resolve('mdast-util-gfm');
+      req = candidateReq;
+    }
+  } catch {}
+
+  if (!req) {
+    throw new Error(`在 ${targetDir} 中未找到 GFM 解析依赖（mdast-util-from-markdown 等）。请在该 School 目录下执行 npm ci 或运行 python3 scripts/apply-school-kit.py ${targetDir}。`);
+  }
+  const { fromMarkdown } = req('mdast-util-from-markdown');
+  const { gfm } = req('micromark-extension-gfm');
+  const { gfmFromMarkdown } = req('mdast-util-gfm');
+  return fromMarkdown(markdownText, {
+    extensions: [gfm()],
+    mdastExtensions: [gfmFromMarkdown()],
+  });
+}
+
+export function assertSourceCitesGfm(markdown, fileName, schoolDir, sourcesRoot = null) {
+  const content = stripFrontmatter(markdown);
+  const tree = parseGfm(content, schoolDir);
+  const resolvedSourcesRoot = sourcesRoot || join(schoolDir, 'public/sources');
+  remarkSourceCite()(tree, {
+    cwd: schoolDir,
+    path: fileName,
+    value: content,
+    sourcesRoot: resolvedSourcesRoot,
+  });
 }

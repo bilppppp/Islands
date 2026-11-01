@@ -973,7 +973,7 @@ describe('default finish', () => {
     const end = text.indexOf('export async function runUpdate');
     const fn = text.slice(start, end);
     assert.match(fn, /validateGeneration/);
-    assert.match(fn, /npm['"],\s*\['run',\s*'build'/);
+    assert.match(fn, /buildSchool/);
     assert.match(fn, /真实教学尚未验证/);
     assert.equal(/deploy/.test(fn), false);
   });

@@ -40,6 +40,7 @@ OVERLAY_FILES = (
     Path("src/lib/predict-block.d.mts"),
     Path("src/lib/run-block.mjs"),
     Path("src/lib/run-block.d.mts"),
+    Path("src/lib/render-guard.mjs"),
     Path("src/lib/student-id.ts"),
     Path("src/pages/api/enroll.ts"),
     Path("src/pages/api/lessons/index.ts"),

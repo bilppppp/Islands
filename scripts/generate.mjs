@@ -3,7 +3,7 @@ import { resolve, basename, join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
 import { assertLessonHasSources, listFiles, rawSha256, readLessons } from './source-state.mjs';
-import { assertSourceCites } from '../school-kit/overlay/src/lib/source-cite.mjs';
+import { assertSourceCites, assertSourceCitesGfm } from '../school-kit/overlay/src/lib/source-cite.mjs';
 import { assertLessonCodeBlocks, resolvePreviewRuntime, normalizeRunLang } from '../school-kit/overlay/src/lib/run-block.mjs';
 import { scanCodeFences } from '../school-kit/overlay/src/lib/predict-block.mjs';
 import { verifySchoolLessons, getFenceStartLine, formatWarnings } from './verify-lesson-blocks.mjs';
@@ -406,6 +406,7 @@ export function validateGeneration(inputPath, options = {}) {
     }
     assertMathDelimiters(text, name);
     assertSourceCites(text, name, join(output, 'public/sources'));
+    assertSourceCitesGfm(text, name, output);
     assertLessonCodeBlocks(text, name);
     if (requireLessonSources) assertLessonHasSources(text, name, join(output, 'public/sources'));
     lessonEntries.push({ name, text });

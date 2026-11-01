@@ -4,7 +4,7 @@ import { resolve, dirname, join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { spawn } from 'node:child_process';
-import { command, prepareMaterials, supplementMaterials } from './materials.mjs';
+import { buildSchool, command, prepareMaterials, supplementMaterials } from './materials.mjs';
 import { piPrint, defaultModel } from './pi.mjs';
 import { generate, generationPrompt, validateGeneration } from './generate.mjs';
 import { formatWarnings } from './verify-lesson-blocks.mjs';
@@ -198,7 +198,7 @@ async function create() {
     return;
   }
   const count = await generate(inputPath, { model: options.model });
-  await command('npm', ['run', 'build'], { cwd: output, inherit: true, rejectOnErrorLog: true });
+  await buildSchool(output);
   console.log(`\nSchool 已生成并构建：${name}（${count} 关）。\n启动：npm run school -- start ${name}\n网页：http://localhost:${spec.port}\n课程可在该目录编辑；真实教学尚未进行。`);
 }
 async function main() {
@@ -242,7 +242,7 @@ async function main() {
     console.log(`打开 http://localhost:${chosen}；Ctrl+C 停止。`);
     await command('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(chosen)], { cwd: path, inherit: true, env: { DEPLOY_TARGET: 'dev' } });
   } else if (operation === 'build') {
-    await command('npm', ['run', 'build'], { cwd: path, inherit: true, rejectOnErrorLog: true });
+    await buildSchool(path);
   } else if (operation === 'deploy') {
     const script = join(path, 'script', 'deploy-vercel');
     if (!existsSync(script)) throw new Error(`Unknown School script ${script}. Apply the School Kit first.`);
@@ -268,7 +268,7 @@ async function main() {
       }
       throw new Error(`${errMsg}\n\n修改上述课文后重新运行 finish。`);
     }
-    await command('npm', ['run', 'build'], { cwd: path, inherit: true, rejectOnErrorLog: true });
+    await buildSchool(path);
     console.log(`School 已检查并构建：${basename(path)}（${count} 关）。启动：npm run school -- start ${basename(path)}。真实教学尚未验证。`);
     if (warnings.length > 0) {
       console.log(`\n${formatWarnings(warnings)}`);
@@ -311,7 +311,7 @@ async function main() {
     }
     await command('python3', ['scripts/apply-school-kit.py', relative(root, path)], { inherit: true });
     await generate(inputPath, { model: options.model });
-    await command('npm', ['run', 'build'], { cwd: path, inherit: true, rejectOnErrorLog: true });
+    await buildSchool(path);
   } else if (operation === 'teach') {
     const student = options.student || await ask('网页显示的学习身份：');
     if (!/^[a-z]+-[a-z]+-\d{4}$/.test(student)) throw new Error('Invalid student ID. Copy the identity from the website.');

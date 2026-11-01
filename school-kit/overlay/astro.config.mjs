@@ -13,6 +13,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
 import { remarkSourceCite } from "./src/lib/source-cite.mjs";
+import { lessonRenderGuardIntegration } from "./src/lib/render-guard.mjs";
 import { collectRunBlocks } from "./src/lib/run-block.mjs";
 import { assertVercelBuildEnv, resolveDeployTarget } from "./src/lib/deploy-target";
 
@@ -221,7 +222,7 @@ export default defineConfig({
 	output: "server",
 	cacheDir: "./.astro/cache",
 	adapter,
-	integrations: [mdx(), pyodideVendorIntegration()],
+	integrations: [mdx(), pyodideVendorIntegration(), lessonRenderGuardIntegration()],
 	markdown: {
 		remarkPlugins: [remarkMath, remarkSourceCite],
 		rehypePlugins: [

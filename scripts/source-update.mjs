@@ -3,7 +3,7 @@ import net from 'node:net';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assertUpdateAllowed, completionSha256, validateGeneration } from './generate.mjs';
-import { command } from './materials.mjs';
+import { buildSchool, command } from './materials.mjs';
 import {
   EXTRACTOR_VERSION,
   SCHEMA_VERSION,
@@ -467,7 +467,7 @@ export async function defaultFinish({ schoolPath }) {
   const name = basename(schoolPath);
   const inputPath = join(root, 'inputs', `${name}.json`);
   const count = validateGeneration(inputPath);
-  await command('npm', ['run', 'build'], { cwd: schoolPath, inherit: true, rejectOnErrorLog: true });
+  await buildSchool(schoolPath);
   console.log('真实教学尚未验证');
   return count;
 }

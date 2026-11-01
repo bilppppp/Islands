@@ -115,7 +115,13 @@ def island_astro_config_text(source: str) -> str:
             raise ValueError("astro config has no MDX import")
         text = text.replace(marker, marker + '\nimport islandTheme from "./src/styles/island-theme.json";', 1)
     if "react()" not in text:
-        if "integrations: [mdx(), pyodideVendorIntegration()]" in text:
+        if "integrations: [mdx(), pyodideVendorIntegration(), lessonRenderGuardIntegration()]" in text:
+            text = text.replace(
+                "integrations: [mdx(), pyodideVendorIntegration(), lessonRenderGuardIntegration()]",
+                "integrations: [mdx(), react(), pyodideVendorIntegration(), lessonRenderGuardIntegration()]",
+                1,
+            )
+        elif "integrations: [mdx(), pyodideVendorIntegration()]" in text:
             text = text.replace(
                 "integrations: [mdx(), pyodideVendorIntegration()]",
                 "integrations: [mdx(), react(), pyodideVendorIntegration()]",

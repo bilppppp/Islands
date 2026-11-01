@@ -1,14 +1,39 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { resolve, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   assertSourceCites,
+  assertSourceCitesGfm,
+  parseGfm,
   remarkSourceCite,
   sourceCiteHtml,
   sourceCiteProse,
 } from '../school-kit/overlay/src/lib/source-cite.mjs';
+import {
+  assertRenderedLessons,
+  clearAstroCache,
+} from '../school-kit/overlay/src/lib/render-guard.mjs';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const defaultSchoolDir = process.env.ISLANDS_DEPS_SCHOOL || resolve(root, 'schools/astro-zero-to-one');
+
+function checkGfmDeps(schoolDir = defaultSchoolDir) {
+  try {
+    const req = createRequire(resolve(schoolDir, 'package.json'));
+    req.resolve('mdast-util-from-markdown');
+    req.resolve('micromark-extension-gfm');
+    req.resolve('mdast-util-gfm');
+    return true;
+  } catch {
+    return false;
+  }
+}
+const hasGfmDeps = checkGfmDeps();
+const depsSkipReason = '缺少依赖，请在 schools/astro-zero-to-one 执行 npm ci';
 
 const QUOTE = 'Claude Code works in any directory. Run it inside a notes vault.';
 const MARKER = `{{cite 任何基于文本的项目 | path: material-1/pages/notes.md | heading: Work in notes and non-code folders | url: https://example.com/docs/notes | quote: ${QUOTE}}}`;
@@ -105,6 +130,332 @@ describe('source citations', () => {
       assert.equal(tree.children[1].value, MARKER);
     } finally {
       rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('handles cite with bare autolinked URL without error, producing html node and preserving prose', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const { root } = withSource(MARKER);
+    const md = `前文 ${MARKER} 后文`;
+    const tree = parseGfm(md, defaultSchoolDir);
+    try {
+      remarkSourceCite()(tree, { cwd: root, path: 'lesson.md', value: md });
+      const p = tree.children[0];
+      assert.equal(p.children.length, 3);
+      assert.equal(p.children[0].type, 'text');
+      assert.equal(p.children[0].value, '前文 ');
+      assert.equal(p.children[1].type, 'html');
+      assert.match(p.children[1].value, /class="source-cite"/);
+      assert.match(p.children[1].value, /任何基于文本的项目/);
+      assert.equal(p.children[2].type, 'text');
+      assert.equal(p.children[2].value, ' 后文');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('handles two autolinked cites in the same paragraph', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const { root } = withSource(MARKER);
+    const marker2 = MARKER.replace('任何基于文本的项目', '第二个引用短语');
+    const md = `前文 ${MARKER} 中间 ${marker2} 后文`;
+    const tree = parseGfm(md, defaultSchoolDir);
+    try {
+      remarkSourceCite()(tree, { cwd: root, path: 'lesson.md', value: md });
+      const p = tree.children[0];
+      assert.equal(p.children.length, 5);
+      assert.equal(p.children[0].type, 'text');
+      assert.equal(p.children[0].value, '前文 ');
+      assert.equal(p.children[1].type, 'html');
+      assert.match(p.children[1].value, /任何基于文本的项目/);
+      assert.equal(p.children[2].type, 'text');
+      assert.equal(p.children[2].value, ' 中间 ');
+      assert.equal(p.children[3].type, 'html');
+      assert.match(p.children[3].value, /第二个引用短语/);
+      assert.equal(p.children[4].type, 'text');
+      assert.equal(p.children[4].value, ' 后文');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('handles cite where quote also contains a URL', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const quoteWithUrl = 'Run inside a notes vault at https://example.com/notes for details.';
+    const root = mkdtempSync(join(tmpdir(), 'source-cite-'));
+    const sources = join(root, 'public/sources');
+    mkdirSync(join(sources, 'material-1/pages'), { recursive: true });
+    writeFileSync(
+      join(sources, 'material-1/pages/notes.md'),
+      `### \u200b(work-in-notes) Work in notes and non-code folders\n\n${quoteWithUrl}\n`,
+    );
+    const marker = `{{cite 网址引用 | path: material-1/pages/notes.md | heading: Work in notes and non-code folders | url: https://example.com/docs/notes | quote: ${quoteWithUrl}}}`;
+    const md = `前文 ${marker} 后文`;
+    const tree = parseGfm(md, defaultSchoolDir);
+    try {
+      remarkSourceCite()(tree, { cwd: root, path: 'lesson.md', value: md });
+      const p = tree.children[0];
+      assert.equal(p.children.length, 3);
+      assert.equal(p.children[0].type, 'text');
+      assert.equal(p.children[0].value, '前文 ');
+      assert.equal(p.children[1].type, 'html');
+      assert.match(p.children[1].value, /class="source-cite"/);
+      assert.match(p.children[1].value, /网址引用/);
+      assert.match(p.children[1].value, /data-quote="Run inside a notes vault at https:\/\/example\.com\/notes for details\."/);
+      assert.equal(p.children[2].type, 'text');
+      assert.equal(p.children[2].value, ' 后文');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('handles cite where quote contains an email address', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const quoteWithEmail = 'Please contact support at team@example.com for further help.';
+    const root = mkdtempSync(join(tmpdir(), 'source-cite-'));
+    const sources = join(root, 'public/sources');
+    mkdirSync(join(sources, 'material-1/pages'), { recursive: true });
+    writeFileSync(
+      join(sources, 'material-1/pages/notes.md'),
+      `### \u200b(work-in-notes) Work in notes and non-code folders\n\n${quoteWithEmail}\n`,
+    );
+    const marker = `{{cite 邮箱引用 | path: material-1/pages/notes.md | heading: Work in notes and non-code folders | url: https://example.com/docs/notes | quote: ${quoteWithEmail}}}`;
+    const md = `在提示信息中 ${marker} 请注意查收。`;
+    const tree = parseGfm(md, defaultSchoolDir);
+    try {
+      remarkSourceCite()(tree, { cwd: root, path: 'lesson.md', value: md });
+      const p = tree.children[0];
+      assert.equal(p.children.length, 3);
+      assert.equal(p.children[0].type, 'text');
+      assert.equal(p.children[0].value, '在提示信息中 ');
+      assert.equal(p.children[1].type, 'html');
+      assert.match(p.children[1].value, /class="source-cite"/);
+      assert.match(p.children[1].value, /邮箱引用/);
+      assert.match(p.children[1].value, /team@example\.com/);
+      assert.equal(p.children[2].type, 'text');
+      assert.equal(p.children[2].value, ' 请注意查收。');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('handles cite where quote contains _x_ emphasis and backticks inlineCode', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const quoteWithFormatting = 'Run the command `codex init` with _default_ options set.';
+    const root = mkdtempSync(join(tmpdir(), 'source-cite-'));
+    const sources = join(root, 'public/sources');
+    mkdirSync(join(sources, 'material-1/pages'), { recursive: true });
+    writeFileSync(
+      join(sources, 'material-1/pages/notes.md'),
+      `### \u200b(work-in-notes) Work in notes and non-code folders\n\n${quoteWithFormatting}\n`,
+    );
+    const marker = `{{cite 格式引用 | path: material-1/pages/notes.md | heading: Work in notes and non-code folders | url: https://example.com/docs/notes | quote: ${quoteWithFormatting}}}`;
+    const md = `说明指出 ${marker} 即可正常启动。`;
+    const tree = parseGfm(md, defaultSchoolDir);
+    try {
+      remarkSourceCite()(tree, { cwd: root, path: 'lesson.md', value: md });
+      const p = tree.children[0];
+      assert.equal(p.children.length, 3);
+      assert.equal(p.children[0].type, 'text');
+      assert.equal(p.children[0].value, '说明指出 ');
+      assert.equal(p.children[1].type, 'html');
+      assert.match(p.children[1].value, /class="source-cite"/);
+      assert.match(p.children[1].value, /格式引用/);
+      assert.match(p.children[1].value, /_default_/);
+      assert.match(p.children[1].value, /`codex init`/);
+      assert.equal(p.children[2].type, 'text');
+      assert.equal(p.children[2].value, ' 即可正常启动。');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('handles cite with Chinese characters before and after', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const { root } = withSource(MARKER);
+    const md = `在面对${MARKER}时，这套逻辑完全一致。`;
+    const tree = parseGfm(md, defaultSchoolDir);
+    try {
+      remarkSourceCite()(tree, { cwd: root, path: 'lesson.md', value: md });
+      const p = tree.children[0];
+      assert.equal(p.children.length, 3);
+      assert.equal(p.children[0].type, 'text');
+      assert.equal(p.children[0].value, '在面对');
+      assert.equal(p.children[1].type, 'html');
+      assert.match(p.children[1].value, /任何基于文本的项目/);
+      assert.equal(p.children[2].type, 'text');
+      assert.equal(p.children[2].value, '时，这套逻辑完全一致。');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('still rejects genuinely incomplete cite markers under GFM with raw file', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const { root } = withSource(MARKER);
+    try {
+      const broken1Text = '前文 {{cite 只有短语 | url: https://example.com}} 后文';
+      const broken1 = parseGfm(broken1Text, defaultSchoolDir);
+      assert.throws(
+        () => remarkSourceCite()(broken1, { cwd: root, path: 'lesson.md', value: broken1Text }),
+        /a \{\{cite\}\} marker is incomplete/i,
+      );
+
+      const broken2Text = '前文 {{cite 未闭合短语 | url: https://example.com 没有结束括号 后文';
+      const broken2 = parseGfm(broken2Text, defaultSchoolDir);
+      assert.throws(
+        () => remarkSourceCite()(broken2, { cwd: root, path: 'lesson.md', value: broken2Text }),
+        /a \{\{cite\}\} marker is incomplete/i,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('generation check: assertSourceCitesGfm and assertSourceCites produce consistent results on valid and invalid samples', async (t) => {
+    if (!hasGfmDeps) {
+      t.skip(depsSkipReason);
+      return;
+    }
+    const { root, sources, text } = withSource(`在面对${MARKER}时，这套逻辑完全一致。`);
+    try {
+      // Valid sample passes both checks
+      const citesRegex = assertSourceCites(text, '01-valid.md', sources, ['material-1/pages/notes.md']);
+      assert.equal(citesRegex.length, 1);
+      assert.doesNotThrow(() => assertSourceCitesGfm(text, '01-valid.md', defaultSchoolDir, sources));
+
+      // Quote mismatch throws on both with filename
+      const mismatchedQuoteText = text.replace(QUOTE, 'This sentence was never written in the source file.');
+      assert.throws(
+        () => assertSourceCites(mismatchedQuoteText, '02-bad-quote.md', sources, ['material-1/pages/notes.md']),
+        /Source cite in 02-bad-quote\.md: quote is not in/,
+      );
+      assert.throws(
+        () => assertSourceCitesGfm(mismatchedQuoteText, '02-bad-quote.md', defaultSchoolDir, sources),
+        /Source cite in 02-bad-quote\.md: quote is not in/,
+      );
+
+      // Missing GFM dependencies throws an explicit and helpful error with directory name
+      const tempEmptyDir = mkdtempSync(join(tmpdir(), 'missing-gfm-'));
+      try {
+        writeFileSync(join(tempEmptyDir, 'package.json'), '{}');
+        assert.throws(
+          () => assertSourceCitesGfm(text, '03-missing-deps.md', tempEmptyDir),
+          /未找到 GFM 解析依赖/,
+        );
+      } finally {
+        rmSync(tempEmptyDir, { recursive: true, force: true });
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('throws an explicit error when dependencies are missing or schoolDir is omitted without fallback', () => {
+    assert.throws(
+      () => parseGfm('sample prose'),
+      /未找到 GFM 解析依赖/,
+    );
+  });
+});
+
+describe('assertRenderedLessons', () => {
+  it('fails when a lesson article is empty, passes when content is present, and skips pages without marker', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'lesson-render-test-'));
+    try {
+      const lessonsDir = join(tempDir, 'src/content/lessons');
+      mkdirSync(lessonsDir, { recursive: true });
+      writeFileSync(
+        join(lessonsDir, '01-first-lesson.md'),
+        '---\ntitle: First\nslug: first-lesson\n---\n\nBody prose\n',
+      );
+      writeFileSync(
+        join(lessonsDir, '02-second-lesson.md'),
+        '---\ntitle: Second\nslug: second-lesson\n---\n\nBody prose\n',
+      );
+      writeFileSync(
+        join(lessonsDir, '03-third-lesson.md'),
+        '---\ntitle: Third\nslug: third-lesson\n---\n\nBody prose\n',
+      );
+
+      const distFirst = join(tempDir, 'dist/client/lessons/first-lesson');
+      const distSecond = join(tempDir, 'dist/client/lessons/second-lesson');
+      const distThird = join(tempDir, 'dist/client/lessons/third-lesson');
+      mkdirSync(distFirst, { recursive: true });
+      mkdirSync(distSecond, { recursive: true });
+      mkdirSync(distThird, { recursive: true });
+
+      // First: has data-lesson-body but empty body -> fails
+      writeFileSync(
+        join(distFirst, 'index.html'),
+        '<!doctype html><html><body><article data-lesson-panel="read" data-lesson-body>   </article></body></html>',
+      );
+      // Second: has data-lesson-body with content -> passes
+      writeFileSync(
+        join(distSecond, 'index.html'),
+        '<!doctype html><html><body><article data-lesson-panel="read" data-lesson-body><p>正常课文正文内容</p></article></body></html>',
+      );
+      // Third: no data-lesson-body marker -> skipped
+      writeFileSync(
+        join(distThird, 'index.html'),
+        '<!doctype html><html><body><article data-lesson-panel="read">   </article></body></html>',
+      );
+
+      assert.throws(
+        () => assertRenderedLessons(tempDir),
+        /课文正文为空（first-lesson）。请检查这些课文的 Markdown 是否能渲染（例如 \{\{cite\}\} 标记），修改后重新 finish。/,
+      );
+
+      // Fix first lesson content -> all pass
+      writeFileSync(
+        join(distFirst, 'index.html'),
+        '<!doctype html><html><body><article data-lesson-panel="read" data-lesson-body><p>修复后的正文</p></article></body></html>',
+      );
+      assert.doesNotThrow(() => assertRenderedLessons(tempDir));
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('removes both build and dev data-store cache files when present', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'astro-cache-test-'));
+    try {
+      const buildCacheDir = join(tempDir, '.astro', 'cache');
+      mkdirSync(buildCacheDir, { recursive: true });
+      const buildCacheFile = join(buildCacheDir, 'data-store.json');
+      const devCacheFile = join(tempDir, '.astro', 'data-store.json');
+      writeFileSync(buildCacheFile, '{"mode":"build"}');
+      writeFileSync(devCacheFile, '{"mode":"dev"}');
+      assert.equal(existsSync(buildCacheFile), true);
+      assert.equal(existsSync(devCacheFile), true);
+
+      clearAstroCache(tempDir);
+
+      assert.equal(existsSync(buildCacheFile), false);
+      assert.equal(existsSync(devCacheFile), false);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
     }
   });
 });

@@ -64,7 +64,7 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
     <a href="/" class="theme-link font-medium underline underline-offset-2">{t("freeEnroll")}</a>{t("trackProgress")}</div>
 
   <LessonTabs client:load readLabel="自己阅读" teachLabel="交给教师" />
-  <article class="prose dark:prose-invert max-w-none island-lesson-sheet" data-lesson-panel="read">
+  <article class="prose dark:prose-invert max-w-none island-lesson-sheet" data-lesson-panel="read" data-lesson-body>
     <Content />
     <MermaidDiagrams />
   </article>

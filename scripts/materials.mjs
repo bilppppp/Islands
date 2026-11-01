@@ -211,3 +211,7 @@ export async function supplementMaterials(records, directory, { maxPages = 500, 
   }
   return next;
 }
+
+export async function buildSchool(schoolDir) {
+  await command('npm', ['run', 'build'], { cwd: schoolDir, inherit: true, rejectOnErrorLog: true });
+}
