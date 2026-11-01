@@ -134,7 +134,7 @@ npm run school -- start my-school
 | `build NAME` | 构建。先停止该 School 的开发服务；不要同时开发并构建 |
 | `deploy NAME` | 部署到 Vercel，并连接私有 Blob。存储被暂停时脚本会停下来 |
 | `deploy-cloudflare NAME` | 部署到 Cloudflare Workers。进度写入该校私有 R2，地址是 `workers.dev` |
-| `supplement NAME` | 补齐已保存的网页文档 |
+| `supplement NAME [--source URL]` | 补齐已保存的网页文档，或指定页面保存为新材料 |
 | `retry NAME` | 用 Pi 重新生成课程 |
 | `setup` | 准备模板依赖 |
 
@@ -146,6 +146,7 @@ GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准
 - `--crawl-prefix /docs/latest` 把范围限制在该路径。
 - `--max-pages` 为 1–10000，默认 500。`--crawl-workers` 为 1–8，默认 2。
 - `npm run school -- supplement NAME` 用同样的同站跟随，补齐已保存的 HTTP HTML 来源；补齐失败时保留原材料。仓库克隆和本地文件不动。
+- `npm run school -- supplement NAME --source URL [--source ...]` 在 Agent 读过入口页线索、自己判断需要哪些页面后，用它把这些页面保存为材料；需要 JS 渲染、取回内容过少的页面会报错，这时找 `.md` 版本或源码仓库。
 - 抓取不足时降级为单页、记入 `crawl.fallback` 并打印说明；`supplement` 失败时保留原材料。未安装抓取工具时会下载到 `tools/cache`（不纳入 Git）。
 - 入口页若有 GitHub 编辑或源文件链接，会提示对应仓库；若提到 llms.txt 或提供 Markdown 版本，也会打印线索供自行选取。只保存了入口页时，会建议改用该仓库作为 `--source`。
 

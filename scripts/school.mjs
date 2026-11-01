@@ -4,7 +4,7 @@ import { resolve, dirname, join, relative, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline/promises';
 import { spawn } from 'node:child_process';
-import { buildSchool, command, prepareMaterials, supplementMaterials } from './materials.mjs';
+import { addSourceMaterials, buildSchool, command, prepareMaterials, supplementMaterials } from './materials.mjs';
 import { piPrint, defaultModel } from './pi.mjs';
 import { generate, generationPrompt, validateGeneration } from './generate.mjs';
 import { formatWarnings } from './verify-lesson-blocks.mjs';
@@ -47,6 +47,7 @@ function help() {
   多页文档会自动判断。默认按 siteone-crawler 自己的同站链接跟随抓取，最多 500 页；--crawl-prefix /docs/latest 才把范围限制在该路径。
   --crawl 强制抓取；--no-crawl 只保存入口页。--max-pages N（1–10000）--crawl-workers N（1–8）
   npm run school -- supplement NAME：材料不够时，用同样的同站跟随补齐已保存的 HTTP HTML 来源。
+  npm run school -- supplement NAME --source URL [--source ...]：Agent 读过入口页线索、判断需要哪些页面后，用它把选定页面保存为新材料；需要 JS 渲染、取回内容过少的页面会报错，这时找 .md 版本或源码仓库。
   未安装 siteone-crawler v2.5.1+ 时自动下载到 tools/cache（不入库）。抓取不足时降级为单页、记入 crawl.fallback 并打印说明；supplement 失败时保留原材料。
   不带描述/参数时，只询问来源和目标。
 
@@ -274,22 +275,50 @@ async function main() {
       console.log(`\n${formatWarnings(warnings)}`);
     }
   } else if (operation === 'supplement') {
-    if (options['no-crawl']) throw new Error('--no-crawl cannot be used with supplement.');
-    const opts = crawlOptions();
-    s.materials = await supplementMaterials(s.materials, join(path, 'materials'), {
-      maxPages: options['max-pages'] ? opts.maxPages : s.maxPages || 500,
-      crawlWorkers: options['crawl-workers'] ? opts.crawlWorkers : s.crawlWorkers || 2,
-      ...(options['crawl-prefix'] ? { crawlPrefix: opts.crawlPrefix } : {}),
-    });
+    let hasFailure = false;
+    if (options.source?.length) {
+      if (options['crawl-prefix'] || options['max-pages'] || options['crawl-workers'] || options.crawl || options['no-crawl']) {
+        throw new Error('--source 只保存指定页面，不能与 --crawl-prefix、--max-pages、--crawl-workers、--crawl、--no-crawl 同时使用。');
+      }
+      const rawSources = options.source.map(src => /^https?:\/\//i.test(src) ? src : resolve(originalCwd, src));
+      const added = await addSourceMaterials(s.materials, join(path, 'materials'), rawSources);
+      s.materials = added.materials;
+      if (added.addedSources?.length) {
+        s.sources ||= [];
+        for (const src of added.addedSources) {
+          if (!s.sources.includes(src)) s.sources.push(src);
+        }
+      }
+      if (added.failedSources?.length) {
+        hasFailure = true;
+      }
+    } else {
+      if (options['no-crawl']) throw new Error('--no-crawl cannot be used with supplement.');
+      const opts = crawlOptions();
+      s.materials = await supplementMaterials(s.materials, join(path, 'materials'), {
+        maxPages: options['max-pages'] ? opts.maxPages : s.maxPages || 500,
+        crawlWorkers: options['crawl-workers'] ? opts.crawlWorkers : s.crawlWorkers || 2,
+        ...(options['crawl-prefix'] ? { crawlPrefix: opts.crawlPrefix } : {}),
+      });
+    }
     writeFileSync(join(path, 'school.settings.json'), JSON.stringify(s, null, 2) + '\n');
     const inputPath = join(root, 'inputs', `${basename(path)}.json`);
     if (existsSync(inputPath)) {
       const input = JSON.parse(readFileSync(inputPath, 'utf8'));
       input.materials = s.materials;
+      if (s.sources) input.sources = s.sources;
       writeFileSync(inputPath, JSON.stringify(input, null, 2) + '\n');
     }
-    const counts = (s.materials || []).map(item => item.crawl?.pageCount).filter(count => Number.isInteger(count));
-    console.log(`已用 siteone-crawler 的同站跟随补齐 ${basename(path)}。${counts.length ? `抓取页数：${counts.join('、')}。` : ''}`);
+    const promptPath = join(path, 'GENERATION.md');
+    if (existsSync(promptPath) && existsSync(inputPath)) {
+      writeFileSync(promptPath, generationPrompt(inputPath) + '\n');
+    }
+    if (!options.source?.length) {
+      const counts = (s.materials || []).map(item => item.crawl?.pageCount).filter(count => Number.isInteger(count));
+      console.log(`已用 siteone-crawler 的同站跟随补齐 ${basename(path)}。${counts.length ? `抓取页数：${counts.join('、')}。` : ''}`);
+    } else if (hasFailure) {
+      process.exitCode = 1;
+    }
   } else if (operation === 'retry') {
     const inputPath = join(root, 'inputs', basename(path) + '.json');
     if (!existsSync(inputPath)) throw new Error('No saved creation input. Existing School was not modified.');

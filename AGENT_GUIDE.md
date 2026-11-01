@@ -51,7 +51,7 @@ HTML 文档站不需要额外参数。`create` 会按 [README.md](README.md) 的
 
 抓取成功后，先阅读 `materials/material-N/provenance.json`，再按课程目标和必要前置知识检索、选读 `pages/` 中的相关页面，不要求读完全部抓取页。`pages/` 是派生 Markdown 阅读文本，不是原始 HTML；`entry.html` 仅是入口页原始响应，其他页面的原始 HTML 未包含在这次抓取中。按生成协议将实际引用的派生文本、`provenance.json` 和 `entry.html` 保存到 `public/sources/material-N/`，保留材料目录内的相对路径，标明派生文本身份，并同时引用原始页面 URL 与本地地址。在 `COURSE.md` 记录实际阅读的页面。GitHub 仓库、PDF、DOCX 和本地文件的准备方式不变。PATH 中没有 siteone-crawler v2.5.1+ 时，工具会自动下载到 `tools/cache/` 并打印路径；该目录已 gitignore，不要提交二进制。抓取不足时降级为单页并记入 `crawl.fallback`，打印降级说明与入口页线索（如 llms.txt、Markdown 版本或文档仓库）；这时不要把入口页说成整套文档。默认抓取按 siteone-crawler 自己的同站链接跟随，不限制在入口路径；只有用户给出 `--crawl-prefix` 才收窄范围。
 
-若已保存的材料支撑不起用户的学习目标，写课程前在仓库根目录运行 `npm run school -- supplement NAME`。它用同一套同站跟随补齐已保存的 HTTP HTML 来源。补齐失败时保留原有材料，继续使用已保存页面和你自己的网页工具，不要把入口页说成整套文档。
+若已保存的材料支撑不起用户的学习目标，写课程前在仓库根目录运行 `npm run school -- supplement NAME`。它用同一套同站跟随补齐已保存的 HTTP HTML 来源。也可运行 `npm run school -- supplement NAME --source URL [--source ...]`：Agent 读过入口页线索、自己判断需要哪些页面后，用它把这些页面保存为材料；需要 JS 渲染、取回内容过少的页面会报错，这时找 `.md` 版本或源码仓库。补齐失败时保留原有材料，继续使用已保存页面和你自己的网页工具，不要把入口页说成整套文档。
 
 默认 Pi 创建命令负责材料获取、初始化、模型生成与构建；直接 Agent 路径由当前 Agent 执行生成，使用相同输入与输出契约。保持长任务运行并等待真实退出结果。错误后先检查日志和保留文件；`retry NAME` 会重新通过 Pi 生成且可能改写已有课程，不保证无损续写。不要把骨架、构建成功或静态检查当成真实教学证据。
 

@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, lstatSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, lstatSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, extname, join, relative, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -131,8 +131,11 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
       const [type, finalURL] = info.split('\n');
       let extension = extname(new URL(finalURL).pathname).toLowerCase();
       const header = readFileSync(download).subarray(0, 5).toString();
-      if (header === '%PDF-' || type?.includes('application/pdf')) extension = '.pdf';
-      else if (type?.includes('html') || ['.html', '.htm', '.xhtml'].includes(extension) || (!extension && looksLikeHtml(download))) extension = '.html';
+      const lowerType = type?.toLowerCase() || '';
+      const isMarkdownType = lowerType.includes('text/markdown') || lowerType.includes('text/x-markdown');
+      if (header === '%PDF-' || lowerType.includes('application/pdf')) extension = '.pdf';
+      else if (isMarkdownType) extension = '.md';
+      else if (lowerType.includes('html') || ['.html', '.htm', '.xhtml'].includes(extension) || (!extension && looksLikeHtml(download))) extension = '.html';
       else if (!extension || extension.length > 10) extension = '.txt';
       const htmlLike = extension === '.html';
       let mode = crawl === true ? 'force' : crawl === false ? 'off' : crawl;
@@ -290,6 +293,94 @@ export async function supplementMaterials(records, directory, { maxPages = 500, 
     next.push(fixMaterialPaths(saved, tmpFolder, folder));
   }
   return next;
+}
+
+export async function addSourceMaterials(records, directory, sources, { run = command } = {}) {
+  const currentRecords = [...(records || [])];
+  const existingIndices = new Set();
+  for (const rec of currentRecords) {
+    const m = rec?.path?.match(/^material-(\d+)(?:\/|$)/);
+    if (m) existingIndices.add(Number(m[1]));
+  }
+  if (existsSync(directory)) {
+    for (const name of readdirSync(directory)) {
+      const m = name.match(/^material-(\d+)$/);
+      if (m) existingIndices.add(Number(m[1]));
+    }
+  }
+  let nextIndex = existingIndices.size > 0 ? Math.max(...existingIndices) + 1 : 1;
+
+  const addedRecords = [];
+  const addedSources = [];
+  const skippedSources = [];
+  const failedSources = [];
+
+  for (const rawSource of sources) {
+    const source = typeof rawSource === 'string' ? rawSource.trim() : rawSource;
+    if (!source) continue;
+
+    const isUrl = /^https?:\/\//i.test(source);
+    const isDuplicate = currentRecords.some(r => {
+      if (isUrl) {
+        return r.url === source || r.fetchedURL === source;
+      }
+      return r.originalPath && resolve(r.originalPath) === resolve(source);
+    });
+
+    if (isDuplicate) {
+      console.log(`跳过已登记的来源：${source}`);
+      skippedSources.push(source);
+      continue;
+    }
+
+    const targetName = `material-${nextIndex}`;
+    const targetDir = join(directory, targetName);
+    try {
+      const [record] = await prepareMaterials([source], directory, {
+        crawl: 'off',
+        targetNames: [targetName],
+        run,
+      });
+
+      if (!record) {
+        throw new Error('未能生成材料记录');
+      }
+
+      if (isUrl && record.fetchedURL && record.fetchedURL !== source) {
+        const isRedirectDuplicate = currentRecords.some(r => r.url === record.fetchedURL || r.fetchedURL === record.fetchedURL);
+        if (isRedirectDuplicate) {
+          rmSync(targetDir, { recursive: true, force: true });
+          console.log(`跳过已登记的来源：${source}（重定向至已登记的 ${record.fetchedURL}）`);
+          skippedSources.push(source);
+          continue;
+        }
+      }
+
+      currentRecords.push(record);
+      addedRecords.push(record);
+      addedSources.push(source);
+      nextIndex++;
+
+      const textInfo = record.readableText ? `（readableText ${record.readableText}）` : '';
+      console.log(`已保存 ${targetName}：${record.url || record.originalPath || source} → ${record.path}${textInfo}`);
+    } catch (error) {
+      rmSync(targetDir, { recursive: true, force: true });
+      console.error(`保存失败 (${source})：${error.message}`);
+      failedSources.push({ source, error });
+    }
+  }
+
+  if (addedRecords.length > 0) {
+    console.log('引用这些页面时把需要的文件复制到 public/sources/material-N/ 并用 {{cite}} 引用其中原句。');
+  }
+
+  return {
+    materials: currentRecords,
+    addedRecords,
+    addedSources,
+    skippedSources,
+    failedSources,
+  };
 }
 
 export async function buildSchool(schoolDir) {
