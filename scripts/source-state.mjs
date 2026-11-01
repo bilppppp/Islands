@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
-import { command, writeDocsSnapshot } from './materials.mjs';
+import { command, writeDocsSnapshot, writeSingleSnapshot } from './materials.mjs';
 
 export const SCHEMA_VERSION = 1;
 export const EXTRACTOR_VERSION = '1';
@@ -150,7 +150,12 @@ function settingsOf(schoolPath) {
 
 function materialFor(path, materials) {
   const stable = stableSourcePath(path);
-  return (materials || []).find(item => item?.path && (stable === item.path || stable.startsWith(`${item.path}/`)));
+  const folder = stable.split('/')[0];
+  return (materials || []).find(item => {
+    if (!item?.path) return false;
+    if (stable === item.path || stable.startsWith(`${item.path}/`)) return true;
+    return folder === item.path.split('/')[0];
+  });
 }
 
 export async function gitFileHistory(repoDir, filePath, { run = command } = {}) {
@@ -207,10 +212,11 @@ export function collectInventory(schoolPath, materials) {
   }
   for (const material of materials || []) {
     if (!material?.path) continue;
-    const folder = join(schoolPath, 'materials', material.path);
+    const folderName = material.path.split('/')[0];
+    const folder = join(schoolPath, 'materials', folderName);
     if (!existsSync(folder) || !statSync(folder).isDirectory()) continue;
     for (const rel of listFiles(folder)) {
-      const sourcePath = `${material.path}/${rel}`;
+      const sourcePath = `${folderName}/${rel}`;
       byPath.set(sourcePath, fingerprintRecord(sourcePath, readFileSync(join(folder, rel))));
     }
   }
@@ -374,11 +380,15 @@ export function locateCandidateFile(candidateRoot, sourcePath, materials) {
   const stable = stableSourcePath(sourcePath);
   const direct = join(candidateRoot, stable);
   if (existsSync(direct)) return direct;
+  const folder = stable.split('/')[0];
+  const rest = stable.startsWith(`${folder}/`) ? stable.slice(folder.length + 1) : stable;
+  const nested = join(candidateRoot, rest);
+  if (existsSync(nested)) return nested;
   const material = materialFor(stable, materials);
   if (material) {
-    const rest = stable.slice(material.path.length + 1);
-    const nested = join(candidateRoot, rest);
-    if (existsSync(nested)) return nested;
+    const matRest = stable.slice(material.path.length + 1);
+    const matNested = join(candidateRoot, matRest);
+    if (existsSync(matNested)) return matNested;
   }
   return null;
 }
@@ -386,7 +396,10 @@ export function locateCandidateFile(candidateRoot, sourcePath, materials) {
 export function listCandidateSourcePaths(candidateRoot, materials) {
   const files = listFiles(candidateRoot).filter(file => !file.startsWith('snapshots/'));
   if (files.some(file => /^material-\d+\//.test(file))) return files;
-  if ((materials || []).length === 1) return files.map(file => `${materials[0].path}/${file}`);
+  if ((materials || []).length === 1) {
+    const matFolder = (materials[0]?.path || '').split('/')[0];
+    return files.map(file => `${matFolder}/${file}`);
+  }
   return files;
 }
 
@@ -733,6 +746,84 @@ export async function checkDocsMaterial({ schoolPath, material, referenced, now 
   }
 }
 
+export async function checkSingleMaterial({
+  schoolPath,
+  material,
+  referenced,
+  now = new Date(),
+  run = command,
+  fetchSingle,
+  inventory = [],
+}) {
+  referenced = referenced.map(stableSourcePath);
+  const date = now.toISOString().slice(0, 10);
+  const materialsDir = join(schoolPath, 'materials');
+  const folder = referenced[0]?.split('/')[0] || (material.path || '').split('/')[0];
+  try {
+    const snapshot = await (fetchSingle || writeSingleSnapshot)(material, materialsDir, date, { run });
+    const dest = snapshot?.dest || (typeof snapshot === 'string' ? snapshot : null);
+    if (!dest || !existsSync(dest)) {
+      throw new Error('单页快照目录不存在');
+    }
+    const referencedSet = new Set(referenced);
+    const inventoryByPath = new Map((inventory || []).map(item => [item.path, item]));
+    const candidateFiles = {};
+    const failed = [];
+    const deleted = [];
+    const unobserved = [];
+    const added = [];
+    const extraChanged = [];
+
+    for (const path of referenced) {
+      const rel = path.startsWith(`${folder}/`) ? path.slice(folder.length + 1) : path;
+      const located = join(dest, rel);
+      if (!existsSync(located)) {
+        deleted.push(path);
+        continue;
+      }
+      try {
+        candidateFiles[path] = fingerprintPair(readFileSync(located));
+      } catch (error) {
+        failed.push({ path, reason: error.message });
+      }
+    }
+
+    const snapshotFiles = listFiles(dest);
+    for (const rel of snapshotFiles) {
+      const path = `${folder}/${rel}`;
+      if (referencedSet.has(path)) continue;
+      const located = join(dest, rel);
+      let current;
+      try {
+        current = fingerprintPair(readFileSync(located));
+      } catch (error) {
+        failed.push({ path, reason: error.message });
+        continue;
+      }
+      const known = inventoryByPath.get(path);
+      if (known) {
+        if (current.textFingerprint !== known.textFingerprint) {
+          extraChanged.push({ path, ...current });
+        }
+        candidateFiles[path] = current;
+        continue;
+      }
+      added.push(path);
+    }
+
+    return { candidateFiles, failed, deleted, unobserved, added, extraChanged };
+  } catch (error) {
+    return {
+      candidateFiles: {},
+      failed: referenced.map(path => ({ path, reason: error.message })),
+      deleted: [],
+      unobserved: [],
+      added: [],
+      extraChanged: [],
+    };
+  }
+}
+
 export async function checkSchool(schoolPath, {
   source,
   now = new Date(),
@@ -740,6 +831,7 @@ export async function checkSchool(schoolPath, {
   git = {},
   crawl,
   fetchFailedMaterials = [],
+  fetchSingle,
 } = {}) {
   const baselinePath = join(schoolPath, 'source-state/baseline.json');
   const depsPath = join(schoolPath, 'source-state/lesson-deps.json');
@@ -776,14 +868,16 @@ export async function checkSchool(schoolPath, {
     for (const path of referenced) {
       const stable = stableSourcePath(path);
       const material = materialFor(stable, materials) || { path: stable.split('/')[0] };
-      const list = grouped.get(material.path) || { material, paths: [] };
+      const folder = (material.path || stable).split('/')[0];
+      const list = grouped.get(folder) || { material, folder, paths: [] };
       if (!list.material.commit && material.commit) list.material = material;
       if (!list.material.crawl && material.crawl) list.material = material;
+      if (!list.material.url && material.url) list.material = material;
       list.paths.push(path);
-      grouped.set(material.path, list);
+      grouped.set(folder, list);
     }
-    for (const { material, paths } of grouped.values()) {
-      if (fetchFailedMaterials.includes(material.path)) {
+    for (const { material, folder, paths } of grouped.values()) {
+      if (fetchFailedMaterials.includes(material.path) || fetchFailedMaterials.includes(folder)) {
         failed.push(...paths.map(path => ({ path, reason: 'fetch failed' })));
         continue;
       }
@@ -796,7 +890,7 @@ export async function checkSchool(schoolPath, {
         added.push(...gitResult.added);
         continue;
       }
-      if (material.crawl || /^https?:\/\//i.test(material.url || '')) {
+      if (material.crawl && !material.crawl.fallback) {
         const docs = await checkDocsMaterial({ schoolPath, material, referenced: paths, now, crawl, inventory });
         Object.assign(candidateFiles, docs.candidateFiles);
         failed.push(...docs.failed);
@@ -806,9 +900,19 @@ export async function checkSchool(schoolPath, {
         extraChanged.push(...(docs.extraChanged || []));
         continue;
       }
-      const folder = join(schoolPath, 'materials', material.path);
-      if (existsSync(folder)) {
-        const local = readLocalCandidate(schoolPath, folder, [material], paths, { inventory, incomplete: false });
+      if (/^https?:\/\//i.test(material.url || '')) {
+        const single = await checkSingleMaterial({ schoolPath, material, referenced: paths, now, run, fetchSingle, inventory });
+        Object.assign(candidateFiles, single.candidateFiles);
+        failed.push(...single.failed);
+        deleted.push(...single.deleted);
+        unobserved.push(...single.unobserved);
+        added.push(...single.added);
+        extraChanged.push(...(single.extraChanged || []));
+        continue;
+      }
+      const folderPath = join(schoolPath, 'materials', folder);
+      if (existsSync(folderPath)) {
+        const local = readLocalCandidate(schoolPath, folderPath, [material], paths, { inventory, incomplete: false });
         Object.assign(candidateFiles, local.candidateFiles);
         failed.push(...local.failed);
         deleted.push(...local.deleted);
@@ -837,7 +941,7 @@ export async function checkSchool(schoolPath, {
   return { report, exitCode: hasContentShift(report) ? 2 : 0, outDir };
 }
 
-export async function runSources({ schoolPath, options = {}, originalCwd = process.cwd(), now = new Date(), run = command, git = {}, crawl, fetchFailedMaterials } = {}) {
+export async function runSources({ schoolPath, options = {}, originalCwd = process.cwd(), now = new Date(), run = command, git = {}, crawl, fetchFailedMaterials, fetchSingle } = {}) {
   if (options.baseline && options.check) throw new Error('Use only one of --baseline or --check.');
   if (!options.baseline && !options.check) throw new Error('sources requires --baseline or --check.');
   if (options.baseline && options.source?.length) throw new Error('--source is only valid with sources --check.');
@@ -849,7 +953,7 @@ export async function runSources({ schoolPath, options = {}, originalCwd = proce
     return 0;
   }
   const source = options.source?.[0] ? resolve(originalCwd, options.source[0]) : undefined;
-  const result = await checkSchool(schoolPath, { source, now, run, git, crawl, fetchFailedMaterials });
+  const result = await checkSchool(schoolPath, { source, now, run, git, crawl, fetchFailedMaterials, fetchSingle });
   const rel = posixRel(resolve(schoolPath, '../..'), join(result.outDir, 'changes.json'));
   if (result.exitCode === 0) console.log(`已写入 ${rel}。无内容变化。`);
   else console.log(`已写入 ${rel}。内容变化或抓取失败，退出码 2。`);

@@ -34,13 +34,13 @@ function looksLikeHtml(file) {
   const sample = readFileSync(file).subarray(0, 512).toString('utf8').trim().toLowerCase();
   return sample.startsWith('<!doctype html') || sample.startsWith('<html') || sample.startsWith('<head');
 }
-async function saveSinglePage(download, extension, target, directory, value, finalURL) {
+async function saveSinglePage(download, extension, target, directory, value, finalURL, { run = command } = {}) {
   const file = join(target, `original${extension}`);
   renameSync(download, file);
   const record = { path: relative(directory, file), url: value, fetchedURL: finalURL, retrieved: new Date().toISOString().slice(0, 10) };
   if (['.pdf', '.docx', '.html', '.htm'].includes(extension)) {
     const html = ['.html', '.htm'].includes(extension);
-    const text = await command(
+    const text = await run(
       'python3',
       [extractor, file, extension, ...(html ? [finalURL] : [])],
       { forwardStderr: html },
@@ -111,10 +111,10 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
       const repo = url.hostname === 'github.com' && url.pathname.match(/^\/([^/]+)\/([^/]+?)(?:\.git)?\/?$/);
       if (repo) {
         const canonical = `https://github.com/${repo[1]}/${repo[2]}`;
-        if (!existsSync(join(target, '.git'))) await command('git', ['clone', '--depth', '1', ...(ref ? ['--branch', ref] : []), canonical + '.git', target], { timeoutMs: 10 * 60 * 1000 });
-        const commit = await command('git', ['rev-parse', 'HEAD'], { cwd: target });
+        if (!existsSync(join(target, '.git'))) await run('git', ['clone', '--depth', '1', ...(ref ? ['--branch', ref] : []), canonical + '.git', target], { timeoutMs: 10 * 60 * 1000 });
+        const commit = await run('git', ['rev-parse', 'HEAD'], { cwd: target });
         if (ref) {
-          const expected = await command('git', ['rev-parse', ref], { cwd: target });
+          const expected = await run('git', ['rev-parse', ref], { cwd: target });
           if (expected !== commit) throw new Error('Saved repository does not match requested ref; use a new School name.');
         }
         records.push({ path: relative(directory, target), url: canonical, commit, version: ref || commit });
@@ -127,7 +127,7 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
       }
       mkdirSync(target, { recursive: true });
       const download = join(target, 'download');
-      const info = await command('curl', ['-fsSL', '--max-time', '120', '-o', download, '-w', '%{content_type}\n%{url_effective}', fetchURL]);
+      const info = await run('curl', ['-fsSL', '--max-time', '120', '-o', download, '-w', '%{content_type}\n%{url_effective}', fetchURL]);
       const [type, finalURL] = info.split('\n');
       let extension = extname(new URL(finalURL).pathname).toLowerCase();
       const header = readFileSync(download).subarray(0, 5).toString();
@@ -169,7 +169,7 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
           }
         } else if (decision.hint) console.warn(`提示：${decision.hint}`);
       } else if (!htmlLike && mode === 'force') console.warn('警告：该来源不是 HTML，无法整站抓取，已按单页保存。');
-      const single = await saveSinglePage(download, extension, target, directory, value, finalURL);
+      const single = await saveSinglePage(download, extension, target, directory, value, finalURL, { run });
       if (fallbackCrawl) single.crawl = fallbackCrawl;
       records.push(single);
     } else {
@@ -219,6 +219,20 @@ export async function writeDocsSnapshot(record, materialsDir, date, { run = comm
   });
   writePages(dest, crawled.pages);
   return { dest, pages: crawled.pages, failedUrls: crawled.failedUrls || [] };
+}
+
+export async function writeSingleSnapshot(record, materialsDir, date, { run = command } = {}) {
+  const folder = (record.path || '').split('/')[0];
+  const dest = docsSnapshotPath(materialsDir, folder, date);
+  rmSync(dest, { recursive: true, force: true });
+  mkdirSync(dest, { recursive: true });
+  const targetName = `${folder}.snapshots/${date}`;
+  const [single] = await prepareMaterials([record.fetchedURL || record.url], materialsDir, {
+    crawl: 'off',
+    targetNames: [targetName],
+    run,
+  });
+  return { dest, record: single };
 }
 
 function fixMaterialPaths(record, fromFolder, toFolder) {

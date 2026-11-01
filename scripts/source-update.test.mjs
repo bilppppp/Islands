@@ -548,6 +548,71 @@ describe('update --apply', () => {
     assert.deepEqual(lessonSources(school, '02-b.md'), beforeB);
     assert.equal(existsSync(join(school, 'source-state/adoptions.json')), false);
   });
+
+  it('plans and applies a local revision for a single-page material', async () => {
+    const root = temp('single-update-');
+    const school = join(root, 'schools', 'demo');
+    mkdirSync(join(school, 'src/content/lessons'), { recursive: true });
+    mkdirSync(join(school, 'public/sources/material-1'), { recursive: true });
+    writeFileSync(join(school, 'school.settings.json'), `${JSON.stringify({
+      name: 'demo',
+      output: 'schools/demo',
+      materials: [{
+        path: 'material-1/original.html',
+        url: 'https://example.com/doc',
+        readableText: 'material-1/original.html.txt',
+      }],
+    }, null, 2)}\n`);
+    writeFileSync(join(school, 'COURSE.md'), '# demo\n\n| 教学主张 | 官方文档位置 | 本地副本 |\n| :--- | :--- | :--- |\n| 主张 A | `doc#a` | `material-1/base.md` |\n| 主张 B | `doc#b` | `material-1/original.html` |\n| 主张 C | `doc#c` | `material-1/extra.md` |\n');
+    write(join(school, 'public/sources/material-1/base.md'), 'Base doc\n');
+    write(join(school, 'public/sources/material-1/original.html'), '<html><body>Version 1</body></html>');
+    write(join(school, 'public/sources/material-1/extra.md'), 'Extra doc\n');
+    write(join(school, 'src/content/lessons/01-a.md'), lessonFile({
+      slug: 'lesson-a', order: 1, sources: ['material-1/base.md'],
+    }));
+    write(join(school, 'src/content/lessons/02-b.md'), lessonFile({
+      slug: 'lesson-b', order: 2, sources: ['material-1/original.html'],
+    }));
+    write(join(school, 'src/content/lessons/03-c.md'), lessonFile({
+      slug: 'lesson-c', order: 3, sources: ['material-1/extra.md'],
+    }));
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+
+    const candidate = join(temp('single-candidate-'), 'sources');
+    mkdirSync(join(candidate, 'material-1'), { recursive: true });
+    write(join(candidate, 'material-1/base.md'), 'Base doc\n');
+    write(join(candidate, 'material-1/original.html'), '<html><body>Version 2</body></html>');
+    write(join(candidate, 'material-1/extra.md'), 'Extra doc\n');
+
+    const checkNow = new Date('2026-10-20T01:00:00Z');
+    const { report, exitCode } = await checkSchool(school, { source: candidate, now: checkNow });
+    assert.equal(exitCode, 2);
+    assert.equal(report.changed.some(item => item.path === 'material-1/original.html'), true);
+
+    const planNow = new Date('2026-10-20T02:00:00Z');
+    await runUpdate({
+      schoolPath: school,
+      options: { plan: true, source: [candidate] },
+      originalCwd: '/',
+      now: planNow,
+    });
+    const planId = planIdFrom(planNow);
+    const plan = readPlan(school, planId);
+    assert.equal(plan.routeReview, false);
+    assert.equal(plan.changes.find(item => item.path === 'material-1/original.html').bytesMissing, false);
+    assert.equal(
+      readFileSync(join(school, 'public/sources/snapshots', planId, 'material-1/original.html'), 'utf8'),
+      '<html><body>Version 2</body></html>',
+    );
+
+    setVerdict(plan, 'material-1/original.html', '局部修订', { lessons: ['lesson-b'] });
+    savePlan(school, plan);
+    await runUpdate({ schoolPath: school, options: { 'prepare-only': true, 'plan-id': planId } });
+    reviseBody(school, '02-b.md');
+    await runUpdate(applyOpts(school, planId));
+
+    assert.deepEqual(lessonSources(school, '02-b.md'), [`snapshots/${planId}/material-1/original.html`]);
+  });
 });
 
 describe('local revision kind and named lessons', () => {

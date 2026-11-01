@@ -1,10 +1,12 @@
 import { describe, it, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { validateGeneration } from './generate.mjs';
+import { command } from './materials.mjs';
 import {
   EXTRACTOR_VERSION,
   INCOMPLETE_CANDIDATE_REASON,
@@ -12,6 +14,7 @@ import {
   assertLessonHasSources,
   buildLessonDeps,
   checkDocsMaterial,
+  checkSingleMaterial,
   checkSchool,
   compareSources,
   gitFileHistory,
@@ -141,6 +144,14 @@ function makeGeneratedSchool({ requireLessonSources, withSources }) {
     slug: 'topic-one', order: 1, sources, title: 'Topic One',
   }));
   if (withSources) write(join(school, 'public/sources/material-1/a.md'), 'body\n');
+  const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  const fallback = process.env.ISLANDS_DEPS_SCHOOL || join(repoRoot, 'schools/astro-zero-to-one');
+  if (existsSync(join(fallback, 'node_modules'))) {
+    writeFileSync(join(school, 'package.json'), '{"name":"demo"}\n');
+    try {
+      symlinkSync(join(fallback, 'node_modules'), join(school, 'node_modules'), 'junction');
+    } catch {}
+  }
   const inputPath = join(root, 'input.json');
   writeFileSync(inputPath, `${JSON.stringify({ output: school }, null, 2)}\n`);
   return inputPath;
@@ -640,5 +651,191 @@ describe('snapshot source paths', () => {
     assert.deepEqual(report.candidateLessons[0].paths, ['material-1/pages/a.md']);
     assert.equal(report.deleted.length, 0);
     assert.equal(report.failed.length, 0);
+  });
+});
+
+function makeSingleSchool({ fallback = false, multi = false } = {}) {
+  const root = temp('single-page-');
+  const school = join(root, 'schools', 'single-demo');
+  mkdirSync(join(school, 'src/content/lessons'), { recursive: true });
+  mkdirSync(join(school, 'public/sources/material-1'), { recursive: true });
+  const material = {
+    path: 'material-1/original.html',
+    url: 'https://example.com/cli',
+    readableText: 'material-1/original.html.txt',
+  };
+  if (fallback) {
+    material.crawl = { fallback: 'siteone-crawler failed', tool: 'siteone-crawler' };
+  }
+  const materials = [material];
+  if (multi) {
+    mkdirSync(join(school, 'public/sources/material-2/pages'), { recursive: true });
+    materials.push({
+      path: 'material-2',
+      url: 'https://example.com/docs',
+      crawl: { tool: 'siteone-crawler' },
+    });
+    write(join(school, 'public/sources/material-2/pages/guide.md'), page('Guide page'));
+  }
+  writeFileSync(join(school, 'school.settings.json'), `${JSON.stringify({
+    name: 'single-demo',
+    output: 'schools/single-demo',
+    materials,
+  }, null, 2)}\n`);
+  writeFileSync(join(school, 'COURSE.md'), `# single-demo\n\n| 教学主张 / 核心机制 | 官方文档原始位置 | 对应本地副本文件路径 |\n| :--- | :--- | :--- |\n| 单页 | \`cli\` | \`material-1/original.html\` |\n${multi ? '| 文档 | `guide` | `material-2/pages/guide.md` |\n' : ''}`);
+  write(join(school, 'public/sources/material-1/original.html'), '<html><body>Hello single page</body></html>');
+  write(join(school, 'public/sources/material-1/original.html.txt'), 'Hello single page\n');
+  const sources = ['material-1/original.html'];
+  if (multi) sources.push('material-2/pages/guide.md');
+  write(join(school, 'src/content/lessons/01-a.md'), lessonFile({
+    slug: 'lesson-1', order: 1, sources,
+  }));
+  return school;
+}
+
+describe('single page http materials', () => {
+  it('reports unchanged when single-page material content did not change', async () => {
+    const school = makeSingleSchool();
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    const { report, exitCode } = await checkSchool(school, {
+      now: new Date('2026-10-20T01:00:00Z'),
+      fetchSingle: async (material, materialsDir, date) => {
+        const dest = join(materialsDir, 'material-1.snapshots', date);
+        mkdirSync(dest, { recursive: true });
+        writeFileSync(join(dest, 'original.html'), '<html><body>Hello single page</body></html>');
+        writeFileSync(join(dest, 'original.html.txt'), 'Hello single page\n');
+        return { dest };
+      },
+    });
+    assert.equal(exitCode, 0);
+    assert.equal(report.changed.length, 0);
+    assert.equal(report.unchanged.some(item => item.path === 'material-1/original.html'), true);
+    assert.equal(report.failed.length, 0);
+  });
+
+  it('reports changed when single-page material content changes', async () => {
+    const school = makeSingleSchool();
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    const { report, exitCode } = await checkSchool(school, {
+      now: new Date('2026-10-20T01:00:00Z'),
+      fetchSingle: async (material, materialsDir, date) => {
+        const dest = join(materialsDir, 'material-1.snapshots', date);
+        mkdirSync(dest, { recursive: true });
+        writeFileSync(join(dest, 'original.html'), '<html><body>Hello modified page</body></html>');
+        writeFileSync(join(dest, 'original.html.txt'), 'Hello modified page\n');
+        return { dest };
+      },
+    });
+    assert.equal(exitCode, 2);
+    assert.equal(report.changed.some(item => item.path === 'material-1/original.html'), true);
+    assert.deepEqual(report.candidateLessons.map(item => item.slug), ['lesson-1']);
+  });
+
+  it('records failed with reason when download fails and continues checking other materials', async () => {
+    const school = makeSingleSchool({ multi: true });
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    let crawlCalled = false;
+    const { report, exitCode } = await checkSchool(school, {
+      now: new Date('2026-10-20T01:00:00Z'),
+      fetchSingle: async () => {
+        throw new Error('network down 503');
+      },
+      crawl: async (material, materialsDir, date) => {
+        crawlCalled = true;
+        const dest = join(materialsDir, 'material-2.snapshots', date);
+        mkdirSync(join(dest, 'pages'), { recursive: true });
+        writeFileSync(join(dest, 'pages/guide.md'), page('Guide page'));
+        return { dest, pages: [{ file: 'pages/guide.md', url: 'https://example.com/docs/guide' }] };
+      },
+    });
+    assert.equal(exitCode, 2);
+    assert.equal(crawlCalled, true);
+    assert.equal(report.failed.some(item => item.path === 'material-1/original.html' && item.reason.includes('network down 503')), true);
+    assert.equal(report.unchanged.some(item => item.path === 'material-2/pages/guide.md'), true);
+  });
+
+  it('uses single-page branch for materials with crawl.fallback without triggering crawl', async () => {
+    const school = makeSingleSchool({ fallback: true });
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    let fetchCalled = false;
+    const { report, exitCode } = await checkSchool(school, {
+      now: new Date('2026-10-20T01:00:00Z'),
+      crawl: async () => {
+        throw new Error('crawl should not be called for crawl.fallback material');
+      },
+      fetchSingle: async (material, materialsDir, date) => {
+        fetchCalled = true;
+        const dest = join(materialsDir, 'material-1.snapshots', date);
+        mkdirSync(dest, { recursive: true });
+        writeFileSync(join(dest, 'original.html'), '<html><body>Hello single page</body></html>');
+        return { dest };
+      },
+    });
+    assert.equal(fetchCalled, true);
+    assert.equal(exitCode, 0);
+    assert.equal(report.unchanged.some(item => item.path === 'material-1/original.html'), true);
+  });
+
+  it('routes successful multi-page docs material to checkDocsMaterial', async () => {
+    const school = makeSingleSchool({ multi: true });
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    let crawlCalled = false;
+    let singleCalled = false;
+    await checkSchool(school, {
+      now: new Date('2026-10-20T01:00:00Z'),
+      fetchSingle: async (material, materialsDir, date) => {
+        singleCalled = true;
+        const dest = join(materialsDir, 'material-1.snapshots', date);
+        mkdirSync(dest, { recursive: true });
+        writeFileSync(join(dest, 'original.html'), '<html><body>Hello single page</body></html>');
+        return { dest };
+      },
+      crawl: async (material, materialsDir, date) => {
+        crawlCalled = true;
+        const dest = join(materialsDir, 'material-2.snapshots', date);
+        mkdirSync(join(dest, 'pages'), { recursive: true });
+        writeFileSync(join(dest, 'pages/guide.md'), page('Guide page'));
+        return { dest, pages: [{ file: 'pages/guide.md', url: 'https://example.com/docs/guide' }] };
+      },
+    });
+    assert.equal(crawlCalled, true);
+    assert.equal(singleCalled, true);
+  });
+
+  it('reports deleted and added when single page extension changes', async () => {
+    const school = makeSingleSchool();
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    const { report, exitCode } = await checkSchool(school, {
+      now: new Date('2026-10-20T01:00:00Z'),
+      fetchSingle: async (material, materialsDir, date) => {
+        const dest = join(materialsDir, 'material-1.snapshots', date);
+        mkdirSync(dest, { recursive: true });
+        writeFileSync(join(dest, 'original.md'), '# Markdown returned instead\n');
+        return { dest };
+      },
+    });
+    assert.equal(exitCode, 2);
+    assert.equal(report.deleted.some(item => item.path === 'material-1/original.html'), true);
+    assert.equal(report.added.some(item => item.path === 'material-1/original.md'), true);
+  });
+
+  it('supports fake download injected via run', async () => {
+    const school = makeSingleSchool();
+    await writeBaseline(school, { now: new Date('2026-10-20T00:00:00Z') });
+    const run = async (cmd, args) => {
+      if (cmd === 'curl') {
+        const outIdx = args.indexOf('-o');
+        const outPath = args[outIdx + 1];
+        writeFileSync(outPath, '<!doctype html><html><body><h1>Updated CLI Page</h1><p>' + 'A'.repeat(120) + '</p></body></html>');
+        return 'text/html\nhttps://example.com/cli';
+      }
+      return command(cmd, args);
+    };
+    const { report, exitCode } = await checkSchool(school, {
+      now: new Date('2026-10-20T01:00:00Z'),
+      run,
+    });
+    assert.equal(exitCode, 2);
+    assert.equal(report.changed.some(item => item.path === 'material-1/original.html'), true);
   });
 });
