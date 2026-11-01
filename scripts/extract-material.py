@@ -66,6 +66,76 @@ def github_repo_url(href, base=None):
         return None
     return f"https://github.com/{owner.lower()}/{repo.lower()}"
 
+def check_llms_txt(hrefs, text, raw_html, base):
+    for h in hrefs:
+        try:
+            joined = urljoin(base, h)
+            p = urlparse(joined)
+            path = p.path.lower()
+            if path.endswith("/llms.txt") or path == "llms.txt" or path.endswith("/llms-full.txt") or path == "llms-full.txt":
+                return True, joined
+        except Exception:
+            continue
+    m = re.search(r"https?://[^\s<>'\"`)]+?/(?:llms|llms-full)\.txt\b", raw_html, re.I)
+    if m:
+        return True, m.group(0)
+    m = re.search(r"https?://[^\s<>'\"`)]+?/(?:llms|llms-full)\.txt\b", text, re.I)
+    if m:
+        return True, m.group(0)
+    if re.search(r"\bllms(?:-full)?\.txt\b", text, re.I) or re.search(r"\bllms(?:-full)?\.txt\b", raw_html, re.I):
+        return True, urljoin(base, "/llms.txt")
+    return False, None
+
+def check_markdown_version(hrefs, text, raw_html, base):
+    try:
+        base_parsed = urlparse(base)
+        base_host = (base_parsed.hostname or "").lower()
+    except Exception:
+        base_host = ""
+    if base_host in ("github.com", "raw.githubusercontent.com"):
+        return False
+    for h in hrefs:
+        try:
+            joined = urljoin(base, h)
+            p = urlparse(joined)
+            p_host = (p.hostname or "").lower()
+            if p_host in ("github.com", "raw.githubusercontent.com"):
+                continue
+            path_lower = p.path.lower()
+            if any(seg in path_lower for seg in ("/blob/", "/tree/", "/edit/")):
+                continue
+            if path_lower.endswith("/readme.md") or path_lower == "readme.md" or path_lower == "/readme.md":
+                continue
+            if base_host and p_host == base_host and path_lower.endswith(".md"):
+                if not path_lower.endswith("llms.txt"):
+                    return True
+        except Exception:
+            continue
+    if re.search(r"(?:append(?:ing)?|add(?:ing)?|把|将|在)\s*`?\.md`?\s*(?:加到|追加到|放在|拼在|后|末尾|to\s+(?:the\s+)?(?:page\s+)?url|to\s+url)", text, re.I):
+        return True
+    if re.search(r"`?\.md`?\s*(?:added\s+to|append(?:ed)?\s+to|at\s+the\s+end\s+of|to\s+(?:the\s+)?(?:page\s+)?url)", text, re.I):
+        return True
+    if re.search(r"markdown\s*(?:versions?|版本)", text, re.I) and re.search(r"\.md\b", text, re.I):
+        return True
+    if re.search(r"`?\.md`?.*?(?:url|链接|地址)|(?:url|链接|地址).*?`?\.md`?", text, re.I) and re.search(r"(?:加|追加|后缀|append|add|version|版本)", text, re.I):
+        return True
+    return False
+
+def hint_page_clues(hrefs, text, base, raw_html=""):
+    if not base:
+        return
+    has_llms, llms_url = check_llms_txt(hrefs, text, raw_html, base)
+    has_md = check_markdown_version(hrefs, text, raw_html, base)
+    if not has_llms and not has_md:
+        return
+    parts = []
+    if has_llms:
+        parts.append(f"llms.txt（{llms_url}）")
+    if has_md:
+        parts.append("Markdown 版本")
+    clues = " / ".join(parts)
+    print(f"提示：入口页提到 {clues}；如需更多页面，可用自己的网页工具查看后选取。", file=sys.stderr, flush=True)
+
 def hint_github_repos(hrefs, base, single_page=True):
     seen = set()
     for href in hrefs:
@@ -87,6 +157,7 @@ path = Path(argv[0])
 kind = argv[1] if len(argv) > 1 else path.suffix.lower()
 page_url = argv[2] if len(argv) > 2 else ""
 hrefs = []
+raw_html = ""
 if kind == ".pdf":
     try:
         from pypdf import PdfReader
@@ -101,8 +172,9 @@ elif kind == ".docx":
     ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
     text = "\n".join("".join(p.itertext()) for p in xml.findall(".//w:p", ns))
 elif kind in (".html", ".htm"):
+    raw_html = path.read_text(errors="replace")
     parser = ArticleText(collect_hrefs=bool(page_url))
-    parser.feed(path.read_text(errors="replace"))
+    parser.feed(raw_html)
     text = "\n".join(line.strip() for line in "".join(parser.text).splitlines() if line.strip())
     hrefs = parser.hrefs
 else:
@@ -113,12 +185,20 @@ if hints_only:
             hint_github_repos(hrefs, page_url, single_page=False)
         except Exception:
             pass
+        try:
+            hint_page_clues(hrefs, text, page_url, raw_html=raw_html)
+        except Exception:
+            pass
     sys.exit(0)
 out = path.with_name(path.name + ".txt")
 out.write_text(text, encoding="utf-8")
 if page_url:
     try:
         hint_github_repos(hrefs, page_url)
+    except Exception:
+        pass
+    try:
+        hint_page_clues(hrefs, text, page_url, raw_html=raw_html)
     except Exception:
         pass
 print(out)

@@ -197,6 +197,67 @@ export function countScopedLinks(html, pageUrl, prefix) {
   return found.size;
 }
 
+export function collectSameSiteLinks(html, pageUrl) {
+  const source = prepareHtml(html);
+  const re = /<a\b([^>]*)>/gi;
+  const found = new Set();
+  let match;
+  while ((match = re.exec(source))) {
+    const href = attr(match[1], 'href');
+    const path = linkPath(href, pageUrl);
+    if (path) found.add(path);
+  }
+  return Array.from(found);
+}
+
+export function linkDistribution(html, pageUrl) {
+  const paths = collectSameSiteLinks(html, pageUrl);
+  if (!paths.length) return {};
+  const firstSegments = new Set(
+    paths.map(p => p.split('/').filter(Boolean)[0]).filter(Boolean),
+  );
+  const depth = firstSegments.size === 1 ? 2 : 1;
+  const groups = {};
+  for (const path of paths) {
+    const segs = path.split('/').filter(Boolean);
+    let key;
+    if (segs.length === 0) {
+      key = '/*';
+    } else if (depth === 2 && segs.length >= 2) {
+      key = `/${segs[0]}/${segs[1]}/*`;
+    } else {
+      key = `/${segs[0]}/*`;
+    }
+    groups[key] = (groups[key] || 0) + 1;
+  }
+  return groups;
+}
+
+export function formatLinkDistribution(input, pageUrlOrOptions = {}) {
+  const distribution = typeof input === 'string'
+    ? linkDistribution(input, typeof pageUrlOrOptions === 'string' ? pageUrlOrOptions : 'https://example.com')
+    : input;
+  const entries = Object.entries(distribution || {}).sort((a, b) => b[1] - a[1]);
+  if (!entries.length) return '';
+  const limit = (typeof pageUrlOrOptions === 'object' && pageUrlOrOptions?.limit) || 8;
+  const top = entries.slice(0, limit);
+  return top.map(([key, count]) => `${key} ${count} 个`).join('，');
+}
+
+export function buildCrawlFallbackMessage({ reason, prefix, html, url }) {
+  const scope = prefix ? `前缀 ${prefix}` : '同站跟随';
+  const dist = formatLinkDistribution(html, url);
+  const diag = dist ? `入口页同站链接分布：${dist}` : '入口页未发现同站链接';
+  return [
+    `降级说明：整站抓取已降级为单页（原因：${reason}）。生成时只能按单页来源使用。`,
+    `实际使用范围：${scope}。`,
+    `诊断：${diag}。`,
+    '可选做法：用 npm run school -- supplement NAME --crawl-prefix <前缀> 换范围重抓；或用自己的网页工具阅读入口页给出的线索后再决定；不要把入口页说成整套文档。',
+  ].join('\n');
+}
+
+export const buildCrawlFailureMessage = buildCrawlFallbackMessage;
+
 export function decideCrawl({ href, html = '', override = 'auto' }) {
   const prefix = crawlPrefix(href);
   if (override === 'off') return { crawl: false, reason: 'override-off', prefix, hint: null, detail: '已指定 --no-crawl' };
@@ -499,7 +560,9 @@ export async function runCrawl({ run, executable, url, directory, prefix, maxPag
   if (!crawlIsUseful(pages)) {
     const chars = pages.reduce((sum, page) => sum + page.chars, 0);
     const reason = failure ? `爬虫未成功结束（${failure.message.split('\n')[0]}）` : `抓取结果过少（${pages.length} 页，约 ${chars} 字）`;
-    throw new Error(`${reason}。可能是需要 JavaScript 渲染的站点，或同站没有足够的 HTML 页面。`);
+    const err = new Error(`${reason}。可能是需要 JavaScript 渲染的站点，或同站没有足够的 HTML 页面。`);
+    if (version) err.crawlerVersion = version;
+    throw err;
   }
   if (failure) console.warn(`警告：爬虫退出异常，但已得到 ${pages.length} 页，仍保存这些页面。${failure.message.split('\n')[0]}`);
   return { pages, version: version || CRAWLER_VERSION, failedUrls };

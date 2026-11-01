@@ -3,15 +3,16 @@ import assert from 'node:assert/strict';
 import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { command, prepareMaterials, supplementMaterials } from './materials.mjs';
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const extractor = fileURLToPath(new URL('./extract-material.py', import.meta.url));
 const originalPath = process.env.PATH;
 const realPython = execFileSync('which', ['python3'], { encoding: 'utf8' }).trim();
 import {
-  ASSETS, CRAWLER_VERSION, buildCrawlArgs, choosePrefix, crawlIsUseful, crawlPrefix, decideCrawl,
-  ensureCrawler, finalizePages, includeRegex, pagesFromCrawlJson, platformKey, proxyEndpoint, stripCopiedMarkers,
+  ASSETS, CRAWLER_VERSION, buildCrawlArgs, buildCrawlFallbackMessage, choosePrefix, crawlIsUseful, crawlPrefix, decideCrawl,
+  ensureCrawler, finalizePages, formatLinkDistribution, includeRegex, linkDistribution, pagesFromCrawlJson, platformKey, proxyEndpoint, stripCopiedMarkers,
   versionAtLeast,
 } from './site-crawl.mjs';
 
@@ -445,6 +446,66 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.deepEqual(filled[1], git);
   });
 
+  it('supplementMaterials fails and keeps existing multi-page material untouched when crawl yields too few pages', async () => {
+    const source = 'https://docs.example.com/guide';
+    const originalHtml = htmlPage('<p>Docs home</p>');
+    const { records, out } = await fromCrawl(originalHtml, source, { options: { crawl: 'auto' } });
+    assert.equal(records[0].path, 'material-1');
+    assert.equal(records[0].crawl.pageCount, 2);
+    const entryBefore = readFileSync(join(out, 'material-1/entry.html'), 'utf8');
+    const provBefore = readFileSync(join(out, 'material-1/provenance.json'), 'utf8');
+    const pagesBefore = readFileSync(join(out, 'material-1/pages/guide.md'), 'utf8');
+    const recordsSnapshot = JSON.stringify(records);
+
+    process.env.FAKE_CRAWLER_MODE = 'thin';
+    process.env.FAKE_CRAWL_PAGES = JSON.stringify([
+      { file: 'guide.md', url: source, body: 'too short' },
+    ]);
+
+    await assert.rejects(
+      async () => {
+        await supplementMaterials(records, out);
+      },
+      (err) => {
+        assert.match(err.message, /降级说明/);
+        assert.match(err.message, /抓取结果过少/);
+        assert.match(err.message, /supplement/);
+        assert.equal(err.message.includes('重新 create'), false);
+        return true;
+      }
+    );
+
+    assert.equal(readFileSync(join(out, 'material-1/entry.html'), 'utf8'), entryBefore);
+    assert.equal(readFileSync(join(out, 'material-1/provenance.json'), 'utf8'), provBefore);
+    assert.equal(readFileSync(join(out, 'material-1/pages/guide.md'), 'utf8'), pagesBefore);
+    assert.equal(JSON.stringify(records), recordsSnapshot);
+    assert.equal(existsSync(join(out, 'material-1.supplement-tmp')), false);
+  });
+
+  it('supplementMaterials replaces original directory and points paths to original folder on success', async () => {
+    const source = 'https://docs.example.com/guide';
+    const originalHtml = htmlPage('<p>Docs home</p>');
+    const { records, out } = await fromCrawl(originalHtml, source, { options: { crawl: 'auto' } });
+    assert.equal(records[0].path, 'material-1');
+
+    process.env.FAKE_CRAWLER_MODE = '';
+    process.env.FAKE_CRAWL_PAGES = JSON.stringify([
+      { file: 'guide.md', url: source, body: '# Guide\n\n' + 'Content '.repeat(100) },
+      { file: 'api.md', url: 'https://docs.example.com/guide/api', body: '# API\n\n' + 'Content '.repeat(100) },
+    ]);
+
+    const filled = await supplementMaterials(records, out);
+    assert.equal(filled.length, 1);
+    assert.equal(filled[0].path, 'material-1');
+    assert.equal(filled[0].pages, 'material-1/pages');
+    assert.equal(filled[0].provenance, 'material-1/provenance.json');
+    assert.equal(filled[0].crawl.fallback, undefined);
+    assert.equal(filled[0].crawl.pageCount, 2);
+    assert.equal(existsSync(join(out, 'material-1.supplement-tmp')), false);
+    assert.equal(existsSync(join(out, 'material-1/pages')), true);
+    assert.equal(existsSync(join(out, 'material-1/provenance.json')), true);
+  });
+
   it('prints multi-page GitHub hints once per repo and not the single-page advice', async () => {
     const html = htmlPage(
       '<a href="https://github.com/acme/handbook/edit/main/docs/intro.md">Edit</a>' +
@@ -517,11 +578,13 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.equal(records[0].path, 'material-1/original.html');
     assert.equal(records[0].fetchedURL, finalURL);
     assert.equal(records[0].readableText, 'material-1/original.html.txt');
-    assert.equal(records[0].crawl, undefined);
+    assert.ok(records[0].crawl?.fallback);
+    assert.equal(records[0].crawl.tool, 'siteone-crawler');
+    assert.equal(records[0].crawl.version, '2.5.1');
     assert.deepEqual(readFileSync(join(out, records[0].path)), Buffer.from(original));
     assert.equal(stderr.includes(SINGLE_HINT('acme/docs')), true);
     assert.equal(stderr.includes('本次仍仅保存入口页'), true);
-    assert.match(stderr, /已改为只保存入口页/);
+    assert.match(stderr, /降级说明：整站抓取已降级为单页/);
     assert.equal(existsSync(join(out, 'material-1/pages')), false);
     assert.equal(existsSync(join(out, 'material-1/provenance.json')), false);
     assert.equal(existsSync(join(out, 'material-1/.crawl-tmp')), false);
@@ -540,13 +603,156 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.equal(records[0].path, 'material-1/original.html');
     assert.equal(records[0].fetchedURL, finalURL);
     assert.equal(records[0].readableText, 'material-1/original.html.txt');
+    assert.ok(records[0].crawl?.fallback);
+    assert.equal(records[0].crawl.tool, 'siteone-crawler');
+    assert.equal(records[0].crawl.version, '2.5.1');
     assert.deepEqual(readFileSync(join(out, 'material-1/original.html')), Buffer.from(original));
     assert.equal(stderr.includes(SINGLE_HINT('acme/docs')), true);
     assert.equal(stderr.includes('本次仍仅保存入口页'), true);
-    assert.match(stderr, /已改为只保存入口页/);
+    assert.match(stderr, /降级说明：整站抓取已降级为单页/);
     assert.equal(existsSync(join(out, 'material-1/pages')), false);
     assert.equal(existsSync(join(out, 'material-1/provenance.json')), false);
     assert.equal(existsSync(join(out, 'material-1/.crawl-tmp')), false);
+  });
+
+  it('computes link distribution from entry HTML ignoring external links', () => {
+    const html = `
+      <html><body>
+        <a href="/codex/a">Codex A</a>
+        <a href="/codex/b">Codex B</a>
+        <a href="/docs/c">Docs C</a>
+        <a href="https://external.example.com/foo">External</a>
+        <a href="mailto:test@example.com">Mail</a>
+      </body></html>
+    `;
+    const dist = linkDistribution(html, 'https://example.com/entry');
+    assert.deepEqual(dist, { '/codex/*': 2, '/docs/*': 1 });
+    const formatted = formatLinkDistribution(dist);
+    assert.equal(formatted, '/codex/* 2 个，/docs/* 1 个');
+  });
+
+  it('falls back to single page with crawl.fallback on force mode when crawl results are too few', async () => {
+    const source = 'https://docs.example.com/guide';
+    const finalURL = 'https://docs.example.com/guide';
+    const html = htmlPage(`
+      <a href="/codex/a">Codex A</a>
+      <a href="/codex/b">Codex B</a>
+      <a href="/docs/c">Docs C</a>
+      <a href="https://external.example.com/x">External</a>
+    `);
+    const pages = [
+      { file: 'guide.md', url: source, body: 'short\n' },
+    ];
+    const { records, stderr } = await fromCrawl(html, source, {
+      finalURL,
+      pages,
+      options: { crawl: 'force', crawlPrefix: '/docs/codex' },
+    });
+    assert.equal(records.length, 1);
+    assert.equal(records[0].path, 'material-1/original.html');
+    assert.ok(records[0].crawl);
+    assert.match(records[0].crawl.fallback, /抓取结果过少/);
+    assert.equal(records[0].crawl.tool, 'siteone-crawler');
+    assert.equal(records[0].crawl.version, '2.5.1');
+    assert.equal(records[0].crawl.prefix, '/docs/codex');
+    assert.match(stderr, /降级说明：整站抓取已降级为单页/);
+    assert.match(stderr, /抓取结果过少/);
+    assert.match(stderr, /实际使用范围：前缀 \/docs\/codex/);
+    assert.match(stderr, /入口页同站链接分布：\/codex\/\* 2 个，\/docs\/\* 1 个/);
+    assert.match(stderr, /supplement/);
+    assert.equal(stderr.includes('重新 create'), false);
+  });
+
+  it('records crawl.fallback on auto mode when crawl results are too few', async () => {
+    const source = 'https://docs.example.com/guide';
+    const finalURL = 'https://docs.example.com/guide';
+    const html = htmlPage('<p>Some content</p>');
+    const pages = [
+      { file: 'guide.md', url: source, body: 'short\n' },
+    ];
+    const { records, stderr } = await fromCrawl(html, source, {
+      finalURL,
+      pages,
+      options: { crawl: 'auto' },
+    });
+    assert.equal(records.length, 1);
+    assert.equal(records[0].path, 'material-1/original.html');
+    assert.ok(records[0].crawl);
+    assert.match(records[0].crawl.fallback, /抓取结果过少/);
+    assert.equal(records[0].crawl.tool, 'siteone-crawler');
+    assert.equal(records[0].crawl.version, '2.5.1');
+    assert.match(stderr, /降级说明：整站抓取已降级为单页/);
+    assert.match(stderr, /抓取结果过少/);
+    assert.match(stderr, /实际使用范围/);
+    assert.match(stderr, /supplement/);
+    assert.equal(stderr.includes('重新 create'), false);
+  });
+
+  it('does not include crawl.fallback when auto crawl succeeds', async () => {
+    const source = 'https://docs.example.com/guide';
+    const html = htmlPage('<p>Docs home</p>');
+    const { records } = await fromCrawl(html, source, { options: { crawl: 'auto' } });
+    assert.equal(records.length, 1);
+    assert.equal(records[0].path, 'material-1');
+    assert.ok(records[0].crawl);
+    assert.equal(records[0].crawl.pageCount, 2);
+    assert.equal(records[0].crawl.fallback, undefined);
+  });
+
+  it('buildCrawlFallbackMessage contains reason, scope, link distribution, supplement, and no recreate', () => {
+    const msg = buildCrawlFallbackMessage({
+      reason: '抓取结果过少（1 页，约 5 字）',
+      prefix: '/docs/codex',
+      html: '<a href="/codex/a">A</a><a href="/codex/b">B</a><a href="/docs/c">C</a>',
+      url: 'https://example.com/guide',
+    });
+    assert.match(msg, /抓取结果过少/);
+    assert.match(msg, /前缀 \/docs\/codex/);
+    assert.match(msg, /\/codex\/\* 2 个/);
+    assert.match(msg, /supplement/);
+    assert.equal(msg.includes('重新 create'), false);
+  });
+
+  it('prints entry page clues for llms.txt link, markdown mention, and stays quiet on normal pages', async () => {
+    const dir = tempCrawl('entry-clues-');
+
+    const fileLlms = join(dir, 'llms.html');
+    writeFileSync(fileLlms, htmlPage('<a href="/llms.txt">llms</a>'));
+    const { stderr: stderrLlms } = await captureStderr(() => command(
+      'python3',
+      [extractor, fileLlms, '.html', 'https://docs.example.com/guide', '--github-hints-only'],
+      { forwardStderr: true },
+    ));
+    assert.match(stderrLlms, /提示：入口页提到 llms\.txt（https:\/\/docs\.example\.com\/llms\.txt）/);
+    assert.equal(stderrLlms.includes('Markdown 版本'), false);
+
+    const fileMd = join(dir, 'md.html');
+    writeFileSync(fileMd, htmlPage('<p>Markdown versions of documentation pages are available by appending .md to the page URL.</p>'));
+    const { stderr: stderrMd } = await captureStderr(() => command(
+      'python3',
+      [extractor, fileMd, '.html', 'https://docs.example.com/guide', '--github-hints-only'],
+      { forwardStderr: true },
+    ));
+    assert.match(stderrMd, /提示：入口页提到 Markdown 版本/);
+    assert.equal(stderrMd.includes('llms.txt'), false);
+
+    const fileBoth = join(dir, 'both.html');
+    writeFileSync(fileBoth, htmlPage('<a href="/llms.txt">llms.txt</a><p>Append .md to the page URL</p>'));
+    const { stderr: stderrBoth } = await captureStderr(() => command(
+      'python3',
+      [extractor, fileBoth, '.html', 'https://docs.example.com/guide', '--github-hints-only'],
+      { forwardStderr: true },
+    ));
+    assert.match(stderrBoth, /提示：入口页提到 llms\.txt（https:\/\/docs\.example\.com\/llms\.txt） \/ Markdown 版本/);
+
+    const filePlain = join(dir, 'plain.html');
+    writeFileSync(filePlain, htmlPage('<p>This is a regular page without clues.</p>'));
+    const { stderr: stderrPlain } = await captureStderr(() => command(
+      'python3',
+      [extractor, filePlain, '.html', 'https://docs.example.com/guide', '--github-hints-only'],
+      { forwardStderr: true },
+    ));
+    assert.equal(stderrPlain.includes('提示：入口页提到'), false);
   });
 
   it('keeps a useful crawl after a non-zero crawler exit and prints the multi-page hint', async () => {
@@ -589,5 +795,29 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.equal(result, '');
     assert.equal(existsSync(`${file}.txt`), false);
     assert.equal(stderr.includes('文档源码仓库'), false);
+  });
+
+  it('omits version in fallback record when crawler version could not be obtained', async () => {
+    const source = 'https://docs.example.com/guide';
+    const finalURL = 'https://docs.example.com/guide';
+    const html = htmlPage('<p>Docs home</p>');
+    const { records } = await fromCrawl(html, source, {
+      finalURL,
+      options: {
+        crawl: 'auto',
+        ensureCrawlerFn: async () => { throw new Error('crawler binary unavailable'); },
+      },
+    });
+    assert.equal(records.length, 1);
+    assert.ok(records[0].crawl?.fallback);
+    assert.equal(records[0].crawl.tool, 'siteone-crawler');
+    assert.equal('version' in records[0].crawl, false);
+    assert.equal(records[0].crawl.version, undefined);
+    assert.notEqual(records[0].crawl.version, CRAWLER_VERSION);
+  });
+
+  it('scripts/materials.mjs does not hardcode CRAWLER_VERSION fallback', () => {
+    const code = readFileSync(join(repoRoot, 'scripts/materials.mjs'), 'utf8');
+    assert.equal(/CRAWLER_VERSION/.test(code), false);
   });
 });

@@ -2,7 +2,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, lstatSync, renameSync, rmS
 import { basename, extname, join, relative, resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { choosePrefix, decideCrawl, ensureCrawler, runCrawl, writePages } from './site-crawl.mjs';
+import { buildCrawlFallbackMessage, choosePrefix, decideCrawl, ensureCrawler, runCrawl, writePages } from './site-crawl.mjs';
 const extractor = fileURLToPath(new URL('./extract-material.py', import.meta.url));
 
 export function command(executable, args, { cwd, inherit = false, rejectOnErrorLog = false, timeoutMs = 0, env, forwardStderr = false } = {}) {
@@ -50,14 +50,23 @@ async function saveSinglePage(download, extension, target, directory, value, fin
   }
   return record;
 }
-async function saveCrawledSite({ download, target, directory, value, finalURL, prefix, decision, maxPages, workers }) {
+async function saveCrawledSite({ download, target, directory, value, finalURL, prefix, decision, maxPages, workers, run = command, crawlerFn = runCrawl, ensureCrawlerFn = ensureCrawler }) {
   const scope = prefix ? `只抓取 ${prefix} 下的页面` : '按 siteone-crawler 自己的同站链接跟随抓取';
   console.log(`判定为多页文档（${decision.detail}）。${scope}，最多 ${maxPages} 页。`);
-  const crawler = await ensureCrawler({ run: command });
-  const crawled = await runCrawl({
-    run: command, executable: crawler.executable, url: finalURL, directory: target,
-    prefix, maxPages, workers,
-  });
+  const crawler = await ensureCrawlerFn({ run });
+  let crawled;
+  try {
+    crawled = await crawlerFn({
+      run, executable: crawler.executable, url: finalURL, directory: target,
+      prefix, maxPages, workers,
+    });
+  } catch (error) {
+    const version = error?.crawlerVersion || error?.version || crawler?.version;
+    if (version && error && typeof error === 'object') {
+      error.crawlerVersion = version;
+    }
+    throw error;
+  }
   writePages(target, crawled.pages);
   rmSync(join(target, 'original.html'), { force: true });
   rmSync(join(target, 'original.html.txt'), { force: true });
@@ -92,7 +101,7 @@ async function saveCrawledSite({ download, target, directory, value, finalURL, p
   }
   return record;
 }
-export async function prepareMaterials(sources, directory, { ref, crawl = 'auto', maxPages = 500, crawlPrefix: prefixOverride, crawlWorkers = 2, targetNames = null } = {}) {
+export async function prepareMaterials(sources, directory, { ref, crawl = 'auto', maxPages = 500, crawlPrefix: prefixOverride, crawlWorkers = 2, targetNames = null, run = command, crawlerFn = runCrawl, ensureCrawlerFn = ensureCrawler } = {}) {
   mkdirSync(directory, { recursive: true });
   const records = [];
   for (let i = 0; i < sources.length; i++) {
@@ -126,25 +135,43 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
       else if (type?.includes('html') || ['.html', '.htm', '.xhtml'].includes(extension) || (!extension && looksLikeHtml(download))) extension = '.html';
       else if (!extension || extension.length > 10) extension = '.txt';
       const htmlLike = extension === '.html';
-      const mode = crawl === true ? 'force' : crawl === false ? 'off' : crawl;
+      let mode = crawl === true ? 'force' : crawl === false ? 'off' : crawl;
+      let fallbackCrawl = null;
       if (htmlLike && mode !== 'off') {
         const sample = readSample(download);
         const decision = decideCrawl({ href: finalURL, html: sample, override: mode === 'force' ? 'force' : 'auto' });
         const prefix = prefixOverride ? choosePrefix(value, finalURL, prefixOverride) : null;
         if (mode === 'force' || decision.crawl) {
           try {
-            records.push(await saveCrawledSite({ download, target, directory, value, finalURL, prefix, decision, maxPages, workers: crawlWorkers }));
+            records.push(await saveCrawledSite({ download, target, directory, value, finalURL, prefix, decision, maxPages, workers: crawlWorkers, run, crawlerFn, ensureCrawlerFn }));
             continue;
           } catch (error) {
-            console.warn(`警告：${error.message} 已改为只保存入口页。`);
             rmSync(join(target, '.crawl-tmp'), { recursive: true, force: true });
             rmSync(join(target, 'pages'), { recursive: true, force: true });
             rmSync(join(target, 'provenance.json'), { force: true });
             if (!existsSync(download) && existsSync(join(target, 'entry.html'))) renameSync(join(target, 'entry.html'), download);
+            const actualVersion = error?.crawlerVersion || error?.version || null;
+            fallbackCrawl = {
+              fallback: error.message,
+              tool: 'siteone-crawler',
+              ...(actualVersion ? { version: actualVersion } : {}),
+              prefix,
+              maxPages,
+              workers: crawlWorkers,
+              decision: decision.reason,
+            };
+            console.warn(buildCrawlFallbackMessage({
+              reason: error.message,
+              prefix,
+              html: sample,
+              url: finalURL,
+            }));
           }
         } else if (decision.hint) console.warn(`提示：${decision.hint}`);
       } else if (!htmlLike && mode === 'force') console.warn('警告：该来源不是 HTML，无法整站抓取，已按单页保存。');
-      records.push(await saveSinglePage(download, extension, target, directory, value, finalURL));
+      const single = await saveSinglePage(download, extension, target, directory, value, finalURL);
+      if (fallbackCrawl) single.crawl = fallbackCrawl;
+      records.push(single);
     } else {
       const path = resolve(value);
       if (!existsSync(path)) throw new Error(`Material is not a URL or accessible local path: ${value}`);
@@ -194,7 +221,17 @@ export async function writeDocsSnapshot(record, materialsDir, date, { run = comm
   return { dest, pages: crawled.pages, failedUrls: crawled.failedUrls || [] };
 }
 
-export async function supplementMaterials(records, directory, { maxPages = 500, crawlPrefix, crawlWorkers = 2 } = {}) {
+function fixMaterialPaths(record, fromFolder, toFolder) {
+  const updated = { ...record };
+  for (const key of ['path', 'provenance', 'pages', 'readableText']) {
+    if (typeof updated[key] === 'string' && updated[key].startsWith(fromFolder)) {
+      updated[key] = toFolder + updated[key].slice(fromFolder.length);
+    }
+  }
+  return updated;
+}
+
+export async function supplementMaterials(records, directory, { maxPages = 500, crawlPrefix, crawlWorkers = 2, run = command, crawlerFn = runCrawl, ensureCrawlerFn = ensureCrawler } = {}) {
   const next = [];
   for (const record of records || []) {
     const folder = typeof record?.path === 'string' ? record.path.split('/')[0] : '';
@@ -202,12 +239,41 @@ export async function supplementMaterials(records, directory, { maxPages = 500, 
       next.push(record);
       continue;
     }
-    const [saved] = await prepareMaterials([record.url], directory, {
-      crawl: 'force', maxPages, crawlWorkers,
-      ...(crawlPrefix ? { crawlPrefix } : {}),
-      targetNames: [folder],
-    });
-    next.push(saved);
+    const tmpFolder = `${folder}.supplement-tmp`;
+    const tmpDir = join(directory, tmpFolder);
+    const originalDir = join(directory, folder);
+    rmSync(tmpDir, { recursive: true, force: true });
+    let saved;
+    try {
+      [saved] = await prepareMaterials([record.url], directory, {
+        crawl: 'force', maxPages, crawlWorkers,
+        ...(crawlPrefix ? { crawlPrefix } : {}),
+        targetNames: [tmpFolder],
+        run, crawlerFn, ensureCrawlerFn,
+      });
+    } catch (err) {
+      rmSync(tmpDir, { recursive: true, force: true });
+      throw err;
+    }
+    const isSuccessfulMultiPage = Boolean(saved?.crawl && !saved?.crawl?.fallback);
+    if (!isSuccessfulMultiPage) {
+      let sampleHtml = '';
+      const savedHtml = join(tmpDir, 'original.html');
+      const entryHtml = join(tmpDir, 'entry.html');
+      if (existsSync(savedHtml)) sampleHtml = readFileSync(savedHtml, 'utf8');
+      else if (existsSync(entryHtml)) sampleHtml = readFileSync(entryHtml, 'utf8');
+      const fallbackMsg = buildCrawlFallbackMessage({
+        reason: saved?.crawl?.fallback || '抓取结果过少',
+        prefix: saved?.crawl?.prefix ?? crawlPrefix ?? null,
+        html: sampleHtml,
+        url: saved?.fetchedURL || saved?.url || record.url,
+      });
+      rmSync(tmpDir, { recursive: true, force: true });
+      throw new Error(fallbackMsg);
+    }
+    rmSync(originalDir, { recursive: true, force: true });
+    renameSync(tmpDir, originalDir);
+    next.push(fixMaterialPaths(saved, tmpFolder, folder));
   }
   return next;
 }

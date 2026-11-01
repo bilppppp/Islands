@@ -47,7 +47,7 @@ function help() {
   多页文档会自动判断。默认按 siteone-crawler 自己的同站链接跟随抓取，最多 500 页；--crawl-prefix /docs/latest 才把范围限制在该路径。
   --crawl 强制抓取；--no-crawl 只保存入口页。--max-pages N（1–10000）--crawl-workers N（1–8）
   npm run school -- supplement NAME：材料不够时，用同样的同站跟随补齐已保存的 HTTP HTML 来源。
-  未安装 siteone-crawler v2.5.1+ 时自动下载到 tools/cache（不入库）。下载或抓取失败则退回单页。
+  未安装 siteone-crawler v2.5.1+ 时自动下载到 tools/cache（不入库）。抓取不足时降级为单页、记入 crawl.fallback 并打印说明；supplement 失败时保留原材料。
   不带描述/参数时，只询问来源和目标。
 
 运行与学习：

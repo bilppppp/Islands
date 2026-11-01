@@ -145,9 +145,9 @@ GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准
 - `--crawl` 强制抓取；`--no-crawl` 只保存入口页。二者不能同时使用，也不能把 `--no-crawl` 用于 `supplement`。
 - `--crawl-prefix /docs/latest` 把范围限制在该路径。
 - `--max-pages` 为 1–10000，默认 500。`--crawl-workers` 为 1–8，默认 2。
-- `npm run school -- supplement NAME` 用同样的同站跟随，补齐已保存的 HTTP HTML 来源。仓库克隆和本地文件不动。
-- 抓取失败或正文太少时退回入口页，建校继续。未安装抓取工具时会下载到 `tools/cache`（不纳入 Git）。
-- 入口页若有 GitHub 编辑或源文件链接，会提示对应仓库。只保存了入口页时，会建议改用该仓库作为 `--source`。
+- `npm run school -- supplement NAME` 用同样的同站跟随，补齐已保存的 HTTP HTML 来源；补齐失败时保留原材料。仓库克隆和本地文件不动。
+- 抓取不足时降级为单页、记入 `crawl.fallback` 并打印说明；`supplement` 失败时保留原材料。未安装抓取工具时会下载到 `tools/cache`（不纳入 Git）。
+- 入口页若有 GitHub 编辑或源文件链接，会提示对应仓库；若提到 llms.txt 或提供 Markdown 版本，也会打印线索供自行选取。只保存了入口页时，会建议改用该仓库作为 `--source`。
 
 单页来源保留原件和提取文本。多页抓取还会保存各页文本和来源记录，供生成课程时选读。
 
