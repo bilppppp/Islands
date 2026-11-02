@@ -836,6 +836,39 @@ div.prose h3 {
   text-decoration: none;
 }
 
+.dark article.prose h2,
+.dark article.prose h3,
+.dark div.prose h2,
+.dark div.prose h3 {
+  color: #d4a373;
+}
+
+article.prose h4,
+article.prose h5,
+article.prose h6,
+div.prose h4,
+div.prose h5,
+div.prose h6,
+.island-prose-subheading {
+  color: #794f27;
+  font-weight: 700;
+  font-size: 1.08em;
+  line-height: 1.5;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  text-decoration: none;
+}
+
+.dark article.prose h4,
+.dark article.prose h5,
+.dark article.prose h6,
+.dark div.prose h4,
+.dark div.prose h5,
+.dark div.prose h6,
+.dark .island-prose-subheading {
+  color: #d4a373;
+}
+
 article.prose a,
 div.prose a {
   color: #11a89b;
@@ -864,10 +897,42 @@ div.prose td {
   border-color: #c4b089;
 }
 
+article.prose code::before,
+article.prose code::after,
+div.prose code::before,
+div.prose code::after,
+.island-lesson-sheet code::before,
+.island-lesson-sheet code::after {
+  content: "" !important;
+}
+
 article.prose :not(pre) > code,
-div.prose :not(pre) > code {
-  background: #fffbe7;
-  color: #725d42;
+div.prose :not(pre) > code,
+.island-lesson-sheet :not(pre) > code {
+  background: #ede3ce;
+  color: #634e37;
+  border: 1px solid #d9c7a7;
+  border-radius: 4px;
+  padding: 0.15em 0.35em;
+  font-size: 0.88em;
+  font-weight: 600;
+}
+
+.dark article.prose :not(pre) > code,
+.dark div.prose :not(pre) > code,
+.dark .island-lesson-sheet :not(pre) > code {
+  background: #382c22;
+  color: #f3e6d3;
+  border-color: #534237;
+}
+
+article.prose strong code,
+article.prose code strong,
+div.prose strong code,
+div.prose code strong,
+.island-lesson-sheet strong code,
+.island-lesson-sheet code strong {
+  font-weight: 700;
 }
 
 article.prose pre,
@@ -878,7 +943,7 @@ div.prose pre,
 div.prose code,
 div.prose kbd,
 div.prose samp {
-  font-family: ui-monospace, "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
 .katex {
@@ -1577,38 +1642,74 @@ button.source-cite:focus-visible {
 /* Island Shiki Code Blocks */
 .island-shiki-host {
   position: relative;
-  margin: 1em 0;
+  margin: 1.25em 0;
   min-width: 0;
+  background: #2b2118;
+  border-radius: 20px;
+  border: 1px solid #3d3028;
+  overflow: hidden;
 }
 
-.island-shiki-host pre.astro-code,
-.island-shiki-host pre,
-[data-lesson-panel="read"] pre.astro-code {
+.island-shiki-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px 4px 18px;
+  min-height: 36px;
+}
+
+.island-shiki-lang {
+  font-family: var(--animal-font-family, "Nunito", "Noto Sans SC");
+  font-size: 11px;
+  font-weight: 700;
+  color: #a39073;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+[data-lesson-panel="read"] pre.astro-code:not(.island-shiki-host pre) {
   box-sizing: border-box !important;
   width: 100% !important;
-  margin: 0 !important;
-  padding: 20px 24px !important;
-  padding-right: 96px !important;
+  margin: 1.25em 0 !important;
+  padding: 16px 20px !important;
   background: #2b2118 !important;
   color: #e8d5bc !important;
   border-radius: 20px !important;
   border: 1px solid #3d3028 !important;
   font-size: 14px !important;
   line-height: 1.7 !important;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace !important;
-  font-weight: 600 !important;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace !important;
+  font-weight: 500 !important;
+  white-space: pre !important;
+  overflow-x: auto !important;
+  tab-size: 4 !important;
+}
+
+.island-shiki-host pre.astro-code,
+.island-shiki-host pre {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 6px 20px 18px 20px !important;
+  background: transparent !important;
+  color: #e8d5bc !important;
+  border-radius: 0 !important;
+  border: none !important;
+  font-size: 14px !important;
+  line-height: 1.7 !important;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace !important;
+  font-weight: 500 !important;
   white-space: pre !important;
   overflow-x: auto !important;
   tab-size: 4 !important;
 }
 
 .island-code-copy-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  min-width: 62px;
-  height: 32px;
-  padding: 0 12px;
+  position: static;
+  margin-left: auto;
+  min-width: 58px;
+  height: 28px;
+  padding: 0 10px;
   border: 1px solid rgba(232, 213, 188, 0.3);
   border-radius: 50px;
   background: #3d3028f0;
@@ -1618,7 +1719,6 @@ button.source-cite:focus-visible {
   font-weight: 700;
   cursor: pointer;
   transition: all var(--animal-motion-duration-base, 0.2s) var(--animal-motion-ease, cubic-bezier(0.4, 0, 0.2, 1));
-  z-index: 2;
 }
 
 .island-code-copy-btn:hover {
@@ -1754,7 +1854,7 @@ button.source-cite:focus-visible {
   background: #2b2118;
   border: 1px solid #3d3028;
   border-radius: 12px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
   font-size: 13.5px;
   line-height: 1.65;
   color: #e8d5bc;
@@ -1819,7 +1919,7 @@ button.source-cite:focus-visible {
 
 .island-run-stdout {
   margin: 0;
-  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  font-family: 'SF Mono', 'Fira Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
   color: #2b2118;
   white-space: pre-wrap;
   word-break: break-all;
@@ -1827,7 +1927,7 @@ button.source-cite:focus-visible {
 
 .island-run-stderr {
   margin: 0;
-  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  font-family: 'SF Mono', 'Fira Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
   color: #c53030;
   white-space: pre-wrap;
   word-break: break-all;
@@ -1989,7 +2089,7 @@ button.source-cite:focus-visible {
   gap: 4px;
   max-height: 160px;
   overflow-y: auto;
-  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  font-family: 'SF Mono', 'Fira Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
 }
 
 .island-preview-console-empty {

@@ -31,18 +31,23 @@ function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
 		error: { text: "复制失败", label: "代码复制失败" },
 	};
 	const current = labels[status];
+	const rawLang = pre.getAttribute("data-language") ?? pre.dataset.language ?? "";
+	const lang = rawLang.trim();
 
 	return (
 		<div className="island-shiki-host">
+			<div className="island-shiki-toolbar">
+				{lang ? <span className="island-shiki-lang">{lang}</span> : <span />}
+				<button
+					type="button"
+					className="island-code-copy-btn"
+					aria-label={current.label}
+					onClick={handleCopy}
+				>
+					{current.text}
+				</button>
+			</div>
 			<div ref={slotRef} className="island-shiki-slot" />
-			<button
-				type="button"
-				className="island-code-copy-btn"
-				aria-label={current.label}
-				onClick={handleCopy}
-			>
-				{current.text}
-			</button>
 		</div>
 	);
 }
@@ -86,6 +91,7 @@ function mountHeading(heading: HTMLElement, variant: "tab" | "layer", withIcon: 
 	const host = document.createElement("div");
 	if (heading.id) host.id = heading.id;
 	host.dataset.heading = heading.tagName.toLowerCase();
+	host.dataset.headingVariant = variant;
 	host.dataset.headingText = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
 	if (withIcon) host.className = "island-heading-mark";
 	heading.replaceWith(host);
@@ -109,6 +115,7 @@ export default function IslandLessonChrome() {
 		const article = document.querySelector<HTMLElement>('[data-lesson-panel="read"]');
 		if (article && article.dataset.islandEnhanced !== "1") {
 			article.dataset.islandEnhanced = "1";
+
 			article.querySelectorAll("pre").forEach((pre) => {
 				const rawLang = pre.getAttribute("data-language") ?? pre.dataset.language ?? "";
 				const lang = rawLang.toLowerCase().trim();
@@ -158,20 +165,37 @@ export default function IslandLessonChrome() {
 				pre.replaceWith(host);
 				createRoot(host).render(<IslandShikiBlock pre={pre} />);
 			});
+
+			const headingElements = Array.from(
+				article.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6"),
+			).filter((h) => !h.closest(".island-predict-host, .island-run-host, .island-numberline-host"));
+
 			const found: { id: string; text: string }[] = [];
-			let firstH2 = true;
-			article.querySelectorAll<HTMLElement>("h2, h3").forEach((heading) => {
-				const text = heading.textContent ?? "";
-				if (heading.tagName === "H2") {
-					found.push({ id: heading.id, text });
-					if (firstH2) {
-						firstH2 = false;
-						mountHeading(heading, "tab", true);
-						return;
+			if (headingElements.length > 0) {
+				const levels = headingElements.map((h) => parseInt(h.tagName.substring(1), 10));
+				const minLevel = Math.min(...levels);
+				const primaryLevel = minLevel;
+				const secondaryLevel = minLevel + 1;
+
+				let firstPrimary = true;
+				headingElements.forEach((heading) => {
+					const level = parseInt(heading.tagName.substring(1), 10);
+					const text = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
+					if (level === primaryLevel) {
+						found.push({ id: heading.id, text });
+						if (firstPrimary) {
+							firstPrimary = false;
+							mountHeading(heading, "tab", true);
+							return;
+						}
+						mountHeading(heading, "layer", false);
+					} else if (level === secondaryLevel) {
+						mountHeading(heading, "layer", false);
+					} else {
+						heading.classList.add("island-prose-subheading");
 					}
-				}
-				mountHeading(heading, "layer", false);
-			});
+				});
+			}
 			setHeadings(found.filter((item) => item.id));
 		}
 

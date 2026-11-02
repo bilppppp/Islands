@@ -15,7 +15,7 @@ import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
 import { remarkSourceCite } from "./src/lib/source-cite.mjs";
-import { lessonRenderGuardIntegration } from "./src/lib/render-guard.mjs";
+import { lessonRenderGuardIntegration, remarkNormalizeLessonH1 } from "./src/lib/render-guard.mjs";
 import { collectRunBlocks } from "./src/lib/run-block.mjs";
 import { assertVercelBuildEnv, resolveDeployTarget } from "./src/lib/deploy-target";
 
@@ -226,7 +226,7 @@ export default defineConfig({
 	adapter,
 	integrations: [mdx(), react(), pyodideVendorIntegration(), lessonRenderGuardIntegration()],
 	markdown: {
-		remarkPlugins: [remarkMath, remarkSourceCite],
+		remarkPlugins: [remarkMath, remarkNormalizeLessonH1, remarkSourceCite],
 		rehypePlugins: [
 			rehypeSlug,
 			[

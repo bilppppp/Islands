@@ -34,6 +34,59 @@ export function parseFrontmatterSlug(text, fileName = '') {
   return fileName.replace(/^\d+-/, '').replace(/\.mdx?$/, '');
 }
 
+export function cleanTitleForComparison(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/[\s\p{P}\p{S}\u200b\u200c\u200d\ufeff]/gu, '')
+    .toLowerCase();
+}
+
+function nodeToPlainText(node) {
+  if (!node) return '';
+  if (typeof node.value === 'string') return node.value;
+  if (Array.isArray(node.children)) {
+    return node.children.map(nodeToPlainText).join('');
+  }
+  return '';
+}
+
+export function remarkNormalizeLessonH1() {
+  return (tree, file) => {
+    if (!tree || !Array.isArray(tree.children)) return;
+
+    const title = file?.data?.astro?.frontmatter?.title;
+    if (!title) return;
+
+    const cleanTitle = cleanTitleForComparison(title);
+    if (!cleanTitle) return;
+
+    let firstNonEmptyIndex = -1;
+    for (let i = 0; i < tree.children.length; i++) {
+      const child = tree.children[i];
+      if (child.type === 'text') {
+        if (child.value && child.value.trim().length > 0) {
+          firstNonEmptyIndex = i;
+          break;
+        }
+      } else {
+        firstNonEmptyIndex = i;
+        break;
+      }
+    }
+
+    if (firstNonEmptyIndex === -1) return;
+
+    const firstNode = tree.children[firstNonEmptyIndex];
+    if (firstNode.type === 'heading' && firstNode.depth === 1) {
+      const h1Text = nodeToPlainText(firstNode);
+      const cleanH1 = cleanTitleForComparison(h1Text);
+      if (cleanH1 && cleanH1 === cleanTitle) {
+        tree.children.splice(firstNonEmptyIndex, 1);
+      }
+    }
+  };
+}
+
 export function extractLessonBody(html) {
   if (!html || !html.includes('data-lesson-body')) return null;
   const match = html.match(/<([a-zA-Z0-9]+)\b[^>]*\bdata-lesson-body\b[^>]*>([\s\S]*?)<\/\1>/i);
