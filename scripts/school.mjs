@@ -44,7 +44,7 @@ function help() {
   可选：--name NAME --background "已有基础" --style "偏好" --language zh --model PROVIDER/MODEL --ref TAG
   --prepare-only：不调用 Pi，准备材料和 GENERATION.md，交由当前 Coding Agent 生成，再运行 finish NAME。
   可多次 --source；默认深度系统、基础未知并按需补充、教学simple、语言zh。
-  多页文档会自动判断。默认按 siteone-crawler 自己的同站链接跟随抓取，最多 500 页；--crawl-prefix /docs/latest 才把范围限制在该路径。
+  多页文档会自动判断。默认按 siteone-crawler 自己的同站链接跟随抓取，最多 500 页；--crawl-prefix /docs/latest 把重新抓取限定在某个路径（用户指定或由 Agent 判断使用，并在 COURSE.md 记下理由）。
   --crawl 强制抓取；--no-crawl 只保存入口页。--max-pages N（1–10000）--crawl-workers N（1–8）
   npm run school -- supplement NAME：材料不够时，用同样的同站跟随补齐已保存的 HTTP HTML 来源。
   npm run school -- supplement NAME --source URL [--source ...]：Agent 读过入口页线索、判断需要哪些页面后，用它把选定页面保存为新材料；需要 JS 渲染、取回内容过少的页面会报错，这时找 .md 版本或源码仓库。

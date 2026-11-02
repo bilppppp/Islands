@@ -140,15 +140,15 @@ npm run school -- start my-school
 
 ### 多页文档站
 
-GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准备。HTTP(S) HTML 文档站会自动判断是否抓取，一般不必额外加参数。默认从入口页跟随同一域名下的链接，最多 500 页。没有明确的文档站信号时只保存入口页。导航信号不足，或给出的地址是站点首页时，会提示改用文档区地址或加上 `--crawl`。
+GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准备。HTTP(S) HTML 文档站会自动判断是否抓取，一般不必额外加参数。默认从入口页跟随同一域名下的链接，最多 500 页。没有明确的文档站信号时只保存入口页。导航信号不足，或给出的地址是站点首页时，会提示用 supplement 加上 `--crawl-prefix` 重抓，或用 `--source` 保存指定页面。
 
 - `--crawl` 强制抓取；`--no-crawl` 只保存入口页。二者不能同时使用，也不能把 `--no-crawl` 用于 `supplement`。
-- `--crawl-prefix /docs/latest` 把范围限制在该路径。
+- `--crawl-prefix /docs/latest` 把重新抓取限定在某个路径；Agent 判断该区域为目标文档时可以使用（用户指定时当然也用），并在 `COURSE.md` 的 selected sources 记下所用前缀和理由。
 - `--max-pages` 为 1–10000，默认 500。`--crawl-workers` 为 1–8，默认 2。
 - `npm run school -- supplement NAME` 用同样的同站跟随，补齐已保存的 HTTP HTML 来源；补齐失败时保留原材料。仓库克隆和本地文件不动。
 - `npm run school -- supplement NAME --source URL [--source ...]` 在 Agent 读过入口页线索、自己判断需要哪些页面后，用它把这些页面保存为材料；需要 JS 渲染、取回内容过少的页面会报错，这时找 `.md` 版本或源码仓库。
 - 抓取不足时降级为单页、记入 `crawl.fallback` 并打印说明；`supplement` 失败时保留原材料。未安装抓取工具时会下载到 `tools/cache`（不纳入 Git）。
-- 入口页若有 GitHub 编辑或源文件链接，会提示对应仓库；若提到 llms.txt 或提供 Markdown 版本，也会打印线索供自行选取。只保存了入口页时，会建议改用该仓库作为 `--source`。
+- 入口页若有 GitHub 编辑或源文件链接，会提示对应仓库；若提到 llms.txt 或提供 Markdown 版本，也会打印线索供自行选取。只保存了入口页时，会提示可用 supplement --source 保存该仓库。
 
 单页来源保留原件和提取文本。多页抓取还会保存各页文本和来源记录，供生成课程时选读。
 

@@ -602,7 +602,7 @@ export function collectSchoolWarnings(target, options = {}) {
 
 export function formatWarnings(warnings = []) {
   if (!warnings || warnings.length === 0) return '';
-  const lines = ['提醒（不阻断）：'];
+  const lines = ['提醒（不阻断；逐条处理，修掉或在交付说明里写明保留理由）：'];
   for (const w of warnings) {
     const loc = w.file ? (w.line ? `【${w.file}:${w.line}】` : `【${w.file}】`) : '';
     lines.push(`- ${loc} [${w.level || 'warning'}] ${w.message}`);

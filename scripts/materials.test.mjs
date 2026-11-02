@@ -12,7 +12,7 @@ const dirs = [];
 
 function hint(ownerRepo) {
   const url = `https://github.com/${ownerRepo}`;
-  return `提示：页面的编辑/源文件链接指向文档源码仓库 ${url}；如需多页文档，建议改用 --source ${url}。本次仍仅保存入口页。`;
+  return `提示：页面的编辑/源文件链接指向文档源码仓库 ${url}。可选做法：用 npm run school -- supplement NAME --source ${url} 保存该仓库；本次仍仅保存入口页。`;
 }
 
 function page(inner) {

@@ -283,7 +283,7 @@ describe('existing material paths', () => {
 });
 
 const FILL = 'This paragraph exists so the HTTP HTML source has enough readable text after extraction. '.repeat(2);
-const SINGLE_HINT = repo => `提示：页面的编辑/源文件链接指向文档源码仓库 https://github.com/${repo}；如需多页文档，建议改用 --source https://github.com/${repo}。本次仍仅保存入口页。`;
+const SINGLE_HINT = repo => `提示：页面的编辑/源文件链接指向文档源码仓库 https://github.com/${repo}。可选做法：用 npm run school -- supplement NAME --source https://github.com/${repo} 保存该仓库；本次仍仅保存入口页。`;
 const MULTI_HINT = repo => `提示：入口页的编辑/源文件链接指向文档源码仓库 https://github.com/${repo}。`;
 const HINTS_FAIL_WARN = '警告：无法检查入口页的文档源码仓库链接；已保存的多页文档仍可使用。';
 const crawlDirs = [];
@@ -562,7 +562,7 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.equal(records[0].crawl.pageCount, 2);
     assert.equal(stderr.trim(), [MULTI_HINT('acme/handbook'), MULTI_HINT('octo/guide')].join('\n'));
     assert.equal(stderr.includes('本次仍仅保存入口页'), false);
-    assert.equal(stderr.includes('建议改用 --source'), false);
+    assert.equal(stderr.includes('supplement'), false);
   });
 
   it('resolves relative GitHub links against finalURL after a redirect', async () => {

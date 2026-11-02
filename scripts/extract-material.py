@@ -147,7 +147,7 @@ def hint_github_repos(hrefs, base, single_page=True):
             continue
         seen.add(repo)
         if single_page:
-            print(f"提示：页面的编辑/源文件链接指向文档源码仓库 {repo}；如需多页文档，建议改用 --source {repo}。本次仍仅保存入口页。", file=sys.stderr, flush=True)
+            print(f"提示：页面的编辑/源文件链接指向文档源码仓库 {repo}。可选做法：用 npm run school -- supplement NAME --source {repo} 保存该仓库；本次仍仅保存入口页。", file=sys.stderr, flush=True)
         else:
             print(f"提示：入口页的编辑/源文件链接指向文档源码仓库 {repo}。", file=sys.stderr, flush=True)
 

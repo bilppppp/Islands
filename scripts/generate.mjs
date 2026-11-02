@@ -385,7 +385,6 @@ export function validateGeneration(inputPath, options = {}) {
   const configText = readFileSync(join(output, 'school.config.ts'), 'utf8');
   const field = (key) => configText.match(new RegExp(`^\\s*${key}:\\s*"((?:\\\\.|[^"])*)"`, 'm'))?.[1] ?? '';
   const dirSlug = basename(output);
-  const internalName = field('name') || dirSlug;
   const publicName = field('publicName');
   const shortName = field('shortName');
   if (!publicName || !shortName || publicName === dirSlug || shortName === dirSlug || publicName.includes('Learn Islands')) {

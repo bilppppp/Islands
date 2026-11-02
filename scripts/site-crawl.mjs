@@ -244,7 +244,7 @@ export function formatLinkDistribution(input, pageUrlOrOptions = {}) {
   return top.map(([key, count]) => `${key} ${count} 个`).join('，');
 }
 
-export function buildCrawlFallbackMessage({ reason, prefix, html, url }) {
+export function buildCrawlFallbackMessage({ reason, prefix, html, url, schoolName = 'NAME' }) {
   const scope = prefix ? `前缀 ${prefix}` : '同站跟随';
   const dist = formatLinkDistribution(html, url);
   const diag = dist ? `入口页同站链接分布：${dist}` : '入口页未发现同站链接';
@@ -252,7 +252,7 @@ export function buildCrawlFallbackMessage({ reason, prefix, html, url }) {
     `降级说明：整站抓取已降级为单页（原因：${reason}）。生成时只能按单页来源使用。`,
     `实际使用范围：${scope}。`,
     `诊断：${diag}。`,
-    '可选做法：用 npm run school -- supplement NAME --crawl-prefix <前缀> 换范围重抓；或用自己的网页工具阅读入口页给出的线索后再决定；不要把入口页说成整套文档。',
+    `可选做法：用 npm run school -- supplement ${schoolName} --crawl-prefix <前缀> 换范围重抓；或用 --source <URL> 保存指定页面或仓库；或用自己的网页工具阅读入口页给出的线索后再决定；不要把入口页说成整套文档。`,
   ].join('\n');
 }
 
@@ -279,7 +279,7 @@ export function decideCrawl({ href, html = '', override = 'auto' }) {
   if (prefix === '/' && links >= NAV_LINK_HINT) {
     return {
       crawl: false, reason: 'ambiguous-root', prefix, links, detail: `根路径导航有 ${links} 个站内链接`,
-      hint: '入口是站点根路径，未自动整站抓取。请改用文档区 URL，或加上 --crawl / --crawl-prefix。',
+      hint: '入口是站点根路径，未自动整站抓取。本次仍仅保存入口页。可选做法：用 npm run school -- supplement NAME --crawl-prefix <路径> 限定文档区路径重抓；或用 --source <URL> 保存指定页面或仓库。',
     };
   }
   if (links >= NAV_LINK_CRAWL) {
@@ -288,7 +288,7 @@ export function decideCrawl({ href, html = '', override = 'auto' }) {
   if (links >= NAV_LINK_HINT) {
     return {
       crawl: false, reason: 'ambiguous-nav', prefix, links, detail: `导航中 ${links} 个同前缀链接`,
-      hint: `入口页导航里有 ${links} 个同一路径前缀的链接，不足以判定为文档站。本次只保存入口页。若要抓取 ${prefix} 下的页面，请加上 --crawl。`,
+      hint: `入口页导航里有 ${links} 个同一路径前缀的链接，不足以判定为文档站。本次仍仅保存入口页。可选做法：用 npm run school -- supplement NAME --crawl-prefix ${prefix} 重抓该区域；或用 --source <URL> 保存指定页面或仓库。`,
     };
   }
   return { crawl: false, reason: 'single-page', prefix, links, hint: null, detail: '没有多页文档信号' };
