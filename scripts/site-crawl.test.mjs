@@ -12,7 +12,7 @@ const originalPath = process.env.PATH;
 const realPython = execFileSync('which', ['python3'], { encoding: 'utf8' }).trim();
 import {
   ASSETS, CRAWLER_VERSION, buildCrawlArgs, buildCrawlFallbackMessage, choosePrefix, crawlIsUseful, crawlPrefix, decideCrawl,
-  ensureCrawler, finalizePages, formatLinkDistribution, includeRegex, linkDistribution, pagesFromCrawlJson, platformKey, proxyEndpoint, stripCopiedMarkers,
+  ensureCrawler, finalizePages, formatLinkDistribution, includeRegex, linkDistribution, normalizePageMarkdown, pagesFromCrawlJson, platformKey, proxyEndpoint, stripCopiedMarkers,
   versionAtLeast,
 } from './site-crawl.mjs';
 
@@ -101,6 +101,52 @@ describe('crawl scope and output cleanup', () => {
     assert.equal(crawlIsUseful([{ chars: 500 }, { chars: 400 }]), true);
     assert.equal(crawlIsUseful([{ chars: 50 }, { chars: 50 }]), false);
     assert.equal(crawlIsUseful([{ chars: 2000 }]), false);
+  });
+
+  it('normalizes markdown equivalently to old regex on short inputs', () => {
+    const oldNormalize = s => String(s)
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/[ \t]*\[Copied\]\(#[^)\r\n]*\)[ \t]*/g, '')
+      .replace(/[ \t]+$/gm, '');
+
+    const samples = [
+      'simple text',
+      'hello [Copied](#x) world',
+      '  [Copied](#x)  ',
+      '\t [Copied](#foo) \t\nline 2',
+      'trailing spaces    \nand tabs\t\t\n',
+      'line with \u00A0non-breaking\u00A0',
+      'line with fullwidth\u3000',
+      'trailing spaces after unicode\u00A0   \n',
+      'trailing tabs after unicode\u3000\t\t\n',
+      'line1\r\nline2\rline3\n',
+      'crlf with [Copied](#bar)   \r\nnext line\t \r\n',
+      'multiple [Copied](#1) and [Copied](#2) on same line',
+      'consecutive [Copied](#1)   [Copied](#2) markers',
+      '[Copied] without link and [Copied](not-hash)',
+      '   \n\t\n',
+    ];
+
+    for (const sample of samples) {
+      assert.equal(normalizePageMarkdown(sample), oldNormalize(sample));
+    }
+  });
+
+  it('normalizes markdown with long whitespace linearly without backtracking', () => {
+    const long1 = ' '.repeat(200000) + 'x\n';
+    const t0 = performance.now();
+    const res1 = normalizePageMarkdown(long1);
+    const duration1 = performance.now() - t0;
+    assert.equal(res1, long1);
+    assert.ok(duration1 < 1000, `Expected < 1000ms, took ${duration1}ms`);
+
+    const long2 = ' '.repeat(200000) + '[Copied](#a)' + ' '.repeat(200000) + 'y';
+    const t1 = performance.now();
+    const res2 = normalizePageMarkdown(long2);
+    const duration2 = performance.now() - t1;
+    assert.equal(res2, 'y');
+    assert.ok(duration2 < 1000, `Expected < 1000ms, took ${duration2}ms`);
   });
 
   it('reads successful markdown paths from crawler JSON', () => {

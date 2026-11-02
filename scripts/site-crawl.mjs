@@ -295,8 +295,8 @@ export function decideCrawl({ href, html = '', override = 'auto' }) {
 }
 
 export function stripCopiedMarkers(markdown) {
-  const without = String(markdown).replace(/[ \t]*\[Copied\]\(#[^)\r\n]*\)[ \t]*/g, '');
-  return `${without.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim()}\n`;
+  const cleaned = normalizePageMarkdown(markdown);
+  return `${cleaned.replace(/\n{3,}/g, '\n\n').trim()}\n`;
 }
 
 export function crawlIsUseful(pages) {
@@ -497,12 +497,43 @@ function listMarkdown(dir, base = dir, out = []) {
   return out;
 }
 
-function normalizePageMarkdown(markdown) {
-  return String(markdown)
-    .replace(/\r\n/g, '\n')
-    .replace(/\r/g, '\n')
-    .replace(/[ \t]*\[Copied\]\(#[^)\r\n]*\)[ \t]*/g, '')
-    .replace(/[ \t]+$/gm, '');
+export function normalizePageMarkdown(markdown) {
+  const text = String(markdown).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const markerRegex = /\[Copied\]\(#[^)\r\n]*\)/g;
+  let match;
+  let lastEnd = 0;
+  let without = '';
+  while ((match = markerRegex.exec(text)) !== null) {
+    let start = match.index;
+    let end = match.index + match[0].length;
+    while (start > lastEnd && (text.charCodeAt(start - 1) === 32 || text.charCodeAt(start - 1) === 9)) {
+      start--;
+    }
+    while (end < text.length && (text.charCodeAt(end) === 32 || text.charCodeAt(end) === 9)) {
+      end++;
+    }
+    without += text.slice(lastEnd, start);
+    lastEnd = end;
+    markerRegex.lastIndex = end;
+  }
+  if (lastEnd > 0) {
+    without += text.slice(lastEnd);
+  } else {
+    without = text;
+  }
+
+  const lines = without.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    let end = line.length;
+    while (end > 0 && (line.charCodeAt(end - 1) === 32 || line.charCodeAt(end - 1) === 9)) {
+      end--;
+    }
+    if (end < line.length) {
+      lines[i] = line.slice(0, end);
+    }
+  }
+  return lines.join('\n');
 }
 
 export function finalizePages({ markdownDir, manifest, origin, retrieved, version, prefix, failedUrls }) {

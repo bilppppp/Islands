@@ -18,6 +18,8 @@ import {
   checkSchool,
   compareSources,
   gitFileHistory,
+  normalizeSourceText,
+  stripLeadingSourceComments,
   textFingerprint,
   writeBaseline,
 } from './source-state.mjs';
@@ -837,5 +839,33 @@ describe('single page http materials', () => {
     });
     assert.equal(exitCode, 2);
     assert.equal(report.changed.some(item => item.path === 'material-1/original.html'), true);
+  });
+
+  it('normalizes source text preserving unicode whitespace and matching old regex', () => {
+    const oldNormalizeSourceText = raw => {
+      const text = String(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      return stripLeadingSourceComments(text)
+        .replace(/[ \t]*\[Copied\]\(#[^)\r\n]*\)[ \t]*/g, '')
+        .replace(/[ \t]+$/gm, '');
+    };
+    const samples = [
+      '<!-- source: https://example.com -->\n<!-- retrieved: 2026-10-20 -->\n\n# Heading\nContent\n',
+      'line with \u00A0\n',
+      'line with \u3000\n',
+      'line with [Copied](#test)  \r\n',
+      '<!-- source: x -->\n  [Copied](#foo)  \ncode   \t\n',
+    ];
+    for (const sample of samples) {
+      assert.equal(normalizeSourceText(sample), oldNormalizeSourceText(sample));
+    }
+  });
+
+  it('normalizes source text with long whitespace in linear time', () => {
+    const long = '<!-- source: x -->\n' + ' '.repeat(200000) + 'x\n';
+    const t0 = performance.now();
+    const res = normalizeSourceText(long);
+    const duration = performance.now() - t0;
+    assert.equal(res, ' '.repeat(200000) + 'x\n');
+    assert.ok(duration < 1000, `Expected < 1000ms, took ${duration}ms`);
   });
 });

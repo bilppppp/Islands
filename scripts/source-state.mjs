@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { command, writeDocsSnapshot, writeSingleSnapshot } from './materials.mjs';
+import { normalizePageMarkdown } from './site-crawl.mjs';
 
 export const SCHEMA_VERSION = 1;
 export const EXTRACTOR_VERSION = '1';
@@ -26,9 +27,7 @@ export function stripLeadingSourceComments(text) {
 
 export function normalizeSourceText(raw) {
   const text = String(raw).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  return stripLeadingSourceComments(text)
-    .replace(/[ \t]*\[Copied\]\(#[^)\r\n]*\)[ \t]*/g, '')
-    .replace(/[ \t]+$/gm, '');
+  return normalizePageMarkdown(stripLeadingSourceComments(text));
 }
 
 export function textFingerprint(raw) {
