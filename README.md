@@ -55,7 +55,7 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 
 ```text
 请在当前可写工作区克隆 https://github.com/bilppppp/Islands.git；如果已有该仓库，请复用它，不要覆盖现有文件。
-阅读仓库的 README.md、AGENT_GUIDE.md 和 AGENTS.md，按照现有工具创建并启动一所新的独立 School。
+阅读仓库的 README.md 和 AGENT_GUIDE.md，按照现有工具创建并启动一所新的独立 School。
 学习来源：https://github.com/facebook/react
 学习目标：理解组件为什么会重新渲染，能解释状态更新与父子组件的关系，并用小例子检验理解。
 我熟悉 JavaScript，但不熟悉 React 源码。希望从基础直觉逐步深入到相关实现机制；教学先用简单模式，偏好预测与代码观察。
@@ -68,7 +68,7 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 把 `<本地仓库绝对路径>` 换成你的路径（路径里可以有空格）：
 
 ```text
-请使用本地仓库 <本地仓库绝对路径> 中的 Islands，先阅读 README.md、AGENT_GUIDE.md 和 AGENTS.md。
+请使用本地仓库 <本地仓库绝对路径> 中的 Islands，先阅读 README.md 和 AGENT_GUIDE.md。
 利用现有工具为 https://arxiv.org/abs/1706.03762 创建并启动一所新的独立 School，不要覆盖已有 School。
 我的目标是理解 Transformer 架构和 Attention 的关键计算。我已熟悉基础神经网络，希望深入理解组件关系、公式推导与简单数值实验；教学先用沉浸模式，允许中途调整节奏。
 完成后给我实际可访问的网站地址、可编辑的课程位置，以及在我使用的 Agent 中开始学习和恢复进度的步骤。未指定的设置使用项目默认值。

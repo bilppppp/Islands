@@ -4,7 +4,7 @@
 
 ## 1. 定位项目与确认输入
 
-首次使用，在用户允许的可写目录克隆 `https://github.com/bilppppp/Islands.git`；已有本地路径则直接使用。不要覆盖已有目录。进入仓库根目录，确认 `package.json` 与 `scripts/school.mjs` 存在，阅读本指南、README 和根 AGENTS。
+首次使用，在用户允许的可写目录克隆 `https://github.com/bilppppp/Islands.git`；已有本地路径则直接使用。不要覆盖已有目录。进入仓库根目录，确认 `package.json` 与 `scripts/school.mjs` 存在，阅读本指南和 README。
 
 必需信息只有可访问的学习来源和 Learning Goal。来源可为 GitHub 仓库、HTTP(S) 文档/论文或本地文件/目录；本地来源优先使用绝对路径。仅在来源或目标无法确定时补问，避免让用户设计课程目录或编写 JSON。
 
@@ -41,7 +41,7 @@ npm run school -- create "用户的完整学习请求" \
 npm run school -- finish new-school
 ```
 
-`finish` 复用课程文件检查并构建，不调用 Pi；它会真正执行课文里的 run/preview 块以验证代码与渲染。写课时可以先运行 `node scripts/verify-lesson-blocks.mjs schools/new-school` 自查。失败时保留材料与生成文件，修复具体错误后再次 `finish`；不要用 `retry` 代替它。默认 Pi 自动生成仍可用：省略 `--prepare-only`，或者直接 `create "完整自然语言请求" --name new-school`。
+`finish` 复用课程文件检查并构建，不调用 Pi；它会真正执行课文里的 run/preview 块以验证代码与渲染。写课时可以先运行 `node scripts/verify-lesson-blocks.mjs schools/new-school` 自查。失败时保留材料与生成文件，修改课文（不是检查脚本）后再次 `finish`；不要用 `retry` 代替它。认为检查误报时，在交付说明中写明，不改脚本。默认 Pi 自动生成仍可用：省略 `--prepare-only`，或者直接 `create "完整自然语言请求" --name new-school`。
 
 新建 School 的岛屿页面由 `create` 自动安装；生成课程的 Agent 只按 GENERATION.md 编写课程内容，不修改页面、组件或样式，也不从 `schools/island-preview` 复制文件。来源支撑的要点按协议用正文 `{{cite …}}` 标记短词（路径须在该关 `sources` 中，quote 须是保存文件里的原句）；自读页显示来源卡，教师仍读 `/sources/`。不要手写 HTML 引用组件。
 
