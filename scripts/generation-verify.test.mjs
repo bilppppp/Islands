@@ -905,7 +905,96 @@ console.log("项目 2");
     assert.match(echo5[0].message, /只打印写死的文字/);
   });
 
-  it('repairUntilValid does not trigger repair on unsourced-identifier or echo-only-run-block warnings', async () => {
+  it('warns about orphan source files while exempting listed files, provenance, entry, license, and companions', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'orphan-source-'));
+    try {
+      const sourcesDir = join(tempDir, 'public/sources');
+      mkdirSync(join(sourcesDir, 'material-1/pages'), { recursive: true });
+
+      // Files that should be exempt or listed:
+      writeFileSync(join(sourcesDir, 'material-1/provenance.json'), '{}');
+      writeFileSync(join(sourcesDir, 'material-1/entry.html'), '<html></html>');
+      writeFileSync(join(sourcesDir, 'material-1/LICENSE'), 'MIT License');
+      writeFileSync(join(sourcesDir, 'material-1/paper.pdf'), 'PDF binary');
+      writeFileSync(join(sourcesDir, 'material-1/paper.txt'), 'companion text');
+      writeFileSync(join(sourcesDir, 'material-1/pages/guide.md'), '# Guide');
+      writeFileSync(join(sourcesDir, 'material-1/.DS_Store'), 'junk');
+
+      // Orphan file:
+      writeFileSync(join(sourcesDir, 'material-1/pages/tools.md'), '# Tools');
+
+      const lessons = [
+        {
+          file: '01.md',
+          text: `---
+title: Lesson 1
+sources:
+  - material-1/pages/guide.md
+  - material-1/paper.pdf
+---
+Body text.
+`,
+        },
+      ];
+
+      const warnings = collectSchoolWarnings(lessons, { sourcesDir });
+      const orphans = warnings.filter((w) => w.code === 'orphan-source-file');
+      assert.equal(orphans.length, 1);
+      assert.equal(orphans[0].level, 'warning');
+      assert.equal(orphans[0].file, 'COURSE.md');
+      assert.equal(orphans[0].line, 1);
+      assert.deepEqual(orphans[0].files, ['material-1/pages/tools.md']);
+      assert.ok(orphans[0].message.includes('material-1/pages/tools.md'));
+      assert.ok(orphans[0].message.includes('public/sources/ 下这些文件没有被任何一课的 sources 列出：'));
+      assert.ok(orphans[0].message.includes('若课程依赖它，把它加入对应课的 sources；不依赖就删掉；若需保留，在交付说明里写明理由。'));
+      assert.ok(!orphans[0].message.includes('paper.pdf'));
+      assert.ok(!orphans[0].message.includes('paper.txt'));
+      assert.ok(!orphans[0].message.includes('provenance.json'));
+      assert.ok(!orphans[0].message.includes('entry.html'));
+      assert.ok(!orphans[0].message.includes('LICENSE'));
+      assert.ok(!orphans[0].message.includes('.DS_Store'));
+      assert.ok(!orphans[0].message.includes('guide.md'));
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('emits no orphan-source-file warning when every file is listed or exempt', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'orphan-source-exempt-'));
+    try {
+      const sourcesDir = join(tempDir, 'public/sources');
+      mkdirSync(join(sourcesDir, 'material-1/pages'), { recursive: true });
+
+      writeFileSync(join(sourcesDir, 'material-1/provenance.json'), '{}');
+      writeFileSync(join(sourcesDir, 'material-1/entry.html'), '<html></html>');
+      writeFileSync(join(sourcesDir, 'material-1/LICENSE.txt'), 'License');
+      writeFileSync(join(sourcesDir, 'material-1/paper.pdf'), 'PDF');
+      writeFileSync(join(sourcesDir, 'material-1/paper.txt'), 'Companion');
+      writeFileSync(join(sourcesDir, 'material-1/pages/guide.md'), '# Guide');
+
+      const lessons = [
+        {
+          file: '01.md',
+          text: `---
+title: Lesson 1
+sources:
+  - material-1/pages/guide.md
+  - material-1/paper.pdf
+---
+Body text.
+`,
+        },
+      ];
+
+      const warnings = collectSchoolWarnings(lessons, { sourcesDir });
+      const orphans = warnings.filter((w) => w.code === 'orphan-source-file');
+      assert.equal(orphans.length, 0);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it('repairUntilValid does not trigger repair on unsourced-identifier, echo-only-run-block, or orphan-source-file warnings', async () => {
     let validateCalls = 0;
     let repairCalls = 0;
 

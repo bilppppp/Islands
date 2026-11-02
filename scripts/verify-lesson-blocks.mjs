@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { resolve, dirname, join } from 'node:path';
+import { resolve, dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   scanCodeFences,
@@ -324,6 +324,66 @@ export function parseWantedInteractions(courseMdText, courseFile = 'COURSE.md') 
   return items;
 }
 
+// Remove known document and extracted-text companion suffixes (.pdf.txt, .html.txt, .htm.txt, .pdf, .html, .htm, .txt)
+// to identify companion files sharing the same stem in the same directory (e.g. x.pdf ↔ x.txt / x.pdf.txt).
+const COMPANION_SUFFIX_RE = /\.(?:(?:pdf|html?|xhtml)\.txt|pdf|html?|xhtml|txt)$/i;
+
+function stripCompanionSuffix(name) {
+  return name
+    .replace(/\.(?:pdf|html?|xhtml)\.txt$/i, '')
+    .replace(/\.(?:pdf|html?|xhtml|txt)$/i, '');
+}
+
+function getDir(pathStr) {
+  const i = pathStr.lastIndexOf('/');
+  return i === -1 ? '' : pathStr.slice(0, i);
+}
+
+function getBase(pathStr) {
+  const i = pathStr.lastIndexOf('/');
+  return i === -1 ? pathStr : pathStr.slice(i + 1);
+}
+
+function isCompanionOfListed(fileRel, listedRel) {
+  if (getDir(fileRel) !== getDir(listedRel)) return false;
+  const fileBase = getBase(fileRel);
+  const listedBase = getBase(listedRel);
+  if (!COMPANION_SUFFIX_RE.test(fileBase) || !COMPANION_SUFFIX_RE.test(listedBase)) return false;
+  const fileStem = stripCompanionSuffix(fileBase);
+  const listedStem = stripCompanionSuffix(listedBase);
+  return fileStem.length > 0 && fileStem === listedStem;
+}
+
+function isOrphanSourceFile(fileRel, allListedSources) {
+  if (allListedSources.has(fileRel)) return false;
+  const base = getBase(fileRel);
+  if (base.startsWith('.')) return false;
+  if (base === 'provenance.json' || base === 'entry.html') return false;
+  if (/^(?:license|licence|copying|notice)/i.test(base)) return false;
+  for (const listed of allListedSources) {
+    if (isCompanionOfListed(fileRel, listed)) return false;
+  }
+  return true;
+}
+
+function walkSourceFiles(dir, baseDir = dir) {
+  const files = [];
+  try {
+    const entries = readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name.startsWith('.') && entry.isDirectory()) continue;
+      const fullPath = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        files.push(...walkSourceFiles(fullPath, baseDir));
+      } else {
+        const rel = relative(baseDir, fullPath).split('\\').join('/');
+        files.push(rel);
+      }
+    }
+  } catch {}
+  return files;
+}
+
 export function collectSchoolWarnings(target, options = {}) {
   let lessonsList = [];
   let courseMdText = options.courseMdText || options.courseMd || '';
@@ -485,9 +545,17 @@ export function collectSchoolWarnings(target, options = {}) {
   }
 
   if (sourcesDir && existsSync(sourcesDir)) {
+    const allListedSources = new Set();
     for (const { file, text } of lessonsList) {
       const frontmatter = parseFrontmatter(text);
       const sources = frontmatter?.sources;
+      if (Array.isArray(sources)) {
+        for (const s of sources) {
+          if (typeof s === 'string' && s.trim()) {
+            allListedSources.add(s.trim().split('\\').join('/').replace(/^\.?\//, ''));
+          }
+        }
+      }
       if (!sources || !Array.isArray(sources) || sources.length === 0) continue;
 
       let combinedSourceText = '';
@@ -567,6 +635,22 @@ export function collectSchoolWarnings(target, options = {}) {
           message: `这些技术词在本课 sources 的已保存文件中找不到。若来自模型记忆，请先用 supplement --source 保存支持它的页面并加入 sources，或删去该细节；不要只去掉反引号或加入不相关的来源：${idListStr}。`,
         });
       }
+    }
+
+    const allFiles = walkSourceFiles(sourcesDir, sourcesDir).sort();
+    const orphanFiles = allFiles.filter((f) => isOrphanSourceFile(f, allListedSources));
+    if (orphanFiles.length > 0) {
+      const displayed = orphanFiles.slice(0, 10);
+      const remaining = orphanFiles.length - 10;
+      const fileListStr = remaining > 0 ? `${displayed.join('、')} 等 ${remaining} 个` : displayed.join('、');
+      warnings.push({
+        level: 'warning',
+        code: 'orphan-source-file',
+        file: 'COURSE.md',
+        line: 1,
+        files: orphanFiles,
+        message: `public/sources/ 下这些文件没有被任何一课的 sources 列出：${fileListStr}。若课程依赖它，把它加入对应课的 sources；不依赖就删掉；若需保留，在交付说明里写明理由。`,
+      });
     }
   }
 
