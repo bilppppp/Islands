@@ -135,6 +135,15 @@ opposites, absolute values, and distances), and responsive width scaling. If par
 the raw code block is preserved without breaking the page. Generation checks validate
 integer range spans, tick mark alignments, point counts (1 to 3), and option constraints.
 
+Island lesson rendering adapts headings, code, and table of contents presentation
+for consistency. Heading levels follow the shallowest level present in the body
+(the table of contents and section tabs are built from it). A
+`remarkNormalizeLessonH1` remark plugin in `src/lib/render-guard.mjs` (wired in
+`astro.config.mjs`) drops a leading H1 that repeats the frontmatter title. Inline
+code renders without typographic backticks, code blocks get a toolbar with a
+language label and a copy button that no longer covers code, and the monospace
+stack includes fonts with box-drawing glyphs.
+
 ## Website language
 
 Fixed UI copy uses `school.settings.json.language`: `zh` (default) or `en`
