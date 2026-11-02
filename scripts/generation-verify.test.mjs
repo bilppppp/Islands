@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve, dirname, join, basename, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +17,8 @@ import {
   assertIslandBlocksSupported,
   assertConsistentPreviewRuntimes,
   repairUntilValid,
+  repairPrompt,
+  validateGeneration,
   generate,
   createGenerationSessionId,
 } from './generate.mjs';
@@ -517,6 +519,7 @@ def greet():
     const codingNoBlocks = codingWarnings.filter((w) => w.code === 'no-interactive-blocks-in-coding-course');
     assert.equal(codingNoBlocks.length, 1);
     assert.equal(codingNoBlocks[0].level, 'warning');
+    assert.ok(codingNoBlocks[0].message.includes('没有合适的交互可以不加，不要为了消除这条提醒加入只打印固定文字的 run 块。'));
 
     const nonCodingCourse0Blocks = [
       {
@@ -632,6 +635,8 @@ Here is \`--sandbox\` and \`workspace-write\`.
       assert.equal(u1[0].level, 'warning');
       assert.deepEqual(u1[0].identifiers, ['workspace-write']);
       assert.ok(u1[0].message.includes('workspace-write'));
+      assert.ok(u1[0].message.includes('这些技术词在本课 sources 的已保存文件中找不到'));
+      assert.ok(u1[0].message.includes('若来自模型记忆，请先用 supplement --source 保存支持它的页面并加入 sources，或删去该细节；不要只去掉反引号或加入不相关的来源'));
       assert.ok(!u1[0].message.includes('--sandbox'));
 
       // all identifiers in sources -> no warning
@@ -861,6 +866,43 @@ ${pyCode}
     const w4 = collectSchoolWarnings(pyLesson, { blocks: blocksPy });
     const echo4 = w4.filter((w) => w.code === 'echo-only-run-block');
     assert.equal(echo4.length, 0);
+
+    // Multi-line echo run block in a language that IS taught in the course -> warns
+    const jsMultiLineLesson = [
+      {
+        file: '04.md',
+        text: `---
+title: JS Multi-line Lesson
+---
+\`\`\`javascript
+const x = 1;
+\`\`\`
+
+\`\`\`javascript run
+console.log("项目 1");
+console.log("项目 2");
+\`\`\`
+`,
+      },
+    ];
+    const blocksMultiLine = [
+      {
+        file: '04.md',
+        line: 9,
+        lang: 'javascript',
+        mode: 'run',
+        code: 'console.log("项目 1");\nconsole.log("项目 2");',
+        stdout: '项目 1\n项目 2\n',
+        ok: true,
+      },
+    ];
+    const w5 = collectSchoolWarnings(jsMultiLineLesson, { blocks: blocksMultiLine });
+    const echo5 = w5.filter((w) => w.code === 'echo-only-run-block');
+    assert.equal(echo5.length, 1);
+    assert.equal(echo5[0].level, 'warning');
+    assert.equal(echo5[0].file, '04.md');
+    assert.equal(echo5[0].line, 9);
+    assert.match(echo5[0].message, /只打印写死的文字/);
   });
 
   it('repairUntilValid does not trigger repair on unsourced-identifier or echo-only-run-block warnings', async () => {
@@ -884,5 +926,85 @@ ${pyCode}
     assert.equal(res, 6);
     assert.equal(validateCalls, 1);
     assert.equal(repairCalls, 0);
+  });
+
+  it('repairPrompt includes instructions not to edit scripts and offers self-check command', () => {
+    const defaultPrompt = repairPrompt('some validation error');
+    assert.match(defaultPrompt, /只修改课程目录内的文件；认为检查有误时在回复中说明，不要修改脚本/);
+    assert.match(defaultPrompt, /node scripts\/verify-lesson-blocks\.mjs schools\/NAME/);
+
+    const schoolPrompt = repairPrompt('some validation error', 'custom-school');
+    assert.match(schoolPrompt, /node scripts\/verify-lesson-blocks\.mjs schools\/custom-school/);
+  });
+
+  it('validateGeneration accepts lesson title containing subject name when intake returns name and slug', () => {
+    const tempDir = mkdtempSync(join(tmpdir(), 'intake-test-'));
+    try {
+      // Simulate intake: { name: "React", slug: "react-rerender" }
+      // Directory is named from slug: react-rerender
+      const schoolDir = join(tempDir, 'schools', 'react-rerender');
+      mkdirSync(join(schoolDir, 'src/content/lessons'), { recursive: true });
+      mkdirSync(join(schoolDir, 'public/sources/material-1'), { recursive: true });
+      writeFileSync(join(schoolDir, 'COURSE.md'), '# Course\n');
+      writeFileSync(join(schoolDir, 'public/sources/material-1/a.md'), '### Intro\n\nReact is a library for web and native user interfaces.\n');
+
+      const configContent = `import type { SchoolConfig } from "./src/lib/school";
+const config: SchoolConfig = {
+\tname: "react-rerender",
+\tpublicName: "React 重新渲染 AI 互动课程",
+\tshortName: "React 重新渲染",
+\tdescription: "测试课程",
+};
+export default config;
+`;
+      writeFileSync(join(schoolDir, 'school.config.ts'), configContent);
+
+      const makeLesson = (title) => `---
+title: "${title}"
+agentInstructions: |
+  完成条件：学生理解概念。
+sources:
+  - material-1/a.md
+---
+
+{{cite 基础 | path: material-1/a.md | heading: Intro | url: https://example.com | quote: React is a library for web and native user interfaces.}}
+`;
+
+      // 1. Title contains subject name "React" -> "React 的重新渲染" passes
+      writeFileSync(join(schoolDir, 'src/content/lessons/01-rerender.md'), makeLesson('React 的重新渲染'));
+
+      const fallback = defaultSchoolDir;
+      if (existsSync(join(fallback, 'node_modules'))) {
+        writeFileSync(join(schoolDir, 'package.json'), '{"name":"react-rerender"}\n');
+        try {
+          symlinkSync(join(fallback, 'node_modules'), join(schoolDir, 'node_modules'), 'junction');
+        } catch {}
+      }
+
+      const inputPath = join(tempDir, 'input.json');
+      writeFileSync(inputPath, JSON.stringify({
+        output: schoolDir,
+      }));
+
+      assert.doesNotThrow(() => validateGeneration(inputPath, { logWarnings: false }));
+
+      // 2. Title contains directory slug "react-rerender" -> throws error
+      writeFileSync(join(schoolDir, 'src/content/lessons/01-rerender.md'), makeLesson('01 react-rerender 基础'));
+      assert.throws(
+        () => validateGeneration(inputPath, { logWarnings: false }),
+        /must name what the learner studies, without the directory slug/,
+      );
+
+      // 3. publicName equals directory slug -> throws error
+      writeFileSync(join(schoolDir, 'src/content/lessons/01-rerender.md'), makeLesson('React 的重新渲染'));
+      const badConfigContent = configContent.replace('publicName: "React 重新渲染 AI 互动课程"', 'publicName: "react-rerender"');
+      writeFileSync(join(schoolDir, 'school.config.ts'), badConfigContent);
+      assert.throws(
+        () => validateGeneration(inputPath, { logWarnings: false }),
+        /The directory slug is not a title/,
+      );
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   });
 });

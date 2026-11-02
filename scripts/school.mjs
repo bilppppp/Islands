@@ -126,7 +126,7 @@ function crawlOptions() {
 }
 async function intake(description) {
   console.log('正在理解学习请求…');
-  const text = await piPrint(`Extract a School creation request from the user description. Return ONLY a JSON object with sources (array of actual public HTTP URLs or EXACT local paths supplied by the user), goal, name, slug (lowercase English directory name), depth (free text), background, learningStyle, teachingMode (simple or immersive), language. Preserve all depth/goal/background nuances. Default systematic depth, unknown background, simple teaching, Chinese language. Never fabricate a local path. For an unmistakably named well-known public work/repo you may give its canonical URL as a candidate; acquisition will verify it. For ambiguous or unknown sources use an empty sources array. Do not generate a curriculum. User request:\n${description}`, { model: options.model, thinking: 'medium' });
+  const text = await piPrint(`Extract a School creation request from the user description. Return ONLY a JSON object with sources (array of actual public HTTP URLs or EXACT local paths supplied by the user), goal, slug (lowercase English directory name), depth (free text), background, learningStyle, teachingMode (simple or immersive), language. Preserve all depth/goal/background nuances. Default systematic depth, unknown background, simple teaching, Chinese language. Never fabricate a local path. For an unmistakably named well-known public work/repo you may give its canonical URL as a candidate; acquisition will verify it. For ambiguous or unknown sources use an empty sources array. Do not generate a curriculum. User request:\n${description}`, { model: options.model, thinking: 'medium' });
   const candidate = text.replace(/^```(?:json)?\s*|\s*```$/g, '').trim();
   let result; try { result = JSON.parse(candidate); } catch { throw new Error('Request interpretation did not return valid JSON. Use --source and --goal to avoid this step.'); }
   if (!Array.isArray(result.sources) || result.sources.some(s => typeof s !== 'string')) throw new Error('Cannot identify materials. Supply --source URL_OR_PATH.');
@@ -164,7 +164,7 @@ async function create() {
   const output = join(root, 'schools', name);
   if (existsSync(output)) throw new Error(`${name} already exists. Choose --name or use retry; existing courses and progress were not changed.`);
   const spec = {
-    name: options.name || interpreted.name || `${name} School`, goal,
+    name, goal,
     depth: depths[options.depth] || options.depth || interpreted.depth || 'systematic',
     background: options.background || interpreted.background || 'Unknown; introduce necessary prerequisites in place.',
     learningStyle: options.style || interpreted.learningStyle || 'Concrete examples with explanations and appropriate practice.',

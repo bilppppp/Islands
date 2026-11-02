@@ -69,7 +69,9 @@ export function visibleProse(markdown) {
     }
     kept.push(lines[i]);
   }
-  return kept.join('\n').replace(/`[^`\n]*`/g, '');
+  const prose = kept.join('\n');
+  const stripInlineCodePattern = new RegExp('(`[^`\\n]*`)|' + CITE_SOURCE, 'g');
+  return prose.replace(stripInlineCodePattern, (match, inlineCode) => (inlineCode !== undefined ? '' : match));
 }
 
 function rejectBlockedLines(prose, fileName) {

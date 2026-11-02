@@ -384,10 +384,11 @@ export function validateGeneration(inputPath, options = {}) {
   if (!lessons.length || !existsSync(join(output, 'COURSE.md'))) throw new Error('Generation did not produce a complete route and lessons. Files are preserved for inspection.');
   const configText = readFileSync(join(output, 'school.config.ts'), 'utf8');
   const field = (key) => configText.match(new RegExp(`^\\s*${key}:\\s*"((?:\\\\.|[^"])*)"`, 'm'))?.[1] ?? '';
-  const internalName = field('name');
+  const dirSlug = basename(output);
+  const internalName = field('name') || dirSlug;
   const publicName = field('publicName');
   const shortName = field('shortName');
-  if (!publicName || !shortName || publicName === internalName || shortName === internalName || publicName.includes('Learn Islands')) {
+  if (!publicName || !shortName || publicName === dirSlug || shortName === dirSlug || publicName.includes('Learn Islands')) {
     throw new Error('Set school.config.ts publicName and shortName to the public course names from the generation protocol. The directory slug is not a title.');
   }
   const settingsPath = join(output, 'school.settings.json');
@@ -401,7 +402,7 @@ export function validateGeneration(inputPath, options = {}) {
     if (/Use the bash tool|Pi is the only|Pi should teach|--mode rpc/.test(text.split('\n---')[0])) throw new Error(`Harness-specific teaching notes in ${name}; revise before using the School.`);
     const lessonTitle = text.match(/^title:\s*(?:"([^"]*)"|'([^']*)'|(.+))\s*$/m);
     const titleValue = (lessonTitle?.[1] ?? lessonTitle?.[2] ?? lessonTitle?.[3] ?? '').trim();
-    if (!titleValue || titleValue.includes(internalName) || titleValue.includes('Learn Islands')) {
+    if (!titleValue || titleValue.includes(dirSlug) || titleValue.includes('Learn Islands')) {
       throw new Error(`Lesson title in ${name} must name what the learner studies, without the directory slug or the brand.`);
     }
     assertMathDelimiters(text, name);
@@ -469,14 +470,15 @@ export function validateGeneration(inputPath, options = {}) {
   return lessons.length;
 }
 
-export function repairPrompt(errorText) {
+export function repairPrompt(errorText, schoolName = 'NAME') {
   return [
     '课程验证未通过，请修复课文中的问题。',
     '',
     '注意：',
     '1. 只修下面列出的问题；',
     '2. 不要改 slug、order、完成条件文字和 COURSE.md 的路线；',
-    '3. 修完后不需要自己再调用验证。',
+    '3. 只修改课程目录内的文件；认为检查有误时在回复中说明，不要修改脚本；',
+    `4. 修完后可运行 node scripts/verify-lesson-blocks.mjs schools/${schoolName} 自查。`,
     '',
     '错误全文如下：',
     errorText,
@@ -546,7 +548,7 @@ export async function generate(inputPath, { model, piPrint: customPiPrint = piPr
     return await repairUntilValid({
       validate: () => (validate ? validate() : validateGeneration(inputPath)),
       repair: async (lastError, round) => {
-        return await customPiPrint(repairPrompt(lastError.message), {
+        return await customPiPrint(repairPrompt(lastError.message, schoolName), {
           model,
           cwd: root,
           tools: 'read,bash,write,edit',

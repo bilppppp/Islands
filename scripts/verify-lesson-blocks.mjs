@@ -451,7 +451,10 @@ export function collectSchoolWarnings(target, options = {}) {
     for (const block of blocks) {
       if (block.mode !== 'run' || !block.ok || !block.stdout) continue;
       const blockLang = block.lang === 'py' ? 'python' : normalizeRunLang(block.lang);
-      if (!taughtLanguages.has(blockLang)) {
+      const isTaught = taughtLanguages.has(blockLang);
+      const nonEmptyLines = (block.stdout || '').split('\n').map((l) => l.trim()).filter(Boolean);
+      const hasMultipleLines = nonEmptyLines.length >= 2;
+      if (hasMultipleLines || !isTaught) {
         let code = block.code;
         if (!code && block.file) {
           const lesson = lessonsList.find((l) => l.file === block.file);
@@ -472,7 +475,9 @@ export function collectSchoolWarnings(target, options = {}) {
             code: 'echo-only-run-block',
             file: block.file,
             line: block.line,
-            message: '这个 run 块只打印写死的文字，且课程并不教这门语言；考虑改成正文、表格或 predict 块。',
+            message: !isTaught
+              ? '这个 run 块只打印写死的文字，且课程并不教这门语言；考虑改成正文、表格或 predict 块。'
+              : '这个 run 块只打印写死的文字；考虑改成正文、表格或 predict 块。',
           });
         }
       }
@@ -559,7 +564,7 @@ export function collectSchoolWarnings(target, options = {}) {
           file,
           line: firstLine,
           identifiers: uniqueIds,
-          message: `这些技术词在本课 sources 的原文里找不到，请核对是否有来源支持，或改用已保存的来源：${idListStr}。`,
+          message: `这些技术词在本课 sources 的已保存文件中找不到。若来自模型记忆，请先用 supplement --source 保存支持它的页面并加入 sources，或删去该细节；不要只去掉反引号或加入不相关的来源：${idListStr}。`,
         });
       }
     }
@@ -571,7 +576,7 @@ export function collectSchoolWarnings(target, options = {}) {
       code: 'no-interactive-blocks-in-coding-course',
       file: 'COURSE.md',
       line: 1,
-      message: '课程为编程课（课文中包含编程语言代码块），但整门课没有包含任何交互块（predict、numberline、run、preview）。',
+      message: '课程为编程课（课文中包含编程语言代码块），但整门课没有包含任何交互块（predict、numberline、run、preview）。没有合适的交互可以不加，不要为了消除这条提醒加入只打印固定文字的 run 块。',
     });
   }
 

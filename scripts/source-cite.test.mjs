@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import {
   assertSourceCites,
   assertSourceCitesGfm,
+  collectSourceCites,
   parseGfm,
   remarkSourceCite,
   sourceCiteHtml,
@@ -377,6 +378,42 @@ describe('source citations', () => {
       () => parseGfm('sample prose'),
       /未找到 GFM 解析依赖/,
     );
+  });
+
+  it('accepts cite whose quote and heading contain inline code across regex and GFM paths', () => {
+    const root = mkdtempSync(join(tmpdir(), 'source-cite-code-'));
+    const sources = join(root, 'public/sources');
+    mkdirSync(join(sources, 'material-1'), { recursive: true });
+    writeFileSync(
+      join(sources, 'material-1/setup.md'),
+      '### `Setup` Guide\n\nRun `npx nuxi init` to create a new project quickly.\n',
+    );
+    const citeMarker = '{{cite 初始化 | path: material-1/setup.md | heading: `Setup` Guide | url: https://example.com/setup | quote: Run `npx nuxi init` to create a new project quickly.}}';
+    const text = lesson(`按照指南，${citeMarker} 即可。`, '  - material-1/setup.md');
+    try {
+      const cites = assertSourceCites(text, 'code.md', sources, ['material-1/setup.md']);
+      assert.equal(cites.length, 1);
+      assert.equal(cites[0].heading, '`Setup` Guide');
+      assert.equal(cites[0].quote, 'Run `npx nuxi init` to create a new project quickly.');
+      if (hasGfmDeps) {
+        assert.doesNotThrow(() => assertSourceCitesGfm(text, 'code.md', defaultSchoolDir, sources));
+      }
+      assert.equal(sourceCiteProse(`按照指南，${citeMarker} 即可。`), '按照指南，初始化 即可。');
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('ignores cite syntax inside inline code spans', () => {
+    const text = '在文档中写作 `{{cite 示例 | path: fake.md | heading: H | url: https://ex.com | quote: fake quote text that is long}}` 不是真正的引用。';
+    const cites = collectSourceCites(text, 'inline.md');
+    assert.deepEqual(cites, []);
+  });
+
+  it('ignores incomplete cite syntax inside inline code spans', () => {
+    const text = '在文档中写作 `{{cite 未完成` 不会当作引用报错。';
+    const cites = collectSourceCites(text, 'inline-incomplete.md');
+    assert.deepEqual(cites, []);
   });
 });
 
