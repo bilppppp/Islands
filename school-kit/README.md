@@ -104,8 +104,9 @@ provides an Astro integration that copies Pyodide core assets from `node_modules
 to `public/vendor/pyodide/` only when lessons in that School contain `python run` blocks
 (JavaScript and TypeScript execute in a dedicated worker using client-side `sucrase`
 TypeScript stripping without extra vendor files). Island chrome mounts `IslandRunBlock` in
-place of `pre[data-run="true"]` for supported languages, providing an editable
-textarea (with 4-space Tab indentation and line auto-resizing), execution/reset
+place of `pre[data-run="true"]` for supported languages, providing a CodeMirror 6 editor
+(lazy-loaded on mount, with syntax highlighting, line numbers, indent guides, 4-space Tab indentation,
+active line highlight, bracket matching, and a textarea fallback if loading fails), execution/reset
 controls, optional stdin input for Python, and separate stdout/stderr displays. Runtimes
 execute inside shared Web Workers created dynamically only upon the first click of "运行",
 enforcing a 10-second timeout. Generation checks call `assertRunBlocks` to ensure `run`
@@ -115,7 +116,7 @@ is only used on supported languages without `>>>` prompts in Python and without 
 Lesson Markdown may also include fenced ```html preview, ```jsx preview, and ```tsx preview
 blocks for real-time frontend rendering in the browser (see `generation/protocol.md`). Shiki
 transformer in `astro.config.mjs` tags them with `data-preview="true"`. Island chrome mounts
-`IslandRunBlock` in preview mode with an editable code textarea on the left (stacked on mobile)
+`IslandRunBlock` in preview mode with an editable CodeMirror 6 editor on the left (stacked on mobile)
 and an `<iframe sandbox="allow-scripts">` preview on the right (without `allow-same-origin`,
 populated via `srcdoc`). Code changes automatically re-render after a ~500ms debounce. An injected
 helper intercepts `console` logs, unhandled errors, and forwards body height (clamped between

@@ -45,6 +45,26 @@ export function isPreviewLang(lang) {
   return SUPPORTED_PREVIEW_LANGS.has(normalizeRunLang(lang));
 }
 
+export function resolveEditorLanguage(lang) {
+  const normalized = normalizeRunLang(lang);
+  if (normalized === 'python' || normalized === 'py') {
+    return { name: 'python' };
+  }
+  if (normalized === 'html') {
+    return { name: 'html' };
+  }
+  if (normalized === 'typescript' || normalized === 'ts') {
+    return { name: 'javascript', typescript: true, jsx: false };
+  }
+  if (normalized === 'jsx') {
+    return { name: 'javascript', typescript: false, jsx: true };
+  }
+  if (normalized === 'tsx') {
+    return { name: 'javascript', typescript: true, jsx: true };
+  }
+  return { name: 'javascript', typescript: false, jsx: false };
+}
+
 export const tsRunTransformOptions = {
   transforms: ['typescript'],
 };

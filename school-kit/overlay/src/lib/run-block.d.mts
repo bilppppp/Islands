@@ -10,11 +10,18 @@ export interface RunBlock {
   warning?: string;
 }
 
+export interface EditorLanguageOptions {
+  name: 'python' | 'html' | 'javascript';
+  typescript?: boolean;
+  jsx?: boolean;
+}
+
 export const THREE_SPECIFIERS: Set<string>;
 
 export function normalizeRunLang(lang: string): string;
 export function isRunnableLang(lang: string): boolean;
 export function isPreviewLang(lang: string): boolean;
+export function resolveEditorLanguage(lang: string): EditorLanguageOptions;
 export function collectImportSources(code?: string): string[];
 export function previewUsesThree(code?: string): boolean;
 export function buildModuleImportMap(moduleSources?: Record<string, string> | null): string;
@@ -33,3 +40,16 @@ export function buildPreviewDocument(options: {
   runtimeSources?: { preact?: string; hooks?: string; react?: string; [key: string]: unknown } | string[];
   moduleSources?: Record<string, string>;
 }): string;
+
+export const tsRunTransformOptions: {
+  transforms: string[];
+};
+
+export function previewTransformOptions(
+  lang: string,
+  runtime: 'react' | 'preact',
+): {
+  transforms: string[];
+  jsxPragma?: string;
+  jsxFragmentPragma?: string;
+};

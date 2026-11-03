@@ -1871,6 +1871,40 @@ button.source-cite:focus-visible {
   box-shadow: 0 0 0 2px rgba(25, 200, 185, 0.2);
 }
 
+.island-code-editor {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  position: relative;
+}
+
+.island-code-editor .cm-editor {
+  width: 100%;
+  box-sizing: border-box;
+  background: #2b2118;
+  border: 1px solid #3d3028;
+  border-radius: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, 'DejaVu Sans Mono', Menlo, monospace;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #e8d5bc;
+  outline: none;
+  min-height: 72px;
+}
+
+.island-code-editor .cm-editor.cm-focused {
+  border-color: #19c8b9;
+  box-shadow: 0 0 0 2px rgba(25, 200, 185, 0.2);
+}
+
+.island-code-editor .cm-scroller {
+  overflow-x: auto;
+  overflow-y: auto;
+  font-family: inherit;
+  line-height: inherit;
+  border-radius: 11px;
+}
+
 .island-run-stdin-wrap {
   display: flex;
   flex-direction: column;
@@ -1960,7 +1994,9 @@ button.source-cite:focus-visible {
   min-height: 0;
 }
 
-.island-preview-card .island-run-textarea {
+.island-preview-card .island-run-textarea,
+.island-preview-card .island-code-editor,
+.island-preview-card .island-code-editor .cm-editor {
   display: block;
   font-size: 13px;
   font-weight: 400;
@@ -1972,6 +2008,10 @@ button.source-cite:focus-visible {
   max-height: 240px;
 }
 
+.island-preview-card .island-code-editor .cm-scroller {
+  height: 100%;
+}
+
 .island-preview-card .island-preview-frame-wrap {
   height: 240px;
 }
@@ -1981,7 +2021,9 @@ button.source-cite:focus-visible {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .island-preview-card .island-run-textarea {
+  .island-preview-card .island-run-textarea,
+  .island-preview-card .island-code-editor,
+  .island-preview-card .island-code-editor .cm-editor {
     height: auto;
     min-height: 180px;
     max-height: 420px;
@@ -1997,7 +2039,9 @@ button.source-cite:focus-visible {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
-  .island-preview-card .island-run-textarea {
+  .island-preview-card .island-run-textarea,
+  .island-preview-card .island-code-editor,
+  .island-preview-card .island-code-editor .cm-editor {
     height: auto;
     min-height: 180px;
     max-height: 420px;
@@ -2013,7 +2057,9 @@ button.source-cite:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .island-preview-card .island-run-textarea {
+  .island-preview-card .island-run-textarea,
+  .island-preview-card .island-code-editor,
+  .island-preview-card .island-code-editor .cm-editor {
     height: 240px;
     min-height: 240px;
     max-height: 240px;
@@ -2172,18 +2218,30 @@ button.source-cite:focus-visible {
   flex-direction: column;
 }
 
-.island-preview-modal .island-run-textarea {
+.island-preview-modal .island-run-textarea,
+.island-preview-modal .island-code-editor,
+.island-preview-modal .island-code-editor .cm-editor {
   height: 100% !important;
   min-height: 0;
   max-height: none;
   flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.island-preview-modal .island-run-textarea {
   display: block;
   font-size: 13px;
   font-weight: 400;
   white-space: pre;
   overflow-x: auto;
   overflow-y: auto;
-  box-sizing: border-box;
+}
+
+.island-preview-modal .island-code-editor .cm-scroller {
+  height: 100% !important;
+  flex: 1 1 auto;
 }
 
 .island-preview-modal .island-preview-frame-wrap {

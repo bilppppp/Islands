@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Collapse, Modal } from "animal-island-ui";
 import IslandAskTeacher, { t } from "./IslandAskTeacher";
+import IslandCodeEditor from "./IslandCodeEditor";
 import {
 	buildPreviewDocument,
 	normalizeRunLang,
@@ -225,8 +226,6 @@ export default function IslandRunBlock({
 	const [status, setStatus] = useState("");
 	const [running, setRunning] = useState(false);
 	const [hasRun, setHasRun] = useState(false);
-	const inlineTextareaRef = useRef<HTMLTextAreaElement | null>(null);
-	const modalTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 	const fullscreenBtnRef = useRef<HTMLButtonElement | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const isModalOpenRef = useRef(false);
@@ -271,23 +270,9 @@ export default function IslandRunBlock({
 							? "TSX"
 							: "JavaScript";
 
-	const adjustTextareaHeight = () => {
-		const el = isModalOpenRef.current
-			? modalTextareaRef.current
-			: inlineTextareaRef.current;
-		if (el) {
-			el.style.height = "auto";
-			el.style.height = `${Math.max(72, el.scrollHeight)}px`;
-		}
-	};
-
 	useEffect(() => {
 		isModalOpenRef.current = isModalOpen;
 	}, [isModalOpen]);
-
-	useEffect(() => {
-		adjustTextareaHeight();
-	}, [code]);
 
 	const updatePreview = async (codeToRender: string) => {
 		lastPreviewCodeRef.current = codeToRender;
@@ -380,12 +365,6 @@ export default function IslandRunBlock({
 			observer.disconnect();
 		};
 	}, [mode]);
-
-	useEffect(() => {
-		if (isExpanded) {
-			adjustTextareaHeight();
-		}
-	}, [isExpanded]);
 
 	useEffect(() => {
 		if (mode !== "preview") return;
@@ -486,22 +465,6 @@ export default function IslandRunBlock({
 		};
 	}, [mode]);
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-		if (e.key === "Tab") {
-			e.preventDefault();
-			const target = e.currentTarget;
-			const start = target.selectionStart;
-			const end = target.selectionEnd;
-			const val = target.value;
-			const nextVal = `${val.substring(0, start)}    ${val.substring(end)}`;
-			setCode(nextVal);
-			requestAnimationFrame(() => {
-				target.selectionStart = target.selectionEnd = start + 4;
-				adjustTextareaHeight();
-			});
-		}
-	};
-
 	const handleRun = async () => {
 		if (mode === "preview") {
 			if (previewDebounceTimerRef.current !== null) {
@@ -598,14 +561,6 @@ export default function IslandRunBlock({
 		isModalOpenRef.current = false;
 		setIsModalOpen(false);
 		fullscreenBtnRef.current?.focus();
-		requestAnimationFrame(() => {
-			fullscreenBtnRef.current?.focus();
-			const el = inlineTextareaRef.current;
-			if (el) {
-				el.style.height = "auto";
-				el.style.height = `${Math.max(72, el.scrollHeight)}px`;
-			}
-		});
 	};
 
 	const renderHeader = ({
@@ -688,22 +643,14 @@ export default function IslandRunBlock({
 	);
 
 	const renderEditor = (inModal = false) => (
-		<div className="island-run-editor-wrap">
-			<textarea
-				ref={inModal ? modalTextareaRef : inlineTextareaRef}
-				className="island-run-textarea"
-				value={code}
-				spellCheck={false}
-				autoCapitalize="off"
-				autoComplete="off"
-				autoCorrect="off"
-				wrap={mode === "preview" ? "off" : undefined}
-				onChange={(e) => setCode(e.target.value)}
-				onFocus={adjustTextareaHeight}
-				onKeyDown={handleKeyDown}
-				aria-label={`可编辑 ${langTitle} 代码`}
-			/>
-		</div>
+		<IslandCodeEditor
+			value={code}
+			onChange={setCode}
+			lang={lang}
+			ariaLabel={`可编辑 ${langTitle} 代码`}
+			inModal={inModal}
+			isWrapOff={mode === "preview"}
+		/>
 	);
 
 	const placeholder = t("previewScrollToRender");

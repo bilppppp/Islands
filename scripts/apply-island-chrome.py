@@ -24,6 +24,16 @@ ISLAND_DEPENDENCIES = {
     "preact": "10.29.8",
     "esbuild": "0.27.4",
     "three": "0.186.1",
+    "@codemirror/view": "6.43.15",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/language": "6.13.1",
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/autocomplete": "6.20.4",
+    "@codemirror/lang-python": "6.2.1",
+    "@codemirror/lang-javascript": "6.2.5",
+    "@codemirror/lang-html": "6.4.12",
+    "@lezer/highlight": "1.2.5",
+    "@replit/codemirror-indentation-markers": "6.5.3",
 }
 
 ISLAND_ASTRO_FILES = (
@@ -52,6 +62,7 @@ ISLAND_RUNTIME_FILES = (
     (ISLAND / "IslandLessonChrome.tsx", Path("src/components/island/IslandLessonChrome.tsx")),
     (ISLAND / "IslandPredict.tsx", Path("src/components/island/IslandPredict.tsx")),
     (ISLAND / "IslandRunBlock.tsx", Path("src/components/island/IslandRunBlock.tsx")),
+    (ISLAND / "IslandCodeEditor.tsx", Path("src/components/island/IslandCodeEditor.tsx")),
     (ISLAND / "IslandNumberline.tsx", Path("src/components/island/IslandNumberline.tsx")),
     (ISLAND / "IslandAskTeacher.tsx", Path("src/components/island/IslandAskTeacher.tsx")),
     (ISLAND / "IslandPageIcon.tsx", Path("src/components/island/IslandPageIcon.tsx")),

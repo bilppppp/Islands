@@ -9,6 +9,7 @@ import {
   normalizeRunLang,
   isRunnableLang,
   isPreviewLang,
+  resolveEditorLanguage,
   collectRunBlocks,
   assertRunBlocks,
   buildPreviewDocument,
@@ -850,5 +851,35 @@ describe('preview demo flag and bundled three', () => {
     const plain = buildPreviewDocument({ lang: 'jsx', code: 'exports.default = function App() { return null; };', runtime: 'preact', runtimeSources: { preact: '', hooks: '' } });
     assert.ok(!plain.includes('type="module"'));
     assert.match(plain, /window\.__islandBoot\(\);/);
+  });
+
+  describe('resolveEditorLanguage', () => {
+    it('maps python languages to python', () => {
+      assert.deepEqual(resolveEditorLanguage('python'), { name: 'python' });
+      assert.deepEqual(resolveEditorLanguage('py'), { name: 'python' });
+    });
+
+    it('maps html to html', () => {
+      assert.deepEqual(resolveEditorLanguage('html'), { name: 'html' });
+    });
+
+    it('maps typescript and ts to javascript with typescript flag', () => {
+      assert.deepEqual(resolveEditorLanguage('typescript'), { name: 'javascript', typescript: true, jsx: false });
+      assert.deepEqual(resolveEditorLanguage('ts'), { name: 'javascript', typescript: true, jsx: false });
+    });
+
+    it('maps jsx to javascript with jsx flag', () => {
+      assert.deepEqual(resolveEditorLanguage('jsx'), { name: 'javascript', typescript: false, jsx: true });
+    });
+
+    it('maps tsx to javascript with typescript and jsx flags', () => {
+      assert.deepEqual(resolveEditorLanguage('tsx'), { name: 'javascript', typescript: true, jsx: true });
+    });
+
+    it('defaults other languages to standard javascript', () => {
+      assert.deepEqual(resolveEditorLanguage('javascript'), { name: 'javascript', typescript: false, jsx: false });
+      assert.deepEqual(resolveEditorLanguage('js'), { name: 'javascript', typescript: false, jsx: false });
+      assert.deepEqual(resolveEditorLanguage('unknown'), { name: 'javascript', typescript: false, jsx: false });
+    });
   });
 });
