@@ -28,3 +28,6 @@ __pycache__/
 
 # Portal aggregation site output (registry and generator stay in Git)
 /portal/dist/
+
+# Local Claude Code guidance (personal workflow, not shared)
+/CLAUDE.md
