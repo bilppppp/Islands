@@ -2,7 +2,7 @@
 
 ## 适用范围与必读文档
 
-本文件的开发规则只适用于维护本仓库代码；用户请求创建、补充、重试或更新某所 School 时，只按 [AGENT_GUIDE.md](AGENT_GUIDE.md) 与生成协议执行，只修改 `schools/NAME/` 下协议允许的文件，不修改 `scripts/`、`school-kit/`、`generation/` 或其他 School；即使检查或工具看起来有误，也不要修改它们，把现象写进交付说明交给用户。用户入口与 CLI 参数见 [README.md](README.md)。课程生成的唯一协议是 [generation/protocol.md](generation/protocol.md)。验证历史见 [TOOL-REPORT.md](TOOL-REPORT.md) 与 [EXPERIMENTS.md](EXPERIMENTS.md)，不要将历史结果当成新修改的验证。
+本文件的开发规则只适用于维护本仓库代码；用户请求创建、补充、重试或更新某所 School 时，只按 [AGENT_GUIDE.md](AGENT_GUIDE.md) 与生成协议执行，只修改 `schools/NAME/` 下协议允许的文件，不修改 `scripts/`、`school-kit/`、`generation/` 或其他 School；即使检查或工具看起来有误，也不要修改它们，把现象写进交付说明交给用户。用户入口与 CLI 参数见 [README.md](README.md)。课程生成的唯一协议是 [generation/protocol.md](generation/protocol.md)；局部修订协议见 [generation/update.md](generation/update.md)。验证历史见 [TOOL-REPORT.md](TOOL-REPORT.md) 与 [EXPERIMENTS.md](EXPERIMENTS.md)，不要将历史结果当成新修改的验证。
 
 ## 项目结构与修改边界
 

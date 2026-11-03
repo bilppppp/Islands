@@ -35,7 +35,7 @@ npm run school -- create "用户的完整学习请求" \
   --background "已有基础" --style "学习偏好" --mode simple --prepare-only
 ```
 
-此命令准备材料和骨架，尚未生成课程。读取 `schools/new-school/GENERATION.md`，利用你自己的模型和工具读取实际材料、写入完整课程。该文件由 [scripts/generate.mjs](scripts/generate.mjs) 组合唯一的 [generation/protocol.md](generation/protocol.md) 与已保存输入；遵守其输出边界，不另写领域专用生成器或复制维护 Prompt。随后运行：
+此命令准备材料和骨架，尚未生成课程。读取 `schools/new-school/GENERATION.md`，利用你自己的模型和工具读取实际材料、写入完整课程。该文件由 [scripts/generate.mjs](scripts/generate.mjs) 组合唯一的 [generation/protocol.md](generation/protocol.md)（局部修订另见 [generation/update.md](generation/update.md)）与已保存输入；遵守其输出边界，不另写领域专用生成器或复制维护 Prompt。随后运行：
 
 ```sh
 npm run school -- finish new-school
