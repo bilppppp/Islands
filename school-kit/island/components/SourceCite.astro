@@ -42,7 +42,16 @@
       quote.textContent = button.getAttribute("data-quote") || "";
       path.textContent = parts[parts.length - 1] || full;
       local.href = localHref(full);
-      url.href = button.getAttribute("data-url") || "";
+      var rawUrl = button.getAttribute("data-url");
+      if (rawUrl) {
+        url.href = rawUrl;
+        url.hidden = false;
+        url.style.display = "";
+      } else {
+        url.removeAttribute("href");
+        url.hidden = true;
+        url.style.display = "none";
+      }
     }
 
     function place(button) {

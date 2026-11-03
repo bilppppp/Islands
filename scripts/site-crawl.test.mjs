@@ -492,6 +492,16 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.deepEqual(filled[1], git);
   });
 
+  it('replaces saved preparation hints with the supplement run hints', async () => {
+    const source = 'https://docs.example.com/guide';
+    const html = htmlPage('<a href="https://github.com/acme/docs/blob/main/README.md">source</a>');
+    const { records, out } = await fromCrawl(html, source, { options: { crawl: 'off' } });
+    assert.deepEqual(records[0].hints, [SINGLE_HINT('acme/docs').slice('提示：'.length)]);
+    const filled = await captureStderr(() => supplementMaterials(records, out));
+    assert.equal(filled.result[0].crawl.pageCount, 2);
+    assert.deepEqual(filled.result[0].hints, [MULTI_HINT('acme/docs').slice('提示：'.length)]);
+  });
+
   it('supplementMaterials fails and keeps existing multi-page material untouched when crawl yields too few pages', async () => {
     const source = 'https://docs.example.com/guide';
     const originalHtml = htmlPage('<p>Docs home</p>');
@@ -563,6 +573,7 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.equal(stderr.trim(), [MULTI_HINT('acme/handbook'), MULTI_HINT('octo/guide')].join('\n'));
     assert.equal(stderr.includes('本次仍仅保存入口页'), false);
     assert.equal(stderr.includes('supplement'), false);
+    assert.deepEqual(records[0].hints, [MULTI_HINT('acme/handbook'), MULTI_HINT('octo/guide')].map(line => line.slice('提示：'.length)));
   });
 
   it('resolves relative GitHub links against finalURL after a redirect', async () => {
@@ -589,6 +600,7 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.equal(records[0].crawl.pageCount, 2);
     assert.equal(stderr.includes('文档源码仓库'), false);
     assert.ok(existsSync(join(out, 'material-1/provenance.json')));
+    assert.equal('hints' in records[0], false);
   });
 
   it('keeps crawled pages when the hints-only Python process fails', async () => {
@@ -614,6 +626,9 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.match(stderr, /--crawl/);
     assert.equal(stderr.includes(SINGLE_HINT('acme/handbook')), true);
     assert.equal(existsSync(join(out, 'material-1/pages')), false);
+    assert.equal(records[0].hints.length, 2);
+    assert.match(records[0].hints[0], /^入口页导航里有 5 个同一路径前缀的链接/);
+    assert.equal(records[0].hints[1], SINGLE_HINT('acme/handbook').slice('提示：'.length));
   });
 
   it('falls back to the single page when the crawler fails with no useful output', async () => {
@@ -635,6 +650,10 @@ describe('offline crawl integration', { concurrency: 1 }, () => {
     assert.equal(existsSync(join(out, 'material-1/provenance.json')), false);
     assert.equal(existsSync(join(out, 'material-1/.crawl-tmp')), false);
     assert.equal(existsSync(join(out, 'material-1/entry.html')), false);
+    assert.equal(records[0].hints.length, 2);
+    assert.match(records[0].hints[0], /^降级说明：整站抓取已降级为单页.* 实际使用范围：同站跟随。 诊断：.* 可选做法：/);
+    assert.equal(records[0].hints[0].includes('\n'), false);
+    assert.equal(records[0].hints[1], SINGLE_HINT('acme/docs').slice('提示：'.length));
   });
 
   it('falls back to the single page when crawled text is too thin, keeping the entry bytes', async () => {

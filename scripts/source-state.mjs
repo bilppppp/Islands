@@ -62,6 +62,49 @@ export function parseFrontmatter(text) {
   return result;
 }
 
+export function unindentYaml(lines) {
+  const nonempty = lines.filter(line => line.trim());
+  if (!nonempty.length) return '';
+  const indent = Math.min(...nonempty.map(line => (line.match(/^ */) || [''])[0].length));
+  return lines.map(line => line.slice(Math.min(indent, line.length))).join('\n');
+}
+
+export function parseAgentInstructions(text) {
+  if (!String(text).startsWith('---\n')) return '';
+  const end = text.indexOf('\n---\n', 4);
+  if (end < 0) return '';
+  const lines = text.slice(4, end).split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    if (!/^agentInstructions:\s*(\||>)\s*$/.test(lines[i])) continue;
+    const collected = [];
+    i += 1;
+    while (i < lines.length && (lines[i] === '' || /^\s/.test(lines[i]))) {
+      collected.push(lines[i]);
+      i += 1;
+    }
+    return unindentYaml(collected);
+  }
+  return '';
+}
+
+export function completionConditionText(text) {
+  const instructions = parseAgentInstructions(text);
+  if (!instructions) return '';
+  const zh = instructions.indexOf('完成条件');
+  if (zh >= 0) return instructions.slice(zh);
+  const en = instructions.indexOf('Completion condition');
+  return en < 0 ? '' : instructions.slice(en);
+}
+
+export function hasCompletionLine(text) {
+  const instructions = parseAgentInstructions(text);
+  if (!instructions) return false;
+  return instructions.split('\n').some(line => {
+    const trimmed = line.trim();
+    return trimmed.startsWith('完成条件：') || trimmed.startsWith('完成条件:') || trimmed.startsWith('Completion condition:');
+  });
+}
+
 export function globMatch(path, pattern) {
   const pathParts = String(path).split('/');
   const patParts = String(pattern).split('/');

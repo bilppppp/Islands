@@ -244,7 +244,7 @@ export function formatLinkDistribution(input, pageUrlOrOptions = {}) {
   return top.map(([key, count]) => `${key} ${count} 个`).join('，');
 }
 
-export function buildCrawlFallbackMessage({ reason, prefix, html, url, schoolName = 'NAME' }) {
+export function buildCrawlFallbackMessage({ reason, prefix, html, url }) {
   const scope = prefix ? `前缀 ${prefix}` : '同站跟随';
   const dist = formatLinkDistribution(html, url);
   const diag = dist ? `入口页同站链接分布：${dist}` : '入口页未发现同站链接';
@@ -252,7 +252,7 @@ export function buildCrawlFallbackMessage({ reason, prefix, html, url, schoolNam
     `降级说明：整站抓取已降级为单页（原因：${reason}）。生成时只能按单页来源使用。`,
     `实际使用范围：${scope}。`,
     `诊断：${diag}。`,
-    `可选做法：用 npm run school -- supplement ${schoolName} --crawl-prefix <前缀> 换范围重抓；或用 --source <URL> 保存指定页面或仓库；或用自己的网页工具阅读入口页给出的线索后再决定；不要把入口页说成整套文档。`,
+    '可选做法：用 npm run school -- supplement NAME --crawl-prefix <前缀> 换范围重抓；或用 --source <URL> 保存指定页面或仓库；或用自己的网页工具阅读入口页给出的线索后再决定；不要把入口页说成整套文档。',
   ].join('\n');
 }
 

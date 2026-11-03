@@ -14,7 +14,7 @@ import {
   PROGRAMMING_LANGUAGES,
   normalizeRunLang,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
-import { parseFrontmatter } from './source-state.mjs';
+import { parseFrontmatter, hasCompletionLine } from './source-state.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -452,6 +452,16 @@ export function collectSchoolWarnings(target, options = {}) {
   const taughtLanguages = new Set();
 
   for (const { file, text } of lessonsList) {
+    if (!hasCompletionLine(text)) {
+      warnings.push({
+        level: 'warning',
+        code: 'missing-completion-line',
+        file,
+        line: 1,
+        message: 'agentInstructions 末尾缺少以「完成条件：」（英文课程为「Completion condition:」）开头的行。',
+      });
+    }
+
     const fences = scanCodeFences(text);
     const interactiveLines = [];
 

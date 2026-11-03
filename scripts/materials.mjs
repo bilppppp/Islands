@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { buildCrawlFallbackMessage, choosePrefix, decideCrawl, ensureCrawler, runCrawl, writePages } from './site-crawl.mjs';
 const extractor = fileURLToPath(new URL('./extract-material.py', import.meta.url));
 
-export function command(executable, args, { cwd, inherit = false, rejectOnErrorLog = false, timeoutMs = 0, env, forwardStderr = false } = {}) {
+export function command(executable, args, { cwd, inherit = false, rejectOnErrorLog = false, timeoutMs = 0, env, forwardStderr = false, onStderr } = {}) {
   return new Promise((accept, reject) => {
     const child = spawn(executable, args, { cwd, env: env ? { ...process.env, ...env } : undefined, stdio: inherit && !rejectOnErrorLog ? 'inherit' : ['ignore', 'pipe', 'pipe'] });
     let stdout = '', stderr = '';
@@ -15,10 +15,28 @@ export function command(executable, args, { cwd, inherit = false, rejectOnErrorL
     child.stdout?.on('data', data => { stdout += data; if (inherit) process.stdout.write(data); });
     child.stderr?.on('data', data => { stderr += data; if (inherit || forwardStderr) process.stderr.write(data); });
     child.on('error', reject);
-    child.on('close', code => code === 0 && !(rejectOnErrorLog && /\[ERROR\]/.test(stdout + stderr)) ? accept(stdout.trim()) : reject(new Error(`${executable} failed (${code}): ${stderr.trim() || (code === 0 ? 'Build output contains a rendering error; files were preserved.' : 'Command did not complete successfully; files were preserved.')}`)));
+    child.on('close', code => {
+      if (code === 0) onStderr?.(stderr);
+      code === 0 && !(rejectOnErrorLog && /\[ERROR\]/.test(stdout + stderr)) ? accept(stdout.trim()) : reject(new Error(`${executable} failed (${code}): ${stderr.trim() || (code === 0 ? 'Build output contains a rendering error; files were preserved.' : 'Command did not complete successfully; files were preserved.')}`));
+    });
     const stop = () => child.kill('SIGINT'); process.once('SIGINT', stop);
     child.once('close', () => process.removeListener('SIGINT', stop));
   });
+}
+const HINT_PREFIX = '提示：';
+// Hints printed during preparation are also saved on the material record so the generating Agent can read them later.
+export function preparationHints(stderr) {
+  return String(stderr || '').split('\n')
+    .map(line => line.trim())
+    .filter(line => line.startsWith(HINT_PREFIX))
+    .map(line => line.slice(HINT_PREFIX.length));
+}
+function oneLine(message) {
+  return String(message).split('\n').map(line => line.trim()).filter(Boolean).join(' ');
+}
+function withHints(record, hints) {
+  if (hints.length) record.hints = [...hints];
+  return record;
 }
 function safeURL(value) {
   const url = new URL(value);
@@ -34,7 +52,7 @@ function looksLikeHtml(file) {
   const sample = readFileSync(file).subarray(0, 512).toString('utf8').trim().toLowerCase();
   return sample.startsWith('<!doctype html') || sample.startsWith('<html') || sample.startsWith('<head');
 }
-async function saveSinglePage(download, extension, target, directory, value, finalURL, { run = command } = {}) {
+async function saveSinglePage(download, extension, target, directory, value, finalURL, { run = command, hints = [] } = {}) {
   const file = join(target, `original${extension}`);
   renameSync(download, file);
   const record = { path: relative(directory, file), url: value, fetchedURL: finalURL, retrieved: new Date().toISOString().slice(0, 10) };
@@ -43,12 +61,12 @@ async function saveSinglePage(download, extension, target, directory, value, fin
     const text = await run(
       'python3',
       [extractor, file, extension, ...(html ? [finalURL] : [])],
-      { forwardStderr: html },
+      { forwardStderr: html, onStderr: stderr => hints.push(...preparationHints(stderr)) },
     );
     record.readableText = relative(directory, text);
     if (readFileSync(text, 'utf8').trim().length < 100) throw new Error('Source returned too little readable text. Provide another accessible source or an exported file.');
   }
-  return record;
+  return withHints(record, hints);
 }
 async function saveCrawledSite({ download, target, directory, value, finalURL, prefix, decision, maxPages, workers, run = command, crawlerFn = runCrawl, ensureCrawlerFn = ensureCrawler }) {
   const scope = prefix ? `只抓取 ${prefix} 下的页面` : '按 siteone-crawler 自己的同站链接跟随抓取';
@@ -90,16 +108,17 @@ async function saveCrawledSite({ download, target, directory, value, finalURL, p
   };
   const where = prefix ? `前缀 ${prefix}` : '同站跟随';
   console.log(`已保存 ${crawled.pages.length} 个文档页面到 ${record.pages}（${where}，siteone-crawler ${crawled.version}，${retrieved}）。`);
+  const hints = [];
   try {
     await command(
       'python3',
       [extractor, join(target, 'entry.html'), '.html', finalURL, '--github-hints-only'],
-      { forwardStderr: true },
+      { forwardStderr: true, onStderr: stderr => hints.push(...preparationHints(stderr)) },
     );
   } catch {
     console.warn('警告：无法检查入口页的文档源码仓库链接；已保存的多页文档仍可使用。');
   }
-  return record;
+  return withHints(record, hints);
 }
 export async function prepareMaterials(sources, directory, { ref, crawl = 'auto', maxPages = 500, crawlPrefix: prefixOverride, crawlWorkers = 2, targetNames = null, run = command, crawlerFn = runCrawl, ensureCrawlerFn = ensureCrawler } = {}) {
   mkdirSync(directory, { recursive: true });
@@ -140,6 +159,7 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
       const htmlLike = extension === '.html';
       let mode = crawl === true ? 'force' : crawl === false ? 'off' : crawl;
       let fallbackCrawl = null;
+      const hints = [];
       if (htmlLike && mode !== 'off') {
         const sample = readSample(download);
         const decision = decideCrawl({ href: finalURL, html: sample, override: mode === 'force' ? 'force' : 'auto' });
@@ -163,16 +183,21 @@ export async function prepareMaterials(sources, directory, { ref, crawl = 'auto'
               workers: crawlWorkers,
               decision: decision.reason,
             };
-            console.warn(buildCrawlFallbackMessage({
+            const fallbackMessage = buildCrawlFallbackMessage({
               reason: error.message,
               prefix,
               html: sample,
               url: finalURL,
-            }));
+            });
+            console.warn(fallbackMessage);
+            hints.push(oneLine(fallbackMessage));
           }
-        } else if (decision.hint) console.warn(`提示：${decision.hint}`);
+        } else if (decision.hint) {
+          console.warn(`${HINT_PREFIX}${decision.hint}`);
+          hints.push(decision.hint);
+        }
       } else if (!htmlLike && mode === 'force') console.warn('警告：该来源不是 HTML，无法整站抓取，已按单页保存。');
-      const single = await saveSinglePage(download, extension, target, directory, value, finalURL, { run });
+      const single = await saveSinglePage(download, extension, target, directory, value, finalURL, { run, hints });
       if (fallbackCrawl) single.crawl = fallbackCrawl;
       records.push(single);
     } else {

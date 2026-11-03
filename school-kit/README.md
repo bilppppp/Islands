@@ -76,12 +76,13 @@ Lesson Markdown may mark a short, source-backed phrase with a plain-text
 `src/lib/source-cite.mjs` and wires it as a remark plugin in `astro.config.mjs`
 so the self-read page renders that phrase as a dashed underline; hovering or
 focusing opens a card with the exact saved sentence. Island chrome mounts
-`SourceCite.astro` on the lesson page for that card. Escape closes the card
-without immediately reopening it on the returned focus. `finish` / generation
-checks call `assertSourceCites` so a quote must exist in the listed
-`public/sources` file. Markers are optional; lessons without them stay valid.
-Teachers still read the saved file over `/sources/`; the card is not a
-substitute for `agentInstructions`.
+`SourceCite.astro` on the lesson page for that card; `url` may be omitted for
+sources without a web page (the card then shows no original-page link). Escape
+closes the card without immediately reopening it on the returned focus.
+`finish` / generation checks call `assertSourceCites` so a quote must exist in
+the listed `public/sources` file. Markers are optional; lessons without them
+stay valid. Teachers still read the saved file over `/sources/`; the card is
+not a substitute for `agentInstructions`.
 
 Lesson Markdown may also include fenced ```predict blocks for "predict then
 reveal" cards (see `generation/protocol.md`). The overlay ships

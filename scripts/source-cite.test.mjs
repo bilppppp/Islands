@@ -98,6 +98,50 @@ describe('source citations', () => {
     assert.throws(() => assertSourceCites(lesson('{{cite 只有短语}}'), 'broken.md', '/tmp', []), /incomplete/);
   });
 
+  it('says url is only needed for sources with a web page when a marker is incomplete', () => {
+    assert.throws(
+      () => collectSourceCites(lesson('{{cite 短语 | path: material-1/a.md | quote: missing heading here please}}'), 'broken.md'),
+      /url \(only when the source has a web page\)/,
+    );
+  });
+
+  it('ignores a url-less marker inside inline code', () => {
+    const markerWithoutUrl = `{{cite 短语 | path: material-1/pages/notes.md | heading: Notes | quote: ${QUOTE}}}`;
+    assert.deepEqual(collectSourceCites(lesson(`写法示例：\`${markerWithoutUrl}\`。`), 'inline.md'), []);
+  });
+
+  it('accepts a cite without url for local/repo files and preserves visible phrase', () => {
+    const markerWithoutUrl = `{{cite 任何基于文本的项目 | path: material-1/pages/notes.md | heading: Work in notes and non-code folders | quote: ${QUOTE}}}`;
+    const { root, sources, text } = withSource(`在面对${markerWithoutUrl}时。`);
+    try {
+      const cites = assertSourceCites(text, 'no-url.md', sources, ['material-1/pages/notes.md']);
+      assert.equal(cites.length, 1);
+      assert.equal(cites[0].phrase, '任何基于文本的项目');
+      assert.equal(cites[0].url, null);
+      assert.equal(cites[0].quote, QUOTE);
+      assert.equal(sourceCiteProse(`在面对${markerWithoutUrl}时。`), '在面对任何基于文本的项目时。');
+      const html = sourceCiteHtml(cites[0]);
+      assert.match(html, /class="source-cite"/);
+      assert.match(html, /data-path="material-1\/pages\/notes\.md"/);
+      assert.equal(html.includes('data-url='), false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects non-http/https url when url is present', () => {
+    const markerFtp = `{{cite 任何基于文本的项目 | path: material-1/pages/notes.md | heading: Work in notes and non-code folders | url: ftp://example.com/notes | quote: ${QUOTE}}}`;
+    const { root, sources, text } = withSource(`在面对${markerFtp}时。`);
+    try {
+      assert.throws(
+        () => assertSourceCites(text, 'ftp.md', sources, ['material-1/pages/notes.md']),
+        /original URL must be http or https/,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('turns the marker into the visible phrase for the teacher', () => {
     assert.equal(sourceCiteProse(`在面对${MARKER}时。`), '在面对任何基于文本的项目时。');
   });

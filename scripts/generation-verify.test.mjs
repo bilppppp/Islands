@@ -21,6 +21,7 @@ import {
   validateGeneration,
   generate,
   createGenerationSessionId,
+  generationPrompt,
 } from './generate.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -448,6 +449,84 @@ describe('Session ID consistency across generate and repair rounds', () => {
 });
 
 describe('Generation warnings vs errors', () => {
+  it('lists saved preparation hints on material records in GENERATION.md', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'generation-prompt-'));
+    try {
+      const output = join(dir, 'school');
+      mkdirSync(output, { recursive: true });
+      writeFileSync(join(output, 'school.config.ts'), 'export default {};\n');
+      const inputPath = join(dir, 'input.json');
+      const hint = '入口页提到 llms.txt（https://example.com/llms.txt）；如需更多页面，可用自己的网页工具查看后选取。';
+      writeFileSync(inputPath, JSON.stringify({
+        name: 'demo',
+        output,
+        materials: [
+          { path: 'material-1/original.html', url: 'https://example.com', hints: [hint] },
+          { path: 'material-2/notes.txt', originalPath: '/tmp/notes.txt', version: 'local file' },
+        ],
+      }));
+      const prompt = generationPrompt(inputPath);
+      assert.match(prompt, /`hints` on each material record/);
+      const input = JSON.parse(prompt.slice(prompt.indexOf('Input:\n') + 'Input:\n'.length, prompt.lastIndexOf('\nRead the sources')));
+      assert.deepEqual(input.materials[0].hints, [hint]);
+      assert.equal('hints' in input.materials[1], false);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+  it('warns when a lesson agentInstructions is missing completion line and does not warn when present', () => {
+    const withoutCompletion = [
+      {
+        name: '01-no-comp.md',
+        text: `---
+title: Lesson 1
+agentInstructions: |
+  Read the source carefully.
+  Discuss with student.
+---
+# Lesson 1
+`,
+      },
+    ];
+    const w1 = collectSchoolWarnings(withoutCompletion);
+    const hit1 = w1.filter((w) => w.code === 'missing-completion-line');
+    assert.equal(hit1.length, 1);
+    assert.equal(hit1[0].level, 'warning');
+    assert.equal(hit1[0].file, '01-no-comp.md');
+
+    const withCompletionZh = [
+      {
+        name: '02-zh.md',
+        text: `---
+title: Lesson 2
+agentInstructions: |
+  教学指引
+  完成条件：学生完成练习并获得反馈。
+---
+# Lesson 2
+`,
+      },
+    ];
+    const w2 = collectSchoolWarnings(withCompletionZh);
+    assert.equal(w2.filter((w) => w.code === 'missing-completion-line').length, 0);
+
+    const withCompletionEn = [
+      {
+        name: '03-en.md',
+        text: `---
+title: Lesson 3
+agentInstructions: |
+  Teaching notes
+  Completion condition: Student completes the activity.
+---
+# Lesson 3
+`,
+      },
+    ];
+    const w3 = collectSchoolWarnings(withCompletionEn);
+    assert.equal(w3.filter((w) => w.code === 'missing-completion-line').length, 0);
+  });
+
   it('collects warning when html preview references external http(s) resources without throwing', () => {
     const lessons = [
       {

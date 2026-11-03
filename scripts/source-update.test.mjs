@@ -5,9 +5,10 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { completionConditionText } from './generate.mjs';
+import { assertUpdateAllowed, completionConditionText } from './generate.mjs';
+import { assertSourceCites } from '../school-kit/overlay/src/lib/source-cite.mjs';
 import { parseFrontmatter, writeBaseline, checkSchool } from './source-state.mjs';
-import { runUpdate } from './source-update.mjs';
+import { retargetRevisedLessons, runUpdate } from './source-update.mjs';
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dirs = [];
@@ -346,6 +347,103 @@ describe('update --apply', () => {
     await runUpdate(applyOpts(school, planId));
     const afterSecond = treeFiles(school);
     assert.deepEqual(afterSecond, afterFirst);
+  });
+
+  it('retargets frontmatter sources and cite paths to snapshots for 局部修订 lessons and passes cite assertion', async () => {
+    const originalQuote = 'Beta page original quote that is at least twenty characters long.';
+    const changedQuote = 'Beta page modified quote that is at least twenty characters long.';
+    const { school, planId } = await planned({
+      mutate(candidate, s) {
+        write(join(s, 'public/sources/material-1/pages/b.md'), `# Beta page\n\n${originalQuote}\n`);
+        const lessonText = `---
+title: "lesson-b"
+slug: "lesson-b"
+description: "lesson-b"
+order: 2
+quiz: false
+agentOnly: true
+sources:
+  - material-1/pages/b.md
+agentInstructions: |
+  notes
+  完成条件：lesson-b done
+---
+
+# Beta page
+
+这里引用了 {{cite 引用短语 | path: material-1/pages/b.md | heading: Beta page | quote: ${originalQuote}}}。
+`;
+        write(join(s, 'src/content/lessons/02-b.md'), lessonText);
+        write(join(candidate, 'material-1/pages/b.md'), `# Beta page\n\n${changedQuote}\n`);
+      },
+    });
+
+    const plan = readPlan(school, planId);
+    setVerdict(plan, 'material-1/pages/b.md', '局部修订', { lessons: ['lesson-b'] });
+    savePlan(school, plan);
+
+    await runUpdate({
+      schoolPath: school,
+      options: { 'prepare-only': true, 'plan-id': planId },
+    });
+
+    // Revise lesson: update quote and retarget frontmatter sources and cite path to snapshot
+    const file = join(school, 'src/content/lessons/02-b.md');
+    const revisedText = readFileSync(file, 'utf8')
+      .replace(originalQuote, changedQuote)
+      .replace('- material-1/pages/b.md', `- snapshots/${planId}/material-1/pages/b.md`)
+      .replace('path: material-1/pages/b.md', `path: snapshots/${planId}/material-1/pages/b.md`);
+    writeFileSync(file, revisedText);
+
+    // assertUpdateAllowed accepts the retargeted sources/cites
+    assertUpdateAllowed(readPlan(school, planId), school);
+
+    let finishVerified = false;
+    await runUpdate(applyOpts(school, planId, {
+      finish: async ({ schoolPath }) => {
+        const text = readFileSync(join(schoolPath, 'src/content/lessons/02-b.md'), 'utf8');
+        const cites = assertSourceCites(text, '02-b.md', join(schoolPath, 'public/sources'));
+        assert.equal(cites.length, 1);
+        assert.equal(cites[0].path, `snapshots/${planId}/material-1/pages/b.md`);
+        assert.equal(cites[0].quote, changedQuote);
+        finishVerified = true;
+      },
+    }));
+
+    assert.equal(finishVerified, true);
+    assert.deepEqual(lessonSources(school, '02-b.md'), [`snapshots/${planId}/material-1/pages/b.md`]);
+  });
+
+  it('leaves cite paths alone when the sources list cannot adopt the snapshot', () => {
+    const school = makeSchool();
+    const planId = 'plan-without-snapshot';
+    const quote = 'Beta page quote that is at least twenty characters long.';
+    const file = join(school, 'src/content/lessons/02-b.md');
+    const original = lessonFile({ slug: 'lesson-b', order: 2, sources: ['material-1/pages/b.md'] })
+      .replace('body of lesson-b', `{{cite 引用短语 | path: material-1/pages/b.md | heading: Beta page | quote: ${quote}}}`);
+    writeFileSync(file, original);
+    const plan = {
+      planId,
+      changes: [{
+        path: 'material-1/pages/b.md',
+        kind: 'changed',
+        verdict: '局部修订',
+        snapshotSha256: 'not-on-disk',
+        lessons: ['lesson-b'],
+      }],
+    };
+
+    // No public/sources/snapshots/<planId>/ copy exists, so the sources list stays put.
+    retargetRevisedLessons(plan, school);
+    assert.equal(readFileSync(file, 'utf8'), original);
+    assert.deepEqual(lessonSources(school, '02-b.md'), ['material-1/pages/b.md']);
+
+    // Once the snapshot exists, sources and cite move together.
+    write(join(school, 'public/sources/snapshots', planId, 'material-1/pages/b.md'), page('Beta page'));
+    retargetRevisedLessons(plan, school);
+    const text = readFileSync(file, 'utf8');
+    assert.deepEqual(lessonSources(school, '02-b.md'), [`snapshots/${planId}/material-1/pages/b.md`]);
+    assert.match(text, new RegExp(`path: snapshots/${planId}/material-1/pages/b\\.md \\|`));
   });
 
   it('does not apply when the school port is busy', async () => {

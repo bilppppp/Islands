@@ -126,6 +126,7 @@ describe('prepareMaterials HTML GitHub hints', { concurrency: 1 }, () => {
     );
     const { records, out, stderr } = await fromHttp(html);
     assert.equal(stderr.trim(), [hint('acme/handbook'), hint('octo/guide')].join('\n'));
+    assert.deepEqual(records[0].hints, [hint('acme/handbook'), hint('octo/guide')].map(line => line.slice('提示：'.length)));
     assert.equal(records[0].readableText, 'material-1/original.html.txt');
     assert.equal(
       readFileSync(join(out, records[0].readableText), 'utf8'),
@@ -237,6 +238,7 @@ describe('prepareMaterials HTML GitHub hints', { concurrency: 1 }, () => {
     const { records, stderr } = await fromHttp(html);
     assert.equal(stderr.trim(), '');
     assert.equal(records.length, 1);
+    assert.equal('hints' in records[0], false);
     assert.equal(records[0].path, 'material-1/original.html');
   });
 
@@ -268,7 +270,17 @@ describe('prepareMaterials HTML GitHub hints', { concurrency: 1 }, () => {
       fetchedURL: finalURL,
       retrieved: new Date().toISOString().slice(0, 10),
       readableText: 'material-1/original.html.txt',
+      hints: [hint('acme/docs').slice('提示：'.length)],
     });
+  });
+
+  it('saves llms.txt and Markdown-version clues on the single-page record', async () => {
+    const html = page('<a href="/llms.txt">llms.txt</a><p>Append .md to the page URL</p>');
+    const { records, stderr } = await fromHttp(html);
+    assert.match(stderr, /提示：入口页提到 llms\.txt/);
+    assert.deepEqual(records[0].hints, [
+      '入口页提到 llms.txt（https://docs.example.com/llms.txt） / Markdown 版本；如需更多页面，可用自己的网页工具查看后选取。',
+    ]);
   });
 
   it('still finishes with no or bad links, and does not hint for local HTML or plain text', async () => {

@@ -364,15 +364,34 @@ function restoreLessonFiles(texts) {
   for (const [file, text] of Object.entries(texts)) writeFileSync(file, text);
 }
 
-function retargetRevisedLessons(plan, schoolPath) {
+export function retargetCitePaths(text, planId, snapshotted) {
+  const prefix = snapshotPrefix(planId);
+  return String(text).replace(/(\{\{cite\s+[^|\n]+?\s+\|\s+path:\s*)([^\s|]+)(\s+\|)/g, (match, before, path, after) => {
+    const original = stableSourcePath(path);
+    if (snapshotted.has(original)) {
+      return `${before}${prefix}${original}${after}`;
+    }
+    return match;
+  });
+}
+
+export function retargetRevisedLessons(plan, schoolPath) {
   const slugs = new Set(localRevisionSlugs(plan));
   const snapshotted = snapshottedPaths(plan);
   for (const lesson of readLessons(schoolPath)) {
     if (!slugs.has(lesson.slug)) continue;
-    const next = retargetSourceList(lesson.sources, plan.planId, snapshotted);
-    if (sourcesMatch(lesson.sources, next)) continue;
-    if (!canAdoptSnapshot(schoolPath, next, plan.planId)) continue;
-    writeFileSync(lesson.file, replaceSourcesBlock(lesson.text, next));
+    const nextSources = retargetSourceList(lesson.sources, plan.planId, snapshotted);
+    if (!canAdoptSnapshot(schoolPath, nextSources, plan.planId)) continue;
+    let nextText = lesson.text;
+    if (!sourcesMatch(lesson.sources, nextSources)) {
+      nextText = replaceSourcesBlock(nextText, nextSources);
+      // Cites may only point at snapshot paths the sources list really lists.
+      if (nextText === lesson.text) continue;
+    }
+    const withCites = retargetCitePaths(nextText, plan.planId, snapshotted);
+    if (withCites !== lesson.text) {
+      writeFileSync(lesson.file, withCites);
+    }
   }
 }
 
@@ -502,7 +521,9 @@ function writeUpdateMd(schoolPath, plan) {
     const recorded = (plan.lessons || []).find(item => item.slug === slug);
     return `- \`${slug}\`（\`${recorded?.file || slug}\`）：${verdict}`;
   }).join('\n') || '- 无';
-  const text = `# 局部修订
+  const protocol = readFileSync(join(root, 'generation/protocol.md'), 'utf8');
+  const updateProtocol = readFileSync(join(root, 'generation/update.md'), 'utf8');
+  const text = `${protocol}\n\n${updateProtocol}\n\n# 局部修订
 
 这是给当前 Agent 的指令。学校：${name}。计划：${plan.planId}。
 

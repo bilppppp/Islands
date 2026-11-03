@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 import { scanCodeFences, stripFrontmatter } from './predict-block.mjs';
 
-const CITE_SOURCE = String.raw`\{\{cite\s+([^|\n]+?)\s+\|\s+path:\s*([^\s|]+)\s+\|\s+heading:\s+([^|\n]+?)\s+\|\s+url:\s+(https?:\/\/[^\s|]+)\s+\|\s+quote:\s+([\s\S]*?)\}\}`;
+const CITE_SOURCE = String.raw`\{\{cite\s+([^|\n]+?)\s+\|\s+path:\s*([^\s|]+)\s+\|\s+heading:\s+([^|\n]+?)(?:\s+\|\s+url:\s*([^\s|]+))?\s+\|\s+quote:\s+([\s\S]*?)\}\}`;
 
 function citePattern() {
   return new RegExp(CITE_SOURCE, 'g');
@@ -25,6 +25,7 @@ function fail(fileName, message) {
 }
 
 function httpUrl(value, fileName) {
+  if (!value) return null;
   let url;
   try {
     url = new URL(value);
@@ -41,7 +42,8 @@ function parseCite(match, fileName) {
   const phrase = match[1].trim();
   const path = match[2].trim();
   const heading = normalizeSourceText(match[3]);
-  const url = httpUrl(match[4].trim(), fileName);
+  const rawUrl = match[4] ? match[4].trim() : null;
+  const url = rawUrl ? httpUrl(rawUrl, fileName) : null;
   const quote = normalizeSourceText(match[5]);
   if (!phrase) fail(fileName, 'the visible phrase is empty');
   if ([...phrase].length > PHRASE_MAX) {
@@ -89,7 +91,7 @@ export function collectSourceCites(markdown, fileName = 'lesson.md') {
   for (const match of prose.matchAll(citePattern())) cites.push(parseCite(match, fileName));
   const opened = prose.match(/\{\{cite\b/g) || [];
   if (opened.length !== cites.length) {
-    fail(fileName, 'a {{cite}} marker is incomplete. Use phrase, path, heading, url, and quote.');
+    fail(fileName, 'a {{cite}} marker is incomplete. Use phrase, path, heading, url (only when the source has a web page), and quote.');
   }
   return cites;
 }
@@ -155,7 +157,7 @@ export function sourceCiteHtml(cite) {
   const attrs = [
     ['data-path', cite.path],
     ['data-heading', cite.heading],
-    ['data-url', cite.url],
+    ...(cite.url ? [['data-url', cite.url]] : []),
     ['data-quote', cite.quote],
   ].map(([name, value]) => `${name}="${escapeAttr(value)}"`).join(' ');
   return `<button type="button" class="source-cite" aria-expanded="false" ${attrs}>${escapeText(cite.phrase)}</button>`;

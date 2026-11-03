@@ -241,6 +241,31 @@ describe('supplement --source', () => {
     assert.equal(records.length, 1);
     assert.equal(records[0].path, 'material-1/original.md');
     assert.equal(existsSync(join(dir, 'material-1/original.md')), true);
+    assert.equal('hints' in records[0], false);
+  });
+
+  it('--source 保存 HTML 页面时把准备阶段的提示存进新材料记录', async () => {
+    const dir = createTempDir('supp-hints-');
+    const fakeRun = async (executable, args, opts = {}) => {
+      if (executable === 'curl') {
+        writeFileSync(args[args.indexOf('-o') + 1], '<!doctype html><html><body>page</body></html>');
+        return 'text/html\nhttps://example.com/guide';
+      }
+      if (executable === 'python3') {
+        const text = `${args[1]}.txt`;
+        writeFileSync(text, 'Readable text long enough for the extraction check. '.repeat(4));
+        opts.onStderr?.('提示：入口页提到 llms.txt（https://example.com/llms.txt）；如需更多页面，可用自己的网页工具查看后选取。\nother noise\n');
+        return text;
+      }
+      throw new Error(`Unexpected command: ${executable}`);
+    };
+
+    const result = await addSourceMaterials([], dir, ['https://example.com/guide'], { run: fakeRun });
+
+    assert.equal(result.addedRecords.length, 1);
+    assert.deepEqual(result.addedRecords[0].hints, [
+      '入口页提到 llms.txt（https://example.com/llms.txt）；如需更多页面，可用自己的网页工具查看后选取。',
+    ]);
   });
 
   it('--source 与 --crawl-prefix 同用 → 报错', () => {

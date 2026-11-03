@@ -2,7 +2,16 @@ import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync, append
 import { resolve, basename, join, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { piPrint } from './pi.mjs';
-import { assertLessonHasSources, listFiles, rawSha256, readLessons } from './source-state.mjs';
+import {
+  assertLessonHasSources,
+  completionConditionText,
+  hasCompletionLine,
+  listFiles,
+  parseAgentInstructions,
+  rawSha256,
+  readLessons,
+  unindentYaml,
+} from './source-state.mjs';
 import { assertSourceCites, assertSourceCitesGfm } from '../school-kit/overlay/src/lib/source-cite.mjs';
 import { assertLessonCodeBlocks, resolvePreviewRuntime, normalizeRunLang } from '../school-kit/overlay/src/lib/run-block.mjs';
 import { scanCodeFences } from '../school-kit/overlay/src/lib/predict-block.mjs';
@@ -189,34 +198,7 @@ export function assertMathDelimiters(text, fileName = 'lesson.md') {
   if (displayOpen !== null) failMath(fileName, displayOpen, 'Unclosed display math');
 }
 
-function unindentYaml(lines) {
-  const nonempty = lines.filter(line => line.trim() !== '');
-  if (!nonempty.length) return lines.join('\n');
-  const indent = Math.min(...nonempty.map(line => (line.match(/^ */) || [''])[0].length));
-  return lines.map(line => line.slice(Math.min(indent, line.length))).join('\n');
-}
-
-export function completionConditionText(text) {
-  if (!String(text).startsWith('---\n')) return '';
-  const end = text.indexOf('\n---\n', 4);
-  if (end < 0) return '';
-  const lines = text.slice(4, end).split('\n');
-  for (let i = 0; i < lines.length; i++) {
-    if (!/^agentInstructions:\s*(\||>)\s*$/.test(lines[i])) continue;
-    const collected = [];
-    i += 1;
-    while (i < lines.length && (lines[i] === '' || /^\s/.test(lines[i]))) {
-      collected.push(lines[i]);
-      i += 1;
-    }
-    const instructions = unindentYaml(collected);
-    const zh = instructions.indexOf('完成条件');
-    if (zh >= 0) return instructions.slice(zh);
-    const en = instructions.indexOf('Completion condition');
-    return en < 0 ? '' : instructions.slice(en);
-  }
-  return '';
-}
+export { unindentYaml, parseAgentInstructions, completionConditionText, hasCompletionLine };
 
 export function completionSha256(text) {
   return rawSha256(Buffer.from(completionConditionText(text), 'utf8'));
@@ -264,6 +246,12 @@ export function assertUpdateAllowed(plan, schoolPath, { allowLocalRevisionBody =
   const allowed = allowLocalRevisionBody ? localRevisionSlugs(plan) : new Set();
   const current = readLessons(schoolPath);
   const byFile = new Map(current.map(lesson => [posixRel(schoolPath, lesson.file), lesson]));
+  const approvedSnapshots = new Set();
+  for (const change of plan.changes || []) {
+    if (change.verdict === '局部修订') approvedSnapshots.add(change.path);
+  }
+  const prefix = plan.planId ? `snapshots/${plan.planId}/` : null;
+
   for (const recorded of plan.lessons || []) {
     const lesson = byFile.get(recorded.file);
     if (!lesson) throw new Error(`Lesson ${recorded.file} is missing.`);
@@ -276,8 +264,24 @@ export function assertUpdateAllowed(plan, schoolPath, { allowLocalRevisionBody =
     if (completionSha256(lesson.text) !== recorded.completionSha256) {
       throw new Error(`Lesson ${recorded.file} 完成条件 changed.`);
     }
-    if (!allowed.has(recorded.slug) && rawSha256(readFileSync(lesson.file)) !== recorded.sha256) {
-      throw new Error(`Lesson ${recorded.file} is not allowed to change during this update.`);
+    if (!allowed.has(recorded.slug)) {
+      if (rawSha256(readFileSync(lesson.file)) !== recorded.sha256) {
+        throw new Error(`Lesson ${recorded.file} is not allowed to change during this update.`);
+      }
+    } else if (prefix) {
+      const recordedSources = new Set(recorded.sources || []);
+      for (const src of lesson.sources || []) {
+        if (src.startsWith('snapshots/')) {
+          if (recordedSources.has(src)) continue;
+          if (!src.startsWith(prefix)) {
+            throw new Error(`Lesson ${recorded.file} references snapshot from another plan: ${src}`);
+          }
+          const orig = src.slice(prefix.length);
+          if (!approvedSnapshots.has(orig)) {
+            throw new Error(`Lesson ${recorded.file} retargets source that is not 局部修订: ${orig}`);
+          }
+        }
+      }
     }
   }
   for (const lesson of current) {

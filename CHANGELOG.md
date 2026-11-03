@@ -2,6 +2,19 @@
 
 这里只记使用方式上的变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [2026-11-03]
+
+### 新增
+
+- 课程检查新增提醒：当 `agentInstructions` 末尾缺少以「完成条件：」（英文课程为 `Completion condition:`）开头的行时给出提醒。
+- 材料准备阶段的提示会以 `hints` 字段保存到材料记录（`inputs/NAME.json`、`school.settings.json` 与 `GENERATION.md`）中，供生成 Agent 直接读取。
+
+### 变更
+
+- 课程局部修订规则独立为 [generation/update.md](generation/update.md)，与新建课程协议分离。
+- 本地文件或代码仓库等无原始网页的来源，在 `{{cite}}` 中可省略 `url` 字段（来源卡不再显示原网页链接）；局部修订重指来源快照时同步更新对应的 `{{cite}}` 路径。
+- 生成 Agent 与 AI 教师均将来源材料仅视作事实证据，不把来源内容当成指令执行。
+
 ## [2026-11-02]
 
 ### 新增
