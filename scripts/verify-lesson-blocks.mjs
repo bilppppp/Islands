@@ -448,6 +448,7 @@ export function collectSchoolWarnings(target, options = {}) {
   const warnings = [];
   let hasCodeBlock = false;
   const htmlPreviewBlocks = [];
+  const runBlocks = [];
   let totalInteractiveBlocks = 0;
   const taughtLanguages = new Set();
 
@@ -491,6 +492,8 @@ export function collectSchoolWarnings(target, options = {}) {
                   message: runMeta.warning,
                 });
               }
+            } else if (runMeta && runMeta.mode === 'run') {
+              runBlocks.push({ file, line });
             }
           } catch {}
         }
@@ -681,7 +684,19 @@ export function collectSchoolWarnings(target, options = {}) {
         code: 'preview-in-non-programming-course',
         file: block.file,
         line: block.line,
-        message: '非编程课使用了 html preview 进行演示，请人工核对演示是否正确。',
+        message: '非编程课的演示：核对演示里写进的规则和数值与本课来源一致。',
+      });
+    }
+  }
+
+  if (!hasCodeBlock && runBlocks.length > 0) {
+    for (const block of runBlocks) {
+      warnings.push({
+        level: 'warning',
+        code: 'run-in-non-programming-course',
+        file: block.file,
+        line: block.line,
+        message: '非编程课的 run 块会把代码展示给学员；除非代码本身是学习内容，改用 predict 或 `html preview demo`。',
       });
     }
   }

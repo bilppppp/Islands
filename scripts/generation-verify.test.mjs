@@ -525,6 +525,60 @@ agentInstructions: |
     ];
     const w3 = collectSchoolWarnings(withCompletionEn);
     assert.equal(w3.filter((w) => w.code === 'missing-completion-line').length, 0);
+
+    const withCompletionListMarkers = [
+      {
+        name: '04-bullet-zh.md',
+        text: `---
+title: Lesson 4
+agentInstructions: |
+  教学指引
+  - 完成条件：学生完成练习并获得反馈。
+---
+# Lesson 4
+`,
+      },
+      {
+        name: '05-star-colon.md',
+        text: `---
+title: Lesson 5
+agentInstructions: |
+  教学指引
+  * 完成条件: 学生回答问题。
+---
+# Lesson 5
+`,
+      },
+      {
+        name: '06-numbered-en.md',
+        text: `---
+title: Lesson 6
+agentInstructions: |
+  Teaching notes
+  1. Completion condition: Student completes the activity.
+---
+# Lesson 6
+`,
+      },
+    ];
+    const wList = collectSchoolWarnings(withCompletionListMarkers);
+    assert.equal(wList.filter((w) => w.code === 'missing-completion-line').length, 0);
+
+    const withOtherWording = [
+      {
+        name: '07-other.md',
+        text: `---
+title: Lesson 7
+agentInstructions: |
+  教学指引
+  - 完成标准：学生完成练习。
+---
+# Lesson 7
+`,
+      },
+    ];
+    const wOther = collectSchoolWarnings(withOtherWording);
+    assert.equal(wOther.filter((w) => w.code === 'missing-completion-line').length, 1);
   });
 
   it('collects warning when html preview references external http(s) resources without throwing', () => {
@@ -639,7 +693,52 @@ title: Ancient History
     assert.equal(previewWarnings[0].level, 'warning');
     assert.equal(previewWarnings[0].file, '01-history.md');
     assert.equal(previewWarnings[0].line, 7);
-    assert.match(previewWarnings[0].message, /请人工核对演示是否正确/);
+    assert.match(previewWarnings[0].message, /核对演示里写进的规则和数值与本课来源一致/);
+  });
+
+  it('warns with line number when non-programming course uses run block', () => {
+    const nonCodingWithRun = [
+      {
+        name: '01-math.md',
+        text: `---
+title: Math Lesson
+---
+
+# Calculation
+
+\`\`\`python run
+print(1 + 1)
+\`\`\`
+`,
+      },
+    ];
+    const warnings = collectSchoolWarnings(nonCodingWithRun);
+    const runWarnings = warnings.filter((w) => w.code === 'run-in-non-programming-course');
+    assert.equal(runWarnings.length, 1);
+    assert.equal(runWarnings[0].level, 'warning');
+    assert.equal(runWarnings[0].file, '01-math.md');
+    assert.equal(runWarnings[0].line, 7);
+    assert.match(runWarnings[0].message, /非编程课的 run 块会把代码展示给学员；除非代码本身是学习内容，改用 predict 或 `html preview demo`/);
+
+    const codingWithRun = [
+      {
+        name: '01-py.md',
+        text: `---
+title: Python Lesson
+---
+
+\`\`\`python
+x = 1
+\`\`\`
+
+\`\`\`python run
+print(x)
+\`\`\`
+`,
+      },
+    ];
+    const codingWarnings = collectSchoolWarnings(codingWithRun);
+    assert.equal(codingWarnings.filter((w) => w.code === 'run-in-non-programming-course').length, 0);
   });
 
   it('returns two info warnings when COURSE.md has two wanted interaction lines', () => {

@@ -101,7 +101,8 @@ export function hasCompletionLine(text) {
   if (!instructions) return false;
   return instructions.split('\n').some(line => {
     const trimmed = line.trim();
-    return trimmed.startsWith('完成条件：') || trimmed.startsWith('完成条件:') || trimmed.startsWith('Completion condition:');
+    const withoutMarker = trimmed.replace(/^(?:[-*+]|\d+[.)]|\(\d+\))\s+/, '');
+    return withoutMarker.startsWith('完成条件：') || withoutMarker.startsWith('完成条件:') || withoutMarker.startsWith('Completion condition:');
   });
 }
 
