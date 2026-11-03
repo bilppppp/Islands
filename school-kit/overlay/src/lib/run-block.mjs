@@ -25,6 +25,10 @@ export const PROGRAMMING_LANGUAGES = new Set([
   'sql', 'shell', 'bash', 'sh', 'zsh',
 ]);
 
+// Preview blocks may import these modules; the School bundles them locally
+// (public/vendor/three-preview/) so the sandboxed preview never fetches from the network.
+export const THREE_SPECIFIERS = new Set(['three', 'three/addons/controls/OrbitControls.js']);
+
 export const EXTERNAL_RESOURCE_WARNING =
   'html preview 引用了外部 http:// 或 https:// 资源：部分学习者（比如国内）可能访问不了，建议把资源复制到课程的 public/ 下。';
 
@@ -80,9 +84,32 @@ function parseFenceInfo(info) {
     lang,
     rawLang,
     mode: hasPreview ? 'preview' : 'run',
+    demo: tokens.includes('demo'),
     explicitRuntime: hasReact && hasPreact ? 'both' : (hasReact ? 'react' : (hasPreact ? 'preact' : null)),
     hasBothRuntimes: hasReact && hasPreact,
   };
+}
+
+export function collectImportSources(code = '') {
+  const importRegex = /(?:^|\n)\s*import\s+([\s\S]*?['"][^'"]+['"]\s*;?)/g;
+  const sources = [];
+  let match;
+  while ((match = importRegex.exec(code)) !== null) {
+    const stmt = match[0].trim();
+    const fromMatch = stmt.match(/from\s+['"]([^'"]+)['"]/);
+    const sideEffectMatch = stmt.match(/import\s+['"]([^'"]+)['"]/);
+    const source = fromMatch ? fromMatch[1] : (sideEffectMatch ? sideEffectMatch[1] : null);
+    if (source) sources.push(source);
+  }
+  return sources;
+}
+
+export function previewUsesThree(code = '') {
+  return collectImportSources(code).some((source) => THREE_SPECIFIERS.has(source));
+}
+
+function isBareSpecifier(source) {
+  return !/^(?:\.{1,2}\/|\/|[a-z][a-z0-9+.-]*:)/i.test(source);
 }
 
 export function resolvePreviewRuntime(fenceInfoOrMeta, code = '') {
@@ -103,28 +130,20 @@ export function resolvePreviewRuntime(fenceInfoOrMeta, code = '') {
     explicit = fenceInfoOrMeta.runtime || fenceInfoOrMeta.explicitRuntime || null;
   }
 
-  const importRegex = /(?:^|\n)\s*import\s+([\s\S]*?['"][^'"]+['"]\s*;?)/g;
-  let match;
   let hasReactImport = false;
   let hasPreactImport = false;
   let firstReactSource = null;
   let firstPreactSource = null;
-  const allSources = [];
+  // three is runtime-neutral: allowed alongside either React or Preact.
+  const allSources = collectImportSources(code).filter((source) => !THREE_SPECIFIERS.has(source));
 
-  while ((match = importRegex.exec(code)) !== null) {
-    const stmt = match[0].trim();
-    const fromMatch = stmt.match(/from\s+['"]([^'"]+)['"]/);
-    const sideEffectMatch = stmt.match(/import\s+['"]([^'"]+)['"]/);
-    const source = fromMatch ? fromMatch[1] : (sideEffectMatch ? sideEffectMatch[1] : null);
-    if (source) {
-      allSources.push(source);
-      if (source === 'react' || source === 'react-dom/client') {
-        hasReactImport = true;
-        if (!firstReactSource) firstReactSource = source;
-      } else if (source === 'preact' || source === 'preact/hooks') {
-        hasPreactImport = true;
-        if (!firstPreactSource) firstPreactSource = source;
-      }
+  for (const source of allSources) {
+    if (source === 'react' || source === 'react-dom/client') {
+      hasReactImport = true;
+      if (!firstReactSource) firstReactSource = source;
+    } else if (source === 'preact' || source === 'preact/hooks') {
+      hasPreactImport = true;
+      if (!firstPreactSource) firstPreactSource = source;
     }
   }
 
@@ -193,6 +212,9 @@ export function assertRunFence(fence, fileName = 'lesson.md') {
     fail(fileName, 'code fence cannot specify both "run" and "preview"');
   }
   if (fenceInfo.mode === 'run') {
+    if (fenceInfo.demo) {
+      fail(fileName, '"demo" only applies to preview blocks');
+    }
     if (!SUPPORTED_RUN_LANGS.has(fenceInfo.lang)) {
       fail(fileName, `"run" is only supported for python, javascript, typescript, got "${fenceInfo.rawLang}"`);
     }
@@ -228,10 +250,16 @@ export function assertRunFence(fence, fileName = 'lesson.md') {
       fail(fileName, `"preview" is only supported for html, jsx, tsx, got "${fenceInfo.rawLang}"`);
     }
     if (fenceInfo.lang === 'html') {
+      for (const source of collectImportSources(fence.code)) {
+        if (isBareSpecifier(source) && !THREE_SPECIFIERS.has(source)) {
+          fail(fileName, `html preview can only import bare modules ${[...THREE_SPECIFIERS].map((s) => `"${s}"`).join(', ')}, got "${source}"`);
+        }
+      }
       const block = {
         lang: fenceInfo.lang,
         code: fence.code,
         mode: 'preview',
+        ...(fenceInfo.demo ? { demo: true } : {}),
       };
       if (/(?:src|href)\s*=\s*['"]\s*https?:\/\//i.test(fence.code)) {
         block.warning = EXTERNAL_RESOURCE_WARNING;
@@ -258,6 +286,7 @@ export function assertRunFence(fence, fileName = 'lesson.md') {
         code: fence.code,
         mode: 'preview',
         runtime,
+        ...(fenceInfo.demo ? { demo: true } : {}),
       };
     }
   }
@@ -278,6 +307,9 @@ export function collectRunBlocks(markdown, fileName = 'lesson.md') {
     if (fenceInfo.hasBothRuntimes) {
       fail(fileName, 'code fence cannot specify both "react" and "preact"');
     }
+    if (fenceInfo.mode === 'run' && fenceInfo.demo) {
+      fail(fileName, '"demo" only applies to preview blocks');
+    }
     let runtime;
     if (fenceInfo.mode === 'preview' && (fenceInfo.lang === 'jsx' || fenceInfo.lang === 'tsx')) {
       runtime = resolvePreviewRuntime(fenceInfo.explicitRuntime, fence.code);
@@ -287,6 +319,8 @@ export function collectRunBlocks(markdown, fileName = 'lesson.md') {
       code: fence.code,
       mode: fenceInfo.mode,
       ...(runtime ? { runtime } : {}),
+      ...(fenceInfo.mode === 'preview' && fenceInfo.demo ? { demo: true } : {}),
+      ...(fenceInfo.mode === 'preview' && previewUsesThree(fence.code) ? { usesThree: true } : {}),
     });
   }
   return blocks;
@@ -410,12 +444,28 @@ const PREVIEW_RUNTIMES = {
   },
 };
 
-export function buildPreviewDocument({ lang, code, runtime, runtimeSources }) {
+// Module sources are inlined as data: URLs in an import map, so bare
+// `import ... from 'three'` works inside the sandboxed srcdoc iframe
+// (no allow-same-origin, no network).
+export function buildModuleImportMap(moduleSources) {
+  if (!moduleSources) return '';
+  const imports = {};
+  for (const [specifier, source] of Object.entries(moduleSources)) {
+    if (typeof source !== 'string') continue;
+    imports[specifier] = `data:text/javascript;charset=utf-8,${encodeURIComponent(source)}`;
+  }
+  if (!Object.keys(imports).length) return '';
+  const json = JSON.stringify({ imports }).replace(/<\//g, '<\\/');
+  return `<script type="importmap">${json}</script>`;
+}
+
+export function buildPreviewDocument({ lang, code, runtime, runtimeSources, moduleSources }) {
   const normalized = normalizeRunLang(lang);
   const injectedTag = `<script>${PREVIEW_INJECTED_SCRIPT}</script>`;
+  const importMapTag = buildModuleImportMap(moduleSources);
 
   if (normalized === 'html') {
-    return `${injectedTag}\n${code || ''}`;
+    return `${importMapTag}${injectedTag}\n${code || ''}`;
   }
 
   const isReact = runtime === 'react' || Boolean(runtimeSources && !Array.isArray(runtimeSources) && runtimeSources.react);
@@ -438,6 +488,15 @@ export function buildPreviewDocument({ lang, code, runtime, runtimeSources }) {
 
   const safeCode = (code || '').replace(/<\/script/gi, '<\\/script');
   const runtimeConfig = PREVIEW_RUNTIMES[isReact ? 'react' : 'preact'];
+  const moduleSpecifiers = importMapTag ? Object.keys(moduleSources).filter((s) => typeof moduleSources[s] === 'string') : [];
+  // Component code runs after imported modules are available to its require().
+  const moduleLoader = moduleSpecifiers.length
+    ? `<script type="module">
+    window.__islandModules = {};
+    ${moduleSpecifiers.map((s, i) => `import * as __m${i} from ${JSON.stringify(s)}; window.__islandModules[${JSON.stringify(s)}] = __m${i};`).join('\n    ')}
+    window.__islandBoot();
+  </script>`
+    : '';
 
   return `<!DOCTYPE html>
 <html>
@@ -452,15 +511,22 @@ export function buildPreviewDocument({ lang, code, runtime, runtimeSources }) {
       box-sizing: border-box;
     }
   </style>
+  ${importMapTag}
   ${injectedTag}
   ${runtimeScripts}
 </head>
 <body>
   <div id="root"></div>
   <script>
-    (function() {
+    window.__islandBoot = function() {
       try {
         ${runtimeConfig.setup}
+        var __islandBaseRequire = __islandRequire;
+        __islandRequire = function(name) {
+          var modules = window.__islandModules || {};
+          if (Object.prototype.hasOwnProperty.call(modules, name)) return modules[name];
+          return __islandBaseRequire(name);
+        };
         (function(exports, require) {
           ${safeCode}
         })(__islandExports, __islandRequire);
@@ -474,8 +540,10 @@ export function buildPreviewDocument({ lang, code, runtime, runtimeSources }) {
         var msg = (err && err.message) ? err.message : String(err);
         console.error(msg);
       }
-    })();
+    };
+    ${moduleSpecifiers.length ? '' : 'window.__islandBoot();'}
   </script>
+  ${moduleLoader}
 </body>
 </html>`;
 }

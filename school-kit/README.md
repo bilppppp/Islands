@@ -125,6 +125,18 @@ either Preact (default, using Preact UMD bundles dynamically loaded via Vite `?r
 or React 19 (for React courses, bundle generated on demand via `esbuild` to `/vendor/react-preview/runtime.js`
 and fetched on first preview use, rendering with `ReactDOMClient.createRoot`).
 
+Adding `demo` to a preview fence (```html preview demo, also jsx/tsx) turns it
+into an interactive demo for any subject: the block opens expanded, shows only
+the live page full width, and keeps the editor and console behind a 查看代码 /
+View code toggle; runtime errors still show. Previews may import `three` and
+`three/addons/controls/OrbitControls.js`. When a lesson does, the build bundles
+the School's pinned `three` (an island dependency) with esbuild into
+`public/vendor/three-preview/`, and the page passes those modules to the sandboxed
+iframe as `data:` URLs in an import map, so nothing is fetched from the network
+and `allow-same-origin` stays off. Each new preview document mounts a fresh
+iframe, because Chrome can drop a large `srcdoc` update on an iframe whose first
+load is still pending.
+
 Lesson Markdown may also include fenced ```numberline blocks for interactive number
 line widgets (see `generation/protocol.md`). The overlay configures `numberline`
 syntax in `astro.config.mjs` and ships parsing and validation in

@@ -783,3 +783,72 @@ export default function App() {
   });
 });
 
+
+describe('preview demo flag and bundled three', () => {
+  const fence = (info, code) => `\`\`\`${info}\n${code}\n\`\`\`\n`;
+  const threeHtml = '<div id="app"></div>\n<script type="module">\nimport * as THREE from \'three\';\nimport { OrbitControls } from \'three/addons/controls/OrbitControls.js\';\nconsole.log(typeof THREE);\n</script>';
+
+  it('accepts demo on preview blocks and records it', () => {
+    const [html] = assertRunBlocks(fence('html preview demo', '<p>hi</p>'));
+    assert.equal(html.demo, true);
+    const [jsx] = assertRunBlocks(fence('jsx preview react demo', 'export default function App() { return <p>hi</p>; }'));
+    assert.equal(jsx.demo, true);
+    assert.equal(jsx.runtime, 'react');
+    const [plain] = assertRunBlocks(fence('html preview', '<p>hi</p>'));
+    assert.equal(plain.demo, undefined);
+  });
+
+  it('rejects demo on run blocks', () => {
+    assert.throws(() => assertRunBlocks(fence('python run demo', 'print(1)')), /"demo" only applies to preview blocks/);
+    assert.throws(() => collectRunBlocks(fence('js run demo', 'console.log(1)')), /"demo" only applies to preview blocks/);
+  });
+
+  it('allows three imports in html previews and rejects other bare modules', () => {
+    const [block] = assertRunBlocks(fence('html preview demo', threeHtml));
+    assert.equal(block.mode, 'preview');
+    assert.throws(
+      () => assertRunBlocks(fence('html preview', '<script type="module">\nimport confetti from \'canvas-confetti\';\n</script>')),
+      /html preview can only import bare modules/,
+    );
+  });
+
+  it('allows three in jsx previews with either runtime and still rejects other modules', () => {
+    const reactCode = 'import { useEffect } from "react";\nimport * as THREE from "three";\nexport default function App() { useEffect(() => { new THREE.Scene(); }, []); return <div />; }';
+    assert.equal(assertRunBlocks(fence('jsx preview', reactCode))[0].runtime, 'react');
+    const preactCode = 'import { useEffect } from "preact/hooks";\nimport * as THREE from "three";\nexport default function App() { return <div />; }';
+    assert.equal(assertRunBlocks(fence('jsx preview', preactCode))[0].runtime, 'preact');
+    assert.throws(
+      () => assertRunBlocks(fence('jsx preview', 'import * as d3 from "d3";\nexport default function App() { return <div />; }')),
+      /can only import/,
+    );
+  });
+
+  it('marks blocks that use three so the build bundles it only when needed', () => {
+    const blocks = collectRunBlocks(fence('html preview demo', threeHtml) + fence('html preview', '<p>plain</p>'));
+    assert.equal(blocks[0].usesThree, true);
+    assert.equal(blocks[0].demo, true);
+    assert.equal(blocks[1].usesThree, undefined);
+  });
+
+  it('inlines module sources as an import map ahead of any module script', () => {
+    const moduleSources = { three: 'export const Scene = 1;', 'three/addons/controls/OrbitControls.js': 'import "three"; export class OrbitControls {}' };
+    const html = buildPreviewDocument({ lang: 'html', code: threeHtml, moduleSources });
+    assert.ok(html.startsWith('<script type="importmap">'));
+    const map = JSON.parse(html.match(/<script type="importmap">([\s\S]*?)<\/script>/)[1]);
+    assert.ok(map.imports.three.startsWith('data:text/javascript'));
+    assert.equal(decodeURIComponent(map.imports.three.split(',').slice(1).join(',')), moduleSources.three);
+    assert.ok(map.imports['three/addons/controls/OrbitControls.js']);
+    assert.ok(!buildPreviewDocument({ lang: 'html', code: '<p>x</p>' }).includes('importmap'));
+  });
+
+  it('boots jsx previews after their modules load when three is used', () => {
+    const doc = buildPreviewDocument({ lang: 'jsx', code: 'exports.default = function App() { return null; };', runtime: 'preact', runtimeSources: { preact: '', hooks: '' }, moduleSources: { three: 'export const Scene = 1;' } });
+    assert.ok(doc.indexOf('<script type="importmap">') < doc.indexOf('<script type="module">'));
+    assert.match(doc, /import \* as __m0 from "three"/);
+    assert.equal(doc.split('window.__islandBoot();').length - 1, 1);
+    assert.ok(doc.indexOf('window.__islandBoot();') > doc.indexOf('<script type="module">'));
+    const plain = buildPreviewDocument({ lang: 'jsx', code: 'exports.default = function App() { return null; };', runtime: 'preact', runtimeSources: { preact: '', hooks: '' } });
+    assert.ok(!plain.includes('type="module"'));
+    assert.match(plain, /window\.__islandBoot\(\);/);
+  });
+});

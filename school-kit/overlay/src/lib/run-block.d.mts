@@ -5,11 +5,19 @@ export interface RunBlock {
   code: string;
   mode?: 'run' | 'preview';
   runtime?: 'react' | 'preact';
+  demo?: boolean;
+  usesThree?: boolean;
+  warning?: string;
 }
+
+export const THREE_SPECIFIERS: Set<string>;
 
 export function normalizeRunLang(lang: string): string;
 export function isRunnableLang(lang: string): boolean;
 export function isPreviewLang(lang: string): boolean;
+export function collectImportSources(code?: string): string[];
+export function previewUsesThree(code?: string): boolean;
+export function buildModuleImportMap(moduleSources?: Record<string, string> | null): string;
 export function resolvePreviewRuntime(
   fenceInfoOrMeta?: string | { runtime?: string; explicitRuntime?: string; hasBothRuntimes?: boolean } | null,
   code?: string,
@@ -23,4 +31,5 @@ export function buildPreviewDocument(options: {
   code: string;
   runtime?: 'react' | 'preact';
   runtimeSources?: { preact?: string; hooks?: string; react?: string; [key: string]: unknown } | string[];
+  moduleSources?: Record<string, string>;
 }): string;

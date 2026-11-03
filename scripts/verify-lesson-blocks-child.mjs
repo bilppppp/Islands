@@ -194,6 +194,14 @@ async function main() {
           }
         }
       } else if (block.mode === 'preview') {
+        // three is used inside effects/handlers; server rendering only needs the module to resolve.
+        const previewModule = (name) => {
+          if (name === 'three') {
+            try { return req('three'); } catch { return {}; }
+          }
+          if (name === 'three/addons/controls/OrbitControls.js') return { OrbitControls: class OrbitControls {} };
+          return undefined;
+        };
         if (block.lang === 'html') {
           res.ok = true;
           res.html = block.code;
@@ -215,6 +223,8 @@ async function main() {
               if (name === 'react') return React;
               if (name === 'react-dom/client') return ReactDOMClient;
               if (name === 'react-dom/server') return ReactDOMServer;
+              const mod = previewModule(name);
+              if (mod) return mod;
               throw new Error(`Cannot find module '${name}'`);
             },
             exports: {},
@@ -260,6 +270,8 @@ async function main() {
             require: (name) => {
               if (name === 'preact') return preactStub;
               if (name === 'preact/hooks') return preactHooksStub;
+              const mod = previewModule(name);
+              if (mod) return mod;
               throw new Error(`Cannot find module '${name}'`);
             },
             exports: {},

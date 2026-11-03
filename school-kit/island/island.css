@@ -1822,7 +1822,8 @@ button.source-cite:focus-visible {
 
 .island-run-reset,
 .island-run-fullscreen,
-.island-run-close {
+.island-run-close,
+.island-demo-code-toggle {
   background: transparent;
   color: #725d42;
   border: 1px dashed #c4b089;
@@ -1830,7 +1831,8 @@ button.source-cite:focus-visible {
 
 .island-run-reset:hover:not(:disabled),
 .island-run-fullscreen:hover:not(:disabled),
-.island-run-close:hover:not(:disabled) {
+.island-run-close:hover:not(:disabled),
+.island-demo-code-toggle:hover {
   background: #f7f3df;
 }
 
@@ -2373,4 +2375,25 @@ button.source-cite:focus-visible {
   background: #ffebee;
   border-color: #e57373;
   color: #c62828;
+}
+
+/* Island Preview Demos: live page only, code behind a toggle */
+.island-preview-card.island-demo-card .island-preview-frame-wrap {
+  height: 380px;
+}
+
+.island-preview-modal-grid.island-demo-modal-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@container (max-width: 599.98px) {
+  .island-preview-card.island-demo-card .island-preview-frame-wrap {
+    height: 300px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .island-preview-modal .island-demo-modal-grid .island-preview-view-col {
+    height: min(60vh, 480px);
+  }
 }

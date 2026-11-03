@@ -23,6 +23,7 @@ ISLAND_DEPENDENCIES = {
     "sucrase": "3.35.1",
     "preact": "10.29.8",
     "esbuild": "0.27.4",
+    "three": "0.186.1",
 }
 
 ISLAND_ASTRO_FILES = (

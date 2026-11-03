@@ -4,6 +4,7 @@ import IslandAskTeacher, { t } from "./IslandAskTeacher";
 import {
 	buildPreviewDocument,
 	normalizeRunLang,
+	previewUsesThree,
 	resolvePreviewRuntime,
 	previewTransformOptions,
 	tsRunTransformOptions,
@@ -46,6 +47,28 @@ async function transformWithSucrase(
 let preactUmdSource: string | null = null;
 let hooksUmdSource: string | null = null;
 let reactRuntimeSource: string | null = null;
+let threeModuleSources: Record<string, string> | null = null;
+
+// The School bundles three into public/vendor/three-preview/ at build time;
+// the preview receives it through an import map, never from the network.
+async function loadThreeModuleSources(): Promise<Record<string, string>> {
+	if (!threeModuleSources) {
+		const [three, orbitControls] = await Promise.all(
+			["three.js", "orbit-controls.js"].map(async (name) => {
+				const res = await fetch(`/vendor/three-preview/${name}`);
+				if (!res.ok) {
+					throw new Error(`无法加载 three 运行库 (HTTP ${res.status})`);
+				}
+				return res.text();
+			}),
+		);
+		threeModuleSources = {
+			three,
+			"three/addons/controls/OrbitControls.js": orbitControls,
+		};
+	}
+	return threeModuleSources;
+}
 
 async function loadPreactUmdSources(): Promise<{
 	preact: string;
@@ -187,11 +210,13 @@ export default function IslandRunBlock({
 	lang = "python",
 	mode = "run",
 	initialRuntime,
+	demo = false,
 }: {
 	initialCode: string;
 	lang?: string;
 	mode?: "run" | "preview";
 	initialRuntime?: "react" | "preact";
+	demo?: boolean;
 }) {
 	const [code, setCode] = useState(initialCode);
 	const [stdin, setStdin] = useState("");
@@ -207,7 +232,14 @@ export default function IslandRunBlock({
 	const isModalOpenRef = useRef(false);
 
 	// Preview states
-	const [previewDoc, setPreviewDoc] = useState("");
+	const [previewDoc, setPreviewDocState] = useState("");
+	// Each new document mounts a fresh iframe with srcdoc set before insertion:
+	// Chrome can drop a large srcdoc update on an iframe whose first load is still pending.
+	const [previewDocVersion, setPreviewDocVersion] = useState(0);
+	const setPreviewDoc = (doc: string) => {
+		setPreviewDocState(doc);
+		setPreviewDocVersion((version) => version + 1);
+	};
 	const [consoleLogs, setConsoleLogs] = useState<
 		{ level: string; text: string }[]
 	>([]);
@@ -222,6 +254,8 @@ export default function IslandRunBlock({
 	const [isExpanded, setIsExpanded] = useState(false);
 	const isFirstRender = useRef(true);
 	const [isVisible, setIsVisible] = useState(false);
+	// A demo shows only the live page; the editor and console stay behind a toggle.
+	const [showCode, setShowCode] = useState(!demo);
 
 	const normalizedLang = normalizeRunLang(lang);
 	const langTitle =
@@ -257,10 +291,20 @@ export default function IslandRunBlock({
 
 	const updatePreview = async (codeToRender: string) => {
 		lastPreviewCodeRef.current = codeToRender;
+		let moduleSources: Record<string, string> | undefined;
+		if (previewUsesThree(codeToRender)) {
+			try {
+				moduleSources = await loadThreeModuleSources();
+			} catch (err: unknown) {
+				const msg = err instanceof Error ? err.message : String(err);
+				setPreviewError(`加载运行库失败：${msg}`);
+				return;
+			}
+		}
 		if (normalizedLang === "html") {
 			setPreviewError(null);
 			setConsoleLogs([]);
-			const doc = buildPreviewDocument({ lang: "html", code: codeToRender });
+			const doc = buildPreviewDocument({ lang: "html", code: codeToRender, moduleSources });
 			setPreviewDoc(doc);
 			return;
 		}
@@ -299,6 +343,7 @@ export default function IslandRunBlock({
 					code: transformedCode,
 					runtime,
 					runtimeSources,
+					moduleSources,
 				});
 				setPreviewDoc(doc);
 			} catch (err: unknown) {
@@ -524,11 +569,9 @@ export default function IslandRunBlock({
 	};
 
 	const describePreview = (): string => {
+		const codeChanged = !demo || code !== initialCode;
 		const lines: string[] = [
-			t("askTeacherRunCode"),
-			`\`\`\`${lang}`,
-			code,
-			"```",
+			...(codeChanged ? [t("askTeacherRunCode"), `\`\`\`${lang}`, code, "```"] : []),
 			t("askTeacherPreviewText"),
 			pageText.trim() ? pageText.trim() : t("askTeacherPreviewNoText"),
 			t("askTeacherPreviewConsole"),
@@ -585,10 +628,20 @@ export default function IslandRunBlock({
 		<div className="island-run-header">
 			{!inModal ? (
 				<span className="island-run-badge">
-					{langTitle} {badgeSuffix}
+					{demo ? badgeSuffix : `${langTitle} ${badgeSuffix}`}
 				</span>
 			) : null}
 			<div className="island-run-actions">
+				{demo ? (
+					<button
+						type="button"
+						className="island-run-btn island-demo-code-toggle"
+						aria-expanded={showCode}
+						onClick={() => setShowCode((value) => !value)}
+					>
+						{showCode ? t("demoHideCode") : t("demoShowCode")}
+					</button>
+				) : null}
 				{showRunButton ? (
 					<button
 						type="button"
@@ -659,6 +712,7 @@ export default function IslandRunBlock({
 		<div className="island-preview-frame-wrap">
 			{isVisible ? (
 				<iframe
+					key={previewDocVersion}
 					ref={inModal ? modalIframeRef : inlineIframeRef}
 					sandbox="allow-scripts"
 					srcDoc={previewDoc}
@@ -675,6 +729,24 @@ export default function IslandRunBlock({
 
 	const renderConsole = () => {
 		const hasConsoleOutput = consoleLogs.length > 0 || Boolean(previewError);
+		if (!showCode) {
+			const errors = consoleLogs.filter((log) => log.level === "error");
+			if (!errors.length && !previewError) return null;
+			return (
+				<div className="island-preview-console" aria-live="polite">
+					<div className="island-preview-console-body">
+						{errors.map((log, idx) => (
+							<div key={idx} className="island-preview-log island-preview-log-error">
+								{log.text}
+							</div>
+						))}
+						{previewError ? (
+							<div className="island-preview-log island-preview-log-error">{previewError}</div>
+						) : null}
+					</div>
+				</div>
+			);
+		}
 		return (
 			<div className="island-preview-console" aria-live="polite">
 				{hasConsoleOutput ? (
@@ -712,28 +784,35 @@ export default function IslandRunBlock({
 				className="island-run-collapse-wrap"
 			>
 				<Collapse
-					defaultExpanded={false}
+					defaultExpanded={demo}
 					className="island-run-collapse"
-					question={t("collapsePreviewTitle", { lang: langTitle })}
+					question={demo ? t("collapseDemoTitle") : t("collapsePreviewTitle", { lang: langTitle })}
 					answer={
-						<div ref={containerRef} className="island-run-card island-preview-card">
+						<div
+							ref={containerRef}
+							className={`island-run-card island-preview-card${demo && !showCode ? " island-demo-card" : ""}`}
+						>
 							{renderHeader({
-								badgeSuffix: "预览",
-								showRunButton: true,
+								badgeSuffix: demo ? t("demoBadge") : "预览",
+								showRunButton: showCode,
 								showFullscreenButton: true,
 								teacherKind: "preview",
 								teacherDescribe: describePreview,
 							})}
 
-							<div className="island-preview-grid">
-								<div className="island-preview-editor-col">
-									{renderEditor()}
-								</div>
+							{showCode ? (
+								<div className="island-preview-grid">
+									<div className="island-preview-editor-col">
+										{renderEditor()}
+									</div>
 
-								<div className="island-preview-view-col">
-									{renderPreviewFrame()}
+									<div className="island-preview-view-col">
+										{renderPreviewFrame()}
+									</div>
 								</div>
-							</div>
+							) : (
+								<div className="island-preview-view-col">{renderPreviewFrame()}</div>
+							)}
 
 							{renderConsole()}
 						</div>
@@ -746,27 +825,33 @@ export default function IslandRunBlock({
 					typewriter={false}
 					footer={null}
 					maskClosable
-					title={t("previewModalTitle", { lang: langTitle })}
+					title={demo ? t("collapseDemoTitle") : t("previewModalTitle", { lang: langTitle })}
 					className="island-preview-modal"
 				>
 					<div className="island-preview-modal-content">
 						{renderHeader({
-							badgeSuffix: "预览",
-							showRunButton: true,
+							badgeSuffix: demo ? t("demoBadge") : "预览",
+							showRunButton: showCode,
 							inModal: true,
 							teacherKind: "preview",
 							teacherDescribe: describePreview,
 						})}
 
-						<div className="island-preview-modal-grid">
-							<div className="island-preview-editor-col">
-								{renderEditor(true)}
-							</div>
+						{showCode ? (
+							<div className="island-preview-modal-grid">
+								<div className="island-preview-editor-col">
+									{renderEditor(true)}
+								</div>
 
-							<div className="island-preview-view-col">
-								{renderPreviewFrame(true)}
+								<div className="island-preview-view-col">
+									{renderPreviewFrame(true)}
+								</div>
 							</div>
-						</div>
+						) : (
+							<div className="island-preview-modal-grid island-demo-modal-grid">
+								<div className="island-preview-view-col">{renderPreviewFrame(true)}</div>
+							</div>
+						)}
 
 						{renderConsole()}
 					</div>
