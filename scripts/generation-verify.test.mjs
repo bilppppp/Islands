@@ -761,6 +761,90 @@ print(x)
     assert.match(wanted[1].message, /compass-and-straightedge canvas demo/);
   });
 
+  it('warns when COURSE.md has wanted interactions and the course has no preview demo', () => {
+    const courseMd = `# Course Goal
+
+## Wanted interactions
+- 01-crafting: draggable 3x3 crafting grid
+- 02-smelting: temperature furnace animation
+`;
+    const lessons = [
+      {
+        name: '01-crafting.md',
+        text: `---
+title: Crafting
+---
+
+\`\`\`predict
+question: What does a wood pickaxe mine?
+answer: Stone
+explain: It breaks stone.
+\`\`\`
+`,
+      },
+    ];
+    const warnings = collectSchoolWarnings(lessons, { courseMdText: courseMd });
+    const demoWarnings = warnings.filter((w) => w.code === 'wanted-interaction-without-demo');
+    assert.equal(demoWarnings.length, 1);
+    assert.equal(demoWarnings[0].level, 'warning');
+    assert.equal(demoWarnings[0].file, 'COURSE.md');
+    assert.equal(demoWarnings[0].line, 4);
+    assert.match(
+      demoWarnings[0].message,
+      /COURSE\.md 登记了想要的交互，但整门课没有 `html preview demo`；先确认能否用 demo 按来源规则做出来，做不了再在登记里写明原因。/
+    );
+  });
+
+  it('is silent for wanted-interaction-without-demo when preview demo exists or no wanted items listed', () => {
+    const courseMdWithWanted = `# Course Goal
+
+## Wanted interactions
+- 01-crafting: draggable 3x3 crafting grid
+`;
+    const lessonsWithDemo = [
+      {
+        name: '01-crafting.md',
+        text: `---
+title: Crafting
+---
+
+\`\`\`html preview demo
+<div id="grid">3x3 grid</div>
+\`\`\`
+`,
+      },
+    ];
+    const warningsWithDemo = collectSchoolWarnings(lessonsWithDemo, { courseMdText: courseMdWithWanted });
+    assert.equal(
+      warningsWithDemo.filter((w) => w.code === 'wanted-interaction-without-demo').length,
+      0
+    );
+
+    // Silent when no wanted interactions in COURSE.md
+    const courseMdClean = `# Course Goal
+
+## Architecture
+Some text.
+`;
+    const warningsNoWanted = collectSchoolWarnings([], { courseMdText: courseMdClean });
+    assert.equal(
+      warningsNoWanted.filter((w) => w.code === 'wanted-interaction-without-demo').length,
+      0
+    );
+
+    // Silent when Wanted interactions is listed as none / 无
+    const courseMdNone = `# Course Goal
+
+## Wanted interactions
+- 无
+`;
+    const warningsNone = collectSchoolWarnings([], { courseMdText: courseMdNone });
+    assert.equal(
+      warningsNone.filter((w) => w.code === 'wanted-interaction-without-demo').length,
+      0
+    );
+  });
+
   it('does not trigger repair when validation produces only warnings without errors', async () => {
     let validateCalls = 0;
     let repairCalls = 0;
@@ -1172,7 +1256,7 @@ Body text.
     }
   });
 
-  it('repairUntilValid does not trigger repair on unsourced-identifier, echo-only-run-block, or orphan-source-file warnings', async () => {
+  it('repairUntilValid does not trigger repair on unsourced-identifier, echo-only-run-block, orphan-source-file, or wanted-interaction-without-demo warnings', async () => {
     let validateCalls = 0;
     let repairCalls = 0;
 

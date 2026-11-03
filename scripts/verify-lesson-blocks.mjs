@@ -293,24 +293,69 @@ export function verifyLessonBlocks(
 export function parseWantedInteractions(courseMdText, courseFile = 'COURSE.md') {
   if (!courseMdText) return [];
   const lines = courseMdText.split(/\r?\n/);
-  let inSection = false;
+  let inHeaderSection = false;
+  let inSubSection = false;
   const items = [];
+
+  const isNoneMessage = (msg) => {
+    const clean = msg.replace(/^[`*_\s]+|[`*_\s]+$/g, '').trim().toLowerCase();
+    return /^(?:无(?:[。，；、:：（）()\s]|$)|无(?:需|额外|特殊|超出|其他)?(?:需求|组件|交互)?|暂无|无需|没有|none\b|n\/?a\b|nil\b)/i.test(clean);
+  };
+
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const trimmed = line.trim();
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+
     const headerMatch = trimmed.match(/^#+\s*(.+)$/);
     if (headerMatch) {
-      if (/^wanted\s+interactions$/i.test(headerMatch[1].trim())) {
-        inSection = true;
+      inSubSection = false;
+      const title = headerMatch[1].trim();
+      if (/^(?:\d+[.、\s]*)?(?:期望互动\s*)?\(?wanted\s+interactions\)?$/i.test(title)) {
+        inHeaderSection = true;
         continue;
-      } else if (inSection) {
-        break;
+      } else {
+        inHeaderSection = false;
       }
     }
-    if (inSection) {
+
+    if (trimmed === '---') {
+      inSubSection = false;
+      continue;
+    }
+
+    const markerMatch = trimmed.match(/^(?:[-*]|\d+\.)?\s*\*{0,2}(?:Wanted\s+interactions|期望互动)\*{0,2}\s*[:：]\s*(.*)$/i);
+    if (markerMatch) {
+      const rest = markerMatch[1].trim();
+      if (rest) {
+        inSubSection = false;
+        if (!isNoneMessage(rest)) {
+          const message = rest.replace(/^[-*]\s+|\d+\.\s+/, '').trim();
+          if (message) {
+            items.push({
+              level: 'info',
+              code: 'wanted-interaction',
+              file: courseFile,
+              line: i + 1,
+              message,
+            });
+          }
+        }
+      } else {
+        inSubSection = true;
+      }
+      continue;
+    }
+
+    if (inSubSection) {
+      if (/^(?:[-*]|\d+\.)\s+\S/.test(rawLine) && !rawLine.startsWith(' ') && !rawLine.startsWith('\t')) {
+        inSubSection = false;
+      }
+    }
+
+    if (inHeaderSection || inSubSection) {
       if (!trimmed) continue;
       const message = trimmed.replace(/^[-*]\s+|\d+\.\s+/, '').trim();
-      if (message) {
+      if (message && !isNoneMessage(message)) {
         items.push({
           level: 'info',
           code: 'wanted-interaction',
@@ -447,6 +492,7 @@ export function collectSchoolWarnings(target, options = {}) {
 
   const warnings = [];
   let hasCodeBlock = false;
+  let hasDemoPreview = false;
   const htmlPreviewBlocks = [];
   const runBlocks = [];
   let totalInteractiveBlocks = 0;
@@ -481,16 +527,21 @@ export function collectSchoolWarnings(target, options = {}) {
         if (isRunOrPreview) {
           try {
             const runMeta = assertRunFence(fence, file);
-            if (runMeta && runMeta.mode === 'preview' && runMeta.lang === 'html') {
-              htmlPreviewBlocks.push({ file, line });
-              if (runMeta.warning) {
-                warnings.push({
-                  level: 'warning',
-                  code: 'preview-external-resource',
-                  file,
-                  line,
-                  message: runMeta.warning,
-                });
+            if (runMeta && runMeta.mode === 'preview') {
+              if (runMeta.demo) {
+                hasDemoPreview = true;
+              }
+              if (runMeta.lang === 'html') {
+                htmlPreviewBlocks.push({ file, line });
+                if (runMeta.warning) {
+                  warnings.push({
+                    level: 'warning',
+                    code: 'preview-external-resource',
+                    file,
+                    line,
+                    message: runMeta.warning,
+                  });
+                }
               }
             } else if (runMeta && runMeta.mode === 'run') {
               runBlocks.push({ file, line });
@@ -704,6 +755,15 @@ export function collectSchoolWarnings(target, options = {}) {
   if (courseMdText) {
     const wantedInfos = parseWantedInteractions(courseMdText, courseFile);
     warnings.push(...wantedInfos);
+    if (wantedInfos.length > 0 && !hasDemoPreview) {
+      warnings.push({
+        level: 'warning',
+        code: 'wanted-interaction-without-demo',
+        file: courseFile,
+        line: wantedInfos[0].line,
+        message: 'COURSE.md 登记了想要的交互，但整门课没有 `html preview demo`；先确认能否用 demo 按来源规则做出来，做不了再在登记里写明原因。',
+      });
+    }
   }
 
   return warnings;

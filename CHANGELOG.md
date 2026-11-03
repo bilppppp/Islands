@@ -2,6 +2,17 @@
 
 这里只记使用方式上的变化。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
 
+## [2026-11-04]
+
+### 新增
+
+- 课程检查新增非阻断提醒：当 `COURSE.md` 登记了 Wanted interactions 但整门课没有 `html preview demo` 时，提醒先确认能否用 demo 按来源规则实现，做不了再在登记里写明原因。
+
+### 变更
+
+- 生成协议明确优先构建演示：将 `html preview demo` 作为任何学科无需学习代码即可提供动手交互的默认方式（如网格摆放、时间线、循环计时、比例换算、分步流程、3D 空间布局等），先尝试做成演示，仅在确实无法实现（依赖真实游戏引擎、外部运行时、多用户状态、未保存素材或硬件等）时才在 `COURSE.md` 登记 Wanted interactions 并写明无法实现的原因。
+- 生成协议与 Agent 指南明确禁止跨 School 抄袭：课程文件必须依据本 School 保存的材料编写，严禁抄袭或改写其他 School 的 `COURSE.md` 或关卡；若参考了其他 School 须在 `COURSE.md` 与生成总结中注明。
+
 ## [2026-11-03]
 
 ### 新增
