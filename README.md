@@ -1,6 +1,6 @@
 # Islands
 
-Islands 把学习材料和学习目标做成一所独立网站（School）。网站发给学生一串身份并记住进度；关卡上的提示词交给 Coding Agent，就可以按课程讲解、问答和练习，下次用同一身份接着学。课程深度决定学什么，教学模式决定互动节奏。Pi 是默认的生成和教学入口；具备文件读写、终端和 HTTP 访问能力的 Coding Agent 也可以建校或授课。各 Harness 的验证范围见 [HARNESS-VALIDATION.md](HARNESS-VALIDATION.md)。使用方式上的变化记在 [CHANGELOG.md](CHANGELOG.md)。
+Islands 把学习材料和学习目标做成一所独立网站（School）。网站发给学生一串身份并记住进度；关卡上的提示词交给 Coding Agent，就可以按课程讲解、问答和练习，下次用同一身份接着学。课程深度决定学什么，教学模式决定互动节奏。Pi 是默认的生成和教学入口；具备文件读写、终端和 HTTP 访问能力的 Coding Agent 也可以建校或授课。使用方式上的变化记在 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 可以打开的课程
 

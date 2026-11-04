@@ -223,4 +223,4 @@ launcher. `create --prepare-only` prepares sources plus `GENERATION.md` for
 the current Coding Agent; `finish NAME` uses the same curriculum checks and
 build without calling Pi. `teach --prompt-only` returns a shared continuation
 prompt rather than launching a teacher. No alternate adapter or session
-format is required. See `HARNESS-VALIDATION.md` for actual verified limits.
+format is required.

@@ -1,3 +1,5 @@
+> 方案说明：记录于 2026-10-20，为首批 10 门入门示例课的生成任务提示词模板。每门课生成时的具体格式、来源引用（`{{cite …}}`）与交互块（`predict`、`run`、`preview`、`demo`）规则均以 `create --prepare-only` 产出的 `GENERATION.md`（由 [`../../generation/protocol.md`](../../generation/protocol.md) 生成）为准。
+
 # 前 10 门小白课：交给 agy 的生成提示词
 
 一次只做一门。做完 `finish` 并确认构建通过后，再开始下一门。不要十门并行抓取。

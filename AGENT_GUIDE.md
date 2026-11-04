@@ -73,4 +73,4 @@ npm run school -- start new-school
 
 Pi 是默认实现：可以使用 `npm run school -- teach NAME --student STUDENT_ID`；它启动 Pi 并读取 `/harness/pi.txt`。其他 Harness 可直接使用网页提示词，或者在网站运行时使用 `teach NAME --student STUDENT_ID --prompt-only`，该选项只返回通用提示词，不启动 Pi。使用其他端口时同传 `--port PORT`。不要求其他教师使用 Pi 的工具名、RPC 或会话文件，也不需要新增适配器。
 
-用户可在网页或对话中调整模式，无需重新生成课程。教师每轮获取当前关卡和偏好，完成后询问是否继续；新会话从服务器进度选择首个未完成关卡。保留 School 的 `.wrangler/` 本地数据。不要替教师直接写完成状态。已验证能力与未验证范围见 [HARNESS-VALIDATION.md](HARNESS-VALIDATION.md)，不把一个 Harness 的成功推广为所有 Harness 已验证。
+用户可在网页或对话中调整模式，无需重新生成课程。教师每轮获取当前关卡和偏好，完成后询问是否继续；新会话从服务器进度选择首个未完成关卡。保留 School 的 `.wrangler/` 本地数据。不要替教师直接写完成状态。不把一个 Harness 的成功推广为所有 Harness 已验证。

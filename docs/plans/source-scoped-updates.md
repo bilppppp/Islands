@@ -82,7 +82,7 @@ npm run school -- update astro-zero-to-one --apply --plan-id PLAN_ID
 
 来源副本改为 `public/sources/snapshots/<snapshot-id>/`。现有副本保留。最近看见的来源版本，和每一关实际采用的版本，分开记录。一次扫描完成，不等于整门课已经更新。
 
-协议仍是 `generation/protocol.md`，里面单列「局部修订」。`scripts/generate.mjs` 用允许修改的文件清单检查。应用前停止该校开发服务，再跑现有的 `finish NAME`。没有真实教师对话和网页进度同步时，不把构建通过写成教学闭环。
+新建课程协议在 [`../../generation/protocol.md`](../../generation/protocol.md)，局部修订协议独立在 [`../../generation/update.md`](../../generation/update.md)（由 `scripts/source-update.mjs` 读取）。`scripts/generate.mjs` 用允许修改的文件清单检查。应用前停止该校开发服务，再跑现有的 `finish NAME`。没有真实教师对话和网页进度同步时，不把构建通过写成教学闭环。
 
 ## 公开课清单
 

@@ -1,3 +1,5 @@
+> 方案说明：原路径 `plans/dual-host-school.md`（2026-10-13）。本方案已完成实施；后续于 2026-10-17 新增 `DEPLOY_TARGET=cloudflare` 与私有 R2 支持，并将 Vercel 构建检查扩充为 `BLOB_STORE_ID` 或 `BLOB_READ_WRITE_TOKEN`。现行运行与部署规范以 [`../../school-kit/overlay/DEPLOYMENT.md`](../../school-kit/overlay/DEPLOYMENT.md) 和 [`../../school-kit/README.md`](../../school-kit/README.md) 为准。
+
 # 双托管实施方案
 
 日期：2026-10-13
