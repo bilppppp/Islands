@@ -68,10 +68,7 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 	return (
 		<div className="island-predict-card" data-revealed={revealed ? "1" : "0"}>
 			<div className="island-predict-badge">
-				<span className="island-predict-badge-icon" aria-hidden="true">
-					💡
-				</span>
-				<span>先预测，再揭晓</span>
+				<span>{t("predictBadge")}</span>
 			</div>
 
 			<div className="island-predict-question">
@@ -82,7 +79,7 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 				<div
 					className="island-predict-choices"
 					role="group"
-					aria-label="选择你的预测答案"
+					aria-label={t("predictChoicesAria")}
 				>
 					{block.choices!.map((choice, index) => {
 						let stateClass = "island-predict-choice";
@@ -111,12 +108,12 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 								</span>
 								{revealed && choice === block.answer && (
 									<span className="island-predict-choice-tag correct">
-										正确答案
+										{t("predictTagCorrect")}
 									</span>
 								)}
 								{revealed && choice === selected && choice !== block.answer && (
 									<span className="island-predict-choice-tag wrong">
-										你的预测
+										{t("predictTagYourGuess")}
 									</span>
 								)}
 							</button>
@@ -130,7 +127,7 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 						className="island-predict-submit-btn"
 						onClick={handleReveal}
 					>
-						我想好了，揭晓答案
+						{t("predictRevealBtn")}
 					</button>
 				</div>
 			) : null}
@@ -149,22 +146,25 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 						>
 							{hasChoices ? (
 								isCorrect ? (
-									<span>🎉 预测正确！</span>
+									<span>{t("predictFeedbackCorrect")}</span>
 								) : (
 									<span>
-										💭 你的预测与结果不同。正确答案是：
+										{t("predictFeedbackWrong")}{" "}
 										<strong>{renderInline(block.answer)}</strong>
 									</span>
 								)
 							) : (
 								<span>
-									🔑 答案：<strong>{renderInline(block.answer)}</strong>
+									{t("predictFeedbackOpen")}{" "}
+									<strong>{renderInline(block.answer)}</strong>
 								</span>
 							)}
 						</div>
 
 						<div className="island-predict-explain">
-							<div className="island-predict-explain-label">解析说明</div>
+							<div className="island-predict-explain-label">
+								{t("predictExplainLabel")}
+							</div>
 							<div className="island-predict-explain-body">
 								{renderInline(block.explain)}
 							</div>
@@ -177,7 +177,7 @@ export default function IslandPredict({ block }: IslandPredictProps) {
 								className="island-predict-reset-btn"
 								onClick={handleReset}
 							>
-								重新预测
+								{t("predictResetBtn")}
 							</button>
 						</div>
 					</div>
