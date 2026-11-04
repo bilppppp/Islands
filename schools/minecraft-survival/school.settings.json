@@ -1,0 +1,120 @@
+{
+  "name": "minecraft-survival",
+  "goal": "了解 Minecraft 基础知识、操作、配方，至少能够在一般的生存模式下活过一周",
+  "depth": "introductory",
+  "background": "零基础",
+  "learningStyle": "初学者（初中生）读得懂，通俗易懂，基础知识、操作、配方与生存指南",
+  "teachingMode": "simple",
+  "language": "zh",
+  "requireLessonSources": true,
+  "port": 4344,
+  "request": "使用 https://minecraft.wiki/，为零基础玩家打造 Minecraft 生存指南，了解游戏基础知识、操作、配方，至少能够在一般的生存模式下活过一周，初中生读得懂",
+  "sources": [
+    "https://minecraft.wiki/",
+    "https://minecraft.wiki/w/Crafting",
+    "https://minecraft.wiki/w/Tutorial:Shelters",
+    "https://minecraft.wiki/w/Hunger",
+    "https://minecraft.wiki/w/Tutorial:Beginner%27s_guide",
+    "https://minecraft.wiki/w/Tutorial:Mining",
+    "https://minecraft.wiki/w/Day-night_cycle",
+    "https://minecraft.wiki/w/Monster",
+    "https://minecraft.wiki/w/Smelting",
+    "https://minecraft.wiki/w/Bed",
+    "https://minecraft.wiki/w/Chest",
+    "https://minecraft.wiki/w/Health"
+  ],
+  "crawl": "auto",
+  "maxPages": 500,
+  "crawlWorkers": 2,
+  "output": "schools/minecraft-survival",
+  "sourceRoot": "schools/minecraft-survival/materials",
+  "materials": [
+    {
+      "path": "material-1/original.html",
+      "url": "https://minecraft.wiki/",
+      "fetchedURL": "https://minecraft.wiki/",
+      "retrieved": "2026-11-04",
+      "readableText": "material-1/original.html.txt",
+      "hints": [
+        "入口是站点根路径，未自动整站抓取。本次仍仅保存入口页。可选做法：用 npm run school -- supplement NAME --crawl-prefix <路径> 限定文档区路径重抓；或用 --source <URL> 保存指定页面或仓库。"
+      ]
+    },
+    {
+      "path": "material-2/original.html",
+      "url": "https://minecraft.wiki/w/Crafting",
+      "fetchedURL": "https://minecraft.wiki/w/Crafting",
+      "retrieved": "2026-11-04",
+      "readableText": "material-2/original.html.txt"
+    },
+    {
+      "path": "material-3/original.html",
+      "url": "https://minecraft.wiki/w/Tutorial:Shelters",
+      "fetchedURL": "https://minecraft.wiki/w/Tutorial:Shelters",
+      "retrieved": "2026-11-04",
+      "readableText": "material-3/original.html.txt"
+    },
+    {
+      "path": "material-4/original.html",
+      "url": "https://minecraft.wiki/w/Hunger",
+      "fetchedURL": "https://minecraft.wiki/w/Hunger",
+      "retrieved": "2026-11-04",
+      "readableText": "material-4/original.html.txt"
+    },
+    {
+      "path": "material-5/original.html",
+      "url": "https://minecraft.wiki/w/Tutorial:Beginner%27s_guide",
+      "fetchedURL": "https://minecraft.wiki/w/Tutorial:Beginner%27s_guide",
+      "retrieved": "2026-11-04",
+      "readableText": "material-5/original.html.txt"
+    },
+    {
+      "path": "material-6/original.html",
+      "url": "https://minecraft.wiki/w/Tutorial:Mining",
+      "fetchedURL": "https://minecraft.wiki/w/Tutorial:Mining",
+      "retrieved": "2026-11-04",
+      "readableText": "material-6/original.html.txt"
+    },
+    {
+      "path": "material-7/original.html",
+      "url": "https://minecraft.wiki/w/Day-night_cycle",
+      "fetchedURL": "https://minecraft.wiki/w/Day-night_cycle",
+      "retrieved": "2026-11-04",
+      "readableText": "material-7/original.html.txt"
+    },
+    {
+      "path": "material-8/original.html",
+      "url": "https://minecraft.wiki/w/Monster",
+      "fetchedURL": "https://minecraft.wiki/w/Monster",
+      "retrieved": "2026-11-04",
+      "readableText": "material-8/original.html.txt"
+    },
+    {
+      "path": "material-9/original.html",
+      "url": "https://minecraft.wiki/w/Smelting",
+      "fetchedURL": "https://minecraft.wiki/w/Smelting",
+      "retrieved": "2026-11-04",
+      "readableText": "material-9/original.html.txt"
+    },
+    {
+      "path": "material-10/original.html",
+      "url": "https://minecraft.wiki/w/Bed",
+      "fetchedURL": "https://minecraft.wiki/w/Bed",
+      "retrieved": "2026-11-04",
+      "readableText": "material-10/original.html.txt"
+    },
+    {
+      "path": "material-11/original.html",
+      "url": "https://minecraft.wiki/w/Chest",
+      "fetchedURL": "https://minecraft.wiki/w/Chest",
+      "retrieved": "2026-11-04",
+      "readableText": "material-11/original.html.txt"
+    },
+    {
+      "path": "material-12/original.html",
+      "url": "https://minecraft.wiki/w/Health",
+      "fetchedURL": "https://minecraft.wiki/w/Health",
+      "retrieved": "2026-11-04",
+      "readableText": "material-12/original.html.txt"
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+<div id="source-cite-pop" class="source-cite-pop" role="region" aria-label="来源原句" hidden>
+  <div class="source-cite-arrow" hidden></div>
+  <p class="source-cite-kicker">来源原句</p>
+  <p class="source-cite-title" id="source-cite-heading"></p>
+  <p class="source-cite-quote" id="source-cite-quote"></p>
+  <div class="source-cite-meta">
+    <span class="source-cite-path" id="source-cite-path"></span>
+    <a id="source-cite-local" href="">本地材料</a>
+    <a id="source-cite-url" href="" target="_blank" rel="noreferrer">原始页面</a>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var pop = document.getElementById("source-cite-pop");
+    if (!pop) return;
+    var heading = document.getElementById("source-cite-heading");
+    var quote = document.getElementById("source-cite-quote");
+    var path = document.getElementById("source-cite-path");
+    var local = document.getElementById("source-cite-local");
+    var url = document.getElementById("source-cite-url");
+    var arrow = pop.querySelector(".source-cite-arrow");
+    var buttons = Array.prototype.slice.call(document.querySelectorAll("button.source-cite"));
+    if (!buttons.length) return;
+    var current = null;
+    var pinned = false;
+    var showTimer = 0;
+    var hideTimer = 0;
+    var suppressFocusOpen = false;
+    var hoverCapable = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    function localHref(value) {
+      return "/sources/" + String(value).split("/").map(function (part) {
+        return encodeURIComponent(part);
+      }).join("/");
+    }
+
+    function fill(button) {
+      var full = button.getAttribute("data-path") || "";
+      var parts = full.split("/");
+      heading.textContent = button.getAttribute("data-heading") || "";
+      quote.textContent = button.getAttribute("data-quote") || "";
+      path.textContent = parts[parts.length - 1] || full;
+      local.href = localHref(full);
+      var rawUrl = button.getAttribute("data-url");
+      if (rawUrl) {
+        url.href = rawUrl;
+        url.hidden = false;
+        url.style.display = "";
+      } else {
+        url.removeAttribute("href");
+        url.hidden = true;
+        url.style.display = "none";
+      }
+    }
+
+    function place(button) {
+      pop.hidden = false;
+      var rect = button.getBoundingClientRect();
+      var width = pop.offsetWidth;
+      var height = pop.offsetHeight;
+      var gap = 10;
+      var left = rect.left + rect.width / 2 - width / 2;
+      left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+      var above = rect.top > height + gap + 8 && window.innerHeight - rect.bottom < height + gap + 8;
+      var top = above ? rect.top - height - gap : rect.bottom + gap;
+      pop.style.left = left + "px";
+      pop.style.top = top + "px";
+      var arrowLeft = rect.left + rect.width / 2 - left - 5;
+      arrow.hidden = false;
+      arrow.style.left = Math.max(12, Math.min(arrowLeft, width - 22)) + "px";
+      if (above) {
+        arrow.style.top = "auto";
+        arrow.style.bottom = "-6px";
+        arrow.style.transform = "rotate(225deg)";
+      } else {
+        arrow.style.bottom = "auto";
+        arrow.style.top = "-6px";
+        arrow.style.transform = "rotate(45deg)";
+      }
+    }
+
+    function open(button, pin) {
+      window.clearTimeout(showTimer);
+      window.clearTimeout(hideTimer);
+      if (current && current !== button) current.setAttribute("aria-expanded", "false");
+      current = button;
+      pinned = pin;
+      fill(button);
+      button.setAttribute("aria-expanded", "true");
+      place(button);
+    }
+
+    function close() {
+      window.clearTimeout(showTimer);
+      window.clearTimeout(hideTimer);
+      pinned = false;
+      if (current) current.setAttribute("aria-expanded", "false");
+      current = null;
+      pop.hidden = true;
+    }
+
+    function scheduleClose() {
+      if (pinned) return;
+      window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(close, 180);
+    }
+
+    buttons.forEach(function (button) {
+      button.addEventListener("pointerenter", function () {
+        if (!hoverCapable) return;
+        window.clearTimeout(hideTimer);
+        window.clearTimeout(showTimer);
+        showTimer = window.setTimeout(function () { open(button, false); }, 280);
+      });
+      button.addEventListener("pointerleave", function () {
+        window.clearTimeout(showTimer);
+        scheduleClose();
+      });
+      button.addEventListener("focus", function () {
+        if (suppressFocusOpen) {
+          suppressFocusOpen = false;
+          return;
+        }
+        open(button, false);
+      });
+      button.addEventListener("click", function () {
+        if (current === button && pinned) close();
+        else open(button, true);
+      });
+      button.addEventListener("keydown", function (event) {
+        if (event.key === "Tab" && !event.shiftKey && current === button && !pop.hidden) {
+          event.preventDefault();
+          local.focus();
+        }
+      });
+    });
+
+    pop.addEventListener("pointerenter", function () { window.clearTimeout(hideTimer); });
+    pop.addEventListener("pointerleave", scheduleClose);
+    local.addEventListener("keydown", function (event) {
+      if (event.key === "Tab" && event.shiftKey && current) {
+        event.preventDefault();
+        current.focus();
+      }
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && current) {
+        var back = current;
+        suppressFocusOpen = true;
+        close();
+        back.focus();
+        suppressFocusOpen = false;
+      }
+    });
+    document.addEventListener("pointerdown", function (event) {
+      if (!current) return;
+      if (current.contains(event.target) || pop.contains(event.target)) return;
+      close();
+    });
+    window.addEventListener("resize", function () { if (current) place(current); });
+    window.addEventListener("scroll", function () { if (current) place(current); }, true);
+  })();
+</script>

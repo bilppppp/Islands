@@ -31,3 +31,6 @@ __pycache__/
 
 # Local Claude Code guidance (personal workflow, not shared)
 /CLAUDE.md
+
+# Saved source copies stay local (copied into each School at generation time)
+/schools/*/public/sources/

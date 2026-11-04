@@ -1,0 +1,8 @@
+原创像素角色条和完成印章，供岛屿页面的四个外观使用。
+选择只更换行走图和已完成关卡上的印章，不改变课程、进度或教学方式。
+
+warrior.png、wizard.png、priest.png、ranger.png
+  各为 96×32 像素，横向三帧，每帧 32×32，透明背景。
+
+seal-warrior.svg、seal-wizard.svg、seal-priest.svg、seal-ranger.svg
+  已完成关卡使用的印章。页面按当前浏览器里的外观切换图案。

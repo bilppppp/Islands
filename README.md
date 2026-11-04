@@ -4,7 +4,7 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 
 ## 可以打开的课程
 
-六门七年级课程已经发布。打开后选择简单或沉浸模式，点「选择身份」选定角色，再点「开始学习」领取一串「形容词-名词-四位数字」的身份。进度写在网站上。
+六门七年级课程已经发布。打开后选择简单或沉浸模式，点「选择身份」选定角色，再点「开始学习」领取一串「形容词-名词-四位数字」的身份。进度写在网站上。已发布的站点尚未同步最新的 School Kit（如编辑器与交互演示），下方的仓库示例展示了当前页面。
 
 | 课程 | 地址 |
 | --- | --- |
@@ -15,19 +15,15 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 | 七年级地理 | [dili.learnislands.com](https://dili.learnislands.com) |
 | 七年级历史 | [lishi.learnislands.com](https://lishi.learnislands.com) |
 
-七年级语文首页：
+Minecraft 生存入门首页：
 
-![七年级语文首页，左侧是单元列表，右侧可以选择教学模式并开始学习](docs/images/yuwen.png)
+![Minecraft 生存入门首页，左侧是 7 关列表，右侧说明零基础在生存模式活过一周的目标](docs/images/minecraft-home.png)
 
-七年级数学首页：
+第 3 关工作台配方演示：
 
-![七年级数学首页，左侧是各关列表，右侧说明学完上册的目标](docs/images/shuxue.png)
+![第 3 关工作台配方演示，选中石剑，展示 3×3 九宫格摆放与合成说明](docs/images/minecraft-demo.png)
 
-七年级英语首页：
-
-![七年级英语首页，左侧是各单元，右侧说明词汇和句型按教材原文学习](docs/images/yingyu.png)
-
-仓库里的完整生成示例是 [astro-zero-to-one](schools/astro-zero-to-one/)。它从 [Astro 中文入门文档](https://docs.astro.build/zh-cn/getting-started/) 生成，面向还没有接触过框架的学习者，使用岛屿页面，共 12 关。[课程设计问答](schools/astro-zero-to-one/QA.md) 说明了抓到的页面里哪些进入了课程，以及为什么没有把全部材料写进课程。较早的七年级数学页面留在 [schools/math-grade7](schools/math-grade7/)。
+仓库里的完整生成示例是 [minecraft-survival](schools/minecraft-survival/)。它从 [Minecraft Wiki](https://minecraft.wiki/) 生成，面向零基础初学者（初中生读得懂），使用岛屿页面，共 7 关，每关都包含依据保存的维基规则构建的交互演示。[COURSE.md](schools/minecraft-survival/COURSE.md) 说明了路线规划、选中的来源以及每一关存在的理由。较早的七年级数学页面留在 [schools/math-grade7](schools/math-grade7/)。
 
 ## 核心能力
 
