@@ -39,11 +39,9 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 
 ## 岛屿页面
 
-新建 School 时，创建工具会装上岛屿页面。生成课程的 Agent 只写关卡正文，不改页面。
+新建 School 默认使用岛屿页面（卡片、按钮与进度组件来自 [animal-island-ui](https://github.com/guokaigdg/animal-island-ui)）。生成课程的 Agent 只写关卡正文，不改页面。
 
-关卡在首页排成一条路：已经完成的在上面，当前这一关展开，后面的关有锁的样子，但仍然可以打开。进入一关后，课文保持 Markdown，铺在羊皮纸上。代码用深色代码块，较小的标题用双层纸样式。若关卡正文标了来源句，自读页上会有虚线下划线；悬停或聚焦可看到保存文件里的那一句原文。网页上可以选择简单或沉浸模式；注册时先选战士、巫师、牧师或游侠，再领取学习身份。教师读取课程、切换模式和记录进度的方式不变。
-
-仓库里的 [Astro 示例](schools/astro-zero-to-one/) 和上面六门已发布的课程使用岛屿页面。较早的页面留在 [七年级数学](schools/math-grade7/)。
+关卡在首页排成一条路：已经完成的在上面，当前这一关展开，后面的关有锁的样子，但仍然可以打开。进入一关后，课文保持 Markdown，铺在羊皮纸上；关卡内支持预测揭晓卡、可运行代码块、实时预览与可操作演示。若关卡正文标了来源句，自读页上会有虚线下划线，悬停或聚焦可看到保存文件里的那一句原文。注册时先选战士、巫师、牧师或游侠（仅改变身份卡形象与完课印章），再领取学习身份。
 
 ## 快速开始
 
@@ -76,22 +74,20 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 
 未说明的设置使用默认值：系统深度、基础按需了解、中文、简单（Simple）模式。沉浸（Immersive）模式只改变提问节奏，不删减课程内容。
 
-执行细节见 [AGENT_GUIDE.md](AGENT_GUIDE.md)。修改仓库代码见 [AGENTS.md](AGENTS.md)。
+Agent 执行细节见 [AGENT_GUIDE.md](AGENT_GUIDE.md)。维护本仓库代码见 [AGENTS.md](AGENTS.md)。
 
 ### 打开网站学习
 
-1. 打开启动后的网址，选择简单或沉浸模式。点「选择身份」，从战士、巫师、牧师、游侠里选定角色，再点下方的「开始学习」领取学习身份。角色记在这台浏览器里，身份卡会显示对应的行走形象。学习身份和进度保存在网站上。
+1. 打开启动后的网址，选择简单或沉浸模式，点「选择身份」选定角色，再点「开始学习」领取学习身份。
 2. 进入关卡，复制启动 Prompt 交给教师 Agent。使用 Pi 时，可粘贴进会话，或运行 `npm run school -- teach NAME --student 网页身份`。其他 Agent 加 `--prompt-only`，只生成通用提示词。已部署的学校加上 `--origin https://学校地址`（不能与 `--port` 同时使用）。
 3. 按提示问答、推演或做实验。在网页上切换模式后，教师下一轮会读到新设置；对话里也可以直接要求放慢或展开推导。
 4. 教师记下进度后，当前页面会更新。另一台设备重新打开页面或刷新后看到新进度。新对话带上同一身份即可续学。
-
-新建的 School 使用岛屿页面：关卡正文铺在羊皮纸底上，卡片、按钮、进度和完成计数来自 [animal-island-ui](https://github.com/guokaigdg/animal-island-ui)。
 
 教师需要能读取 HTTP、调用 REST，并遵守站点 `/llms.txt`。课程和材料通过关卡 API 与 `/sources/` 访问，进度接口见 `/api/openapi.json`。只有 Pi 需要阅读 `/harness/pi.txt`。
 
 ## CLI
 
-需要 Node.js 22.12+（开发测试使用 24.16）、Python 3、Git、curl。PDF 还需当前 Python 能导入 `pypdf`。
+需要 Node.js 22.12+（开发测试使用 24.16）、Python 3、Git、curl。PDF 提取还需当前 Python 能导入 `pypdf`。
 
 ```sh
 npm run school -- setup
@@ -101,11 +97,11 @@ python3 -m pip install pypdf
 默认由 Pi 根据自然语言创建并生成课程：
 
 ```sh
-npm run school -- create "学习 https://github.com/sindresorhus/p-limit，目标是理解并发限制和核心实现。我熟悉 Promise，希望深入源码，教学先用简单模式"
+npm run school -- create "学习 https://github.com/sindresorhus/p-limit，理解异步并发限制，深入源码，教学先用简单模式"
 npm run school -- start my-school
 ```
 
-也可以直接传参数，跳过对自然语言的解析：
+也可以直接传参数，无需模型解析请求：
 
 ```sh
 npm run school -- create --source https://github.com/sindresorhus/p-limit \
@@ -113,68 +109,69 @@ npm run school -- create --source https://github.com/sindresorhus/p-limit \
   --depth 深入 --background "熟悉 JavaScript 和 Promise" --mode simple
 ```
 
-由当前 Agent 写课程时加上 `--prepare-only`。它只准备材料、网站骨架和 `schools/my-school/GENERATION.md`（通用生成协议加上这次的输入）。Agent 读完材料并写入课程后：
+由当前 Coding Agent 写课程时加上 `--prepare-only`。它只准备材料、网站骨架和 `schools/my-school/GENERATION.md`，不调用 Pi。Agent 写完课程后运行 `finish` 检查并构建：
 
 ```sh
 npm run school -- finish my-school
 npm run school -- start my-school
 ```
 
-`--source` 可重复。`--ref` 指定 Git 分支或 Tag，并记录解析到的 commit。`--depth`、`--background`、`--style` 可用自然语言。`--language`、`--port`、`--model` 可选。不带参数执行 `create` 时，交互终端会询问来源和目标。Pi 模型定义在 `scripts/pi.mjs`，可用环境变量 `SCHOOL_MODEL` 或 `--model` 切换，只影响 Pi 这条路径。
+`create` 可选参数：`--source`（可多次指定）、`--goal`、`--name NAME`、`--depth "入门/系统/深入或自由描述"`、`--background "已有基础"`、`--style "偏好"`、`--mode simple|immersive`、`--language zh`、`--port PORT`、`--ref TAG`（指定 Git 分支或 Tag，并记录解析到的 commit）、`--model PROVIDER/MODEL`（或环境变量 `SCHOOL_MODEL`，仅影响默认 Pi 路径，定义在 `scripts/pi.mjs`）。不带描述或参数执行 `create` 时，交互终端只询问来源和目标。
 
-同名 School 已存在时会报错退出，不会覆盖。生成通常需要数分钟。中断后可查看保留的材料再运行 `npm run school -- retry NAME`；`retry` 会重写课程。已有学习进度时，直接改课程文件，并保持关卡 `slug` 不变。
+同名 School 已存在时会报错退出，不会覆盖。中断后可查看保留的材料再运行 `npm run school -- retry NAME`（会重写课程，不重置进度）。已有学习进度时，直接编辑课程文件并保持关卡 `slug` 不变。
 
 | 命令 | 作用 |
 | --- | --- |
+| `setup` | 安装模板依赖（PDF 提取另需 `pypdf`） |
 | `list` | 列出已有 School |
-| `start NAME [--port 端口]` | 本机启动。换端口后，页面中的 API 和提示词会使用新地址 |
-| `teach NAME --student 身份` | 用 Pi 授课。可选 `--mode`、`--lesson` |
-| `teach ... --prompt-only` | 只输出通用教师提示词 |
-| `finish NAME` | 检查 Agent 写的课程并构建。会真正执行 run/preview 块；可用 `node scripts/verify-lesson-blocks.mjs schools/NAME` 先行自查 |
-| `build NAME` | 构建。先停止该 School 的开发服务；不要同时开发并构建 |
-| `deploy NAME` | 部署到 Vercel，并连接私有 Blob。存储被暂停时脚本会停下来 |
-| `deploy-cloudflare NAME` | 部署到 Cloudflare Workers。进度写入该校私有 R2，地址是 `workers.dev` |
-| `supplement NAME [--source URL]` | 补齐已保存的网页文档，或指定页面保存为新材料 |
-| `retry NAME` | 用 Pi 重新生成课程 |
-| `setup` | 准备模板依赖 |
+| `create ...` | 创建 School（支持自然语言或明确参数；加 `--prepare-only` 交由当前 Agent 写课） |
+| `supplement NAME [--source URL ...]` | 按同站跟随补齐已保存的网页文档，或把 `--source` 指定页面保存为新材料 |
+| `finish NAME` | 检查 Agent 生成的课程并构建（不调用 Pi，实际执行 `run`/`preview` 块；可用 `node scripts/verify-lesson-blocks.mjs schools/NAME` 先行自查） |
+| `start NAME [--port 4323]` | 本机启动（换端口后，页面中的 API 和提示词会使用新地址） |
+| `teach NAME --student STUDENT_ID` | 启动教学。可选 `--mode immersive`、`--lesson SLUG`、`--origin https://school.example.com`（不能与 `--port` 同时使用）、`--prompt-only`（只输出通用提示词，不启动 Pi） |
+| `build NAME` | 构建 School（先停止该 School 的开发服务，不要同时开发并构建） |
+| `deploy NAME` | 部署到 Vercel：写入 `DEPLOY_TARGET=vercel`，连接私有 Blob，发布生产环境 |
+| `deploy-cloudflare NAME` | 部署到 Cloudflare Workers：进度写入该校私有 R2，发布 `workers.dev` |
+| `retry NAME` | 检查保留文件后用 Pi 重新生成课程；可能修改课程，不重置进度 |
+| `sources NAME --baseline \| --check [--source 本地候选目录]` | **维护命令（新建 School 无需使用）：** 生成已引用来源基线指纹，或检查上游来源变化 |
+| `update NAME --plan \| --prepare-only \| --apply` | **维护命令（新建 School 无需使用）：** 按 [generation/update.md](generation/update.md) 对已有课程执行来源差分局部修订（可选 `--source`、`--run`、`--plan-id`） |
+| `catalog --check \| --build` | **维护命令（新建 School 无需使用）：** 校验公开课登记表的 `catalog.json`，或构建聚合站 |
 
 ### 多页文档站
 
-GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准备。HTTP(S) HTML 文档站会自动判断是否抓取，一般不必额外加参数。默认从入口页跟随同一域名下的链接，最多 500 页。没有明确的文档站信号时只保存入口页。导航信号不足，或给出的地址是站点首页时，会提示用 supplement 加上 `--crawl-prefix` 重抓，或用 `--source` 保存指定页面。
+GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准备。HTTP(S) HTML 文档站会自动判断是否抓取，一般不必额外加参数。默认由 siteone-crawler 从入口页跟随同一域名下的链接，最多 500 页；没有明确的文档站信号时只保存入口页。导航信号不足，或给出的地址是站点首页时，会提示用 `supplement` 加上 `--crawl-prefix` 重抓，或用 `--source` 保存指定页面。
 
 - `--crawl` 强制抓取；`--no-crawl` 只保存入口页。二者不能同时使用，也不能把 `--no-crawl` 用于 `supplement`。
 - `--crawl-prefix /docs/latest` 把重新抓取限定在某个路径；Agent 判断该区域为目标文档时可以使用（用户指定时当然也用），并在 `COURSE.md` 的 selected sources 记下所用前缀和理由。
-- `--max-pages` 为 1–10000，默认 500。`--crawl-workers` 为 1–8，默认 2。
+- `--max-pages N` 为 1–10000，默认 500。`--crawl-workers N` 为 1–8，默认 2。
 - `npm run school -- supplement NAME` 用同样的同站跟随，补齐已保存的 HTTP HTML 来源；补齐失败时保留原材料。仓库克隆和本地文件不动。
 - `npm run school -- supplement NAME --source URL [--source ...]` 在 Agent 读过入口页线索、自己判断需要哪些页面后，用它把这些页面保存为材料；需要 JS 渲染、取回内容过少的页面会报错，这时找 `.md` 版本或源码仓库。
-- 抓取不足时降级为单页、记入 `crawl.fallback` 并打印说明；`supplement` 失败时保留原材料。未安装抓取工具时会下载到 `tools/cache`（不纳入 Git）。
-- 入口页若有 GitHub 编辑或源文件链接，会提示对应仓库；若提到 llms.txt 或提供 Markdown 版本，也会打印线索供自行选取。只保存了入口页时，会提示可用 supplement --source 保存该仓库。
+- 抓取不足时降级为单页、记入 `crawl.fallback` 并打印说明；`supplement` 失败时保留原材料。未安装 siteone-crawler v2.5.1+ 时会自动下载到 `tools/cache`（不纳入 Git）。
+- 入口页若有 GitHub 编辑或源文件链接，会提示对应仓库；若提到 `llms.txt` 或提供 Markdown 版本，也会打印线索供自行选取。只保存了入口页时，会提示可用 `supplement --source` 保存该仓库。
 
-单页来源保留原件和提取文本。多页抓取还会保存各页文本和来源记录，供生成课程时选读。
+单页来源保留原件和提取文本；多页抓取还会保存各页文本和来源记录（`provenance.json`），供生成课程时选读。
 
 ### 课程文件
 
 - `schools/NAME/COURSE.md`：路线、来源和深度取舍。
-- `src/content/lessons/*.md`：关卡正文和教学指引。调整顺序时改 frontmatter 的 `order`。来源支撑的要点可用正文里的 `{{cite …}}` 标记短词；写法见 [generation/protocol.md](generation/protocol.md)。自读页把它收成来源卡，教师仍读 `/sources/` 原件。
+- `src/content/lessons/*.md`：关卡正文和教学指引（调整顺序改 frontmatter 的 `order`）。来源句引用 `{{cite …}}` 与交互块写法见 [generation/protocol.md](generation/protocol.md)，局部修订见 [generation/update.md](generation/update.md)。
 - `public/sources/`、`public/activities/`：供 HTTP 读取的参考材料、标明身份的派生文本，以及练习代码。
-- `school.settings.json`：创建时的配置和默认模式。
+- `school.settings.json`：创建时的配置、语言、默认教学模式和可选自定义域名。
 
 开发服务会在课程修改后自动刷新。
 
 ## 部署
 
-同一份 `schools/NAME`：
+同一份 `schools/NAME` 支持四种运行方式：
 
-| 位置 | 运行方式 |
-| --- | --- |
-| 本机 | `npm run school -- start NAME`，使用 `DEPLOY_TARGET=dev`。进度在 `.wrangler/` |
-| 自有服务器 | 在学校目录执行 `./script/serve`，使用 `DEPLOY_TARGET=node`。进度在 `.school-data/` |
-| Vercel | `npm run school -- deploy NAME`，或在学校目录执行 `./script/deploy-vercel`。脚本写入 `DEPLOY_TARGET=vercel` 并连接私有 Blob 存储。已连接的存储如果被暂停，脚本会停下来。`*.vercel.app` 在中国大陆可能打不开，实用地址是自定义域名 |
-| Cloudflare Workers | `npm run school -- deploy-cloudflare NAME`，或在学校目录执行 `./script/deploy-cloudflare`。进度写入该校私有 R2。脚本发布到 `workers.dev`；自定义域名要另外接上。上面六门课程的正式地址已经接在 `learnislands.com` |
+| 位置 | 运行方式 | 进度存储 |
+| --- | --- | --- |
+| 本机 | `npm run school -- start NAME`（`DEPLOY_TARGET=dev`） | `.wrangler/`（本地 KV） |
+| 自有服务器 | 在学校目录执行 `./script/serve`（`DEPLOY_TARGET=node`） | `.school-data/` |
+| Vercel | `npm run school -- deploy NAME` 或 `./script/deploy-vercel`（`DEPLOY_TARGET=vercel`） | 私有 Vercel Blob |
+| Cloudflare Workers | `npm run school -- deploy-cloudflare NAME` 或 `./script/deploy-cloudflare`（`DEPLOY_TARGET=cloudflare`） | 私有 Cloudflare R2 |
 
-本机备份保留 `.wrangler/`。自有服务器保留 `.school-data/`。Cloudflare 上的进度在该校的 R2 桶里。环境变量和域名见该学校的 `DEPLOYMENT.md`。
-
-要脱离本仓库运行：复制整个 `schools/NAME`，在该目录执行 `npm ci`。本机用 `npm run dev`，自有服务器用 `./script/serve`。`node_modules` 必须是真实目录。
+环境变量、自定义域名配置（`customDomain`）与脱离本仓库独立运行的步骤见 [school-kit/overlay/DEPLOYMENT.md](school-kit/overlay/DEPLOYMENT.md)（构建时同步为各校目录下的 `DEPLOYMENT.md`）。共享模板覆盖层与公开课目录规范见 [school-kit/README.md](school-kit/README.md)。
 
 ## 参考与致谢
 

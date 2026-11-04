@@ -1,195 +1,56 @@
 # School Kit
 
-`school-kit` is a small, repeatable overlay for School Template derived
-schools. It keeps lesson content, source snapshots, progress records, and the
-existing profile fields intact while adding a shared teaching-mode contract.
+`school-kit` is a repeatable, idempotent overlay for School Template derived schools. It keeps lesson content, source snapshots, progress records, and existing profile fields intact while installing the shared teaching-mode contract, multi-target runtime base, and optional island chrome.
 
-Apply it to a generated or existing school with:
+Apply it to a generated or existing school from the repository root:
 
 ```sh
 python3 scripts/apply-school-kit.py schools/example
 ```
 
-The command is idempotent. It creates `school.settings.json` only when the
-school does not have one, adds the `teachingMode` profile field only when it is
-missing, and installs these runtime files:
+## Shared overlay (`school-kit/overlay/`)
 
-When the settings file already exists, its `teachingMode` value is the
-pre-enrollment and no-profile default; the overlay never rewrites it.
+Applying the kit creates `school.settings.json` only when missing (never rewriting an existing `teachingMode` pre-enrollment/no-profile default or `customDomain`), adds the `teachingMode` profile field when absent, removes the template's synthetic `enrollment` completion record, and installs:
 
-- `src/lib/teaching.ts` — harness-neutral teaching modes and guidance.
-- `src/components/TeachingMode.astro` — mode selector and profile persistence.
-- `src/pages/api/lessons/[slug].ts` — returns current mode guidance when a
-  `studentId` query parameter is supplied.
+- `src/lib/teaching.ts` — harness-neutral teaching modes (`simple` / `immersive`) and guidance.
+- `src/components/TeachingMode.astro` — mode selector and profile persistence (wired into `Base.astro`; progress refresh emits a browser event so mode changes via the teacher API update the control without adding another polling loop).
+- `src/pages/api/lessons/[slug].ts` — returns current mode guidance when a `studentId` query parameter is supplied, and reduces `{{cite …}}` markers to plain text for teacher consumption.
 - `src/pages/llms.txt.ts` — shared teacher contract, independent of Pi.
-- `src/pages/harness/pi.txt.ts` — the Pi-only HTTP/bash adapter contract.
+- `src/pages/harness/pi.txt.ts` — Pi-only HTTP/bash adapter contract (the lesson prompt stays limited to the shared contract plus the conditional Pi adapter URL).
+- `astro.config.mjs`, `src/lib/deploy-target.ts`, `src/lib/store*.ts`, `src/lib/public-origin.ts` — adapter selection from `DEPLOY_TARGET` (`dev`, `node`, `vercel`, `cloudflare`), progress storage (`.wrangler/`, `.school-data/`, private Vercel Blob via `BLOB_STORE_ID`, private Cloudflare R2), and `publicOrigin`.
+- `script/serve`, `script/deploy-vercel`, `script/deploy-cloudflare`, `DEPLOYMENT.md`, `.env.example` — runtime and deployment scripts. See [overlay/DEPLOYMENT.md](overlay/DEPLOYMENT.md) for target commands, `school.settings.json.customDomain` (`"workers_dev": false` + `routes` in `wrangler.cloudflare.jsonc`), `--config-only`, and environment variables.
 
-The script also wires the mode control into `Base.astro` and keeps the lesson
-prompt limited to the shared contract plus the current Pi adapter URL.
-It removes the template's synthetic `enrollment` completion so enrollment
-cannot create a fake lesson-progress record.
-The existing progress refresh emits a small browser event so a mode changed by
-the teacher API updates the control without adding another polling loop.
+The kit merges the dependency pins (`@astrojs/node@10.0.2`, `@astrojs/vercel`, `@vercel/blob`) into the school's `package.json`, writes `.npmrc` (`legacy-peer-deps=true`), and runs `npm install` only when the dependency list actually changed (or `node_modules` is missing/symlinked). It does not rewrite a lockfile that is already consistent. `node_modules` must be a real directory, not a symlink to the template. It does not touch `src/content/lessons`, `src/content/exercises`, `public/sources`, `.wrangler/`, or `.school-data/`.
 
-The overlay can be reapplied after regenerating a school. It does not touch
-`src/content/lessons`, `src/content/exercises`, `public/sources`, or existing
-profile values. Existing progress records in `.wrangler/` and `.school-data/`
-stay where they are.
+## Island chrome (`school-kit/island/`)
 
-The kit also owns the runtime base. `astro.config.mjs` selects the adapter from
-`DEPLOY_TARGET`, progress storage, `publicOrigin`, `script/serve`, and the
-dependency pins (`@astrojs/node@10.0.2`, `@astrojs/vercel`, `@vercel/blob`).
-The same school directory runs as:
+New schools scaffold `chrome: "island"` on `school.config.ts`. The kit reads that field after the shared overlay steps: if absent or not `"island"`, apply keeps overlay-only behavior without installing island pages, components, or dependencies. Island schools take their page shell from `school-kit/island/`: `layouts/Base.astro`, `pages/index.astro`, `pages/lessons/[slug].astro`, `components/TeachingMode.astro`, `components/AgentPrompt.astro`, `components/SourceCite.astro`, the island React components, `island.css`, and role sprites. A second apply compares those files and writes nothing when they already match. This documents the install path only; it does not claim a verified teaching loop.
 
-- local `start` with `DEPLOY_TARGET=dev`
-- `./script/serve` on a self-hosted Node process
-- Vercel via `./script/deploy-vercel`, which sets `DEPLOY_TARGET=vercel` and connects a private Blob store (`BLOB_STORE_ID`)
-- Cloudflare Workers via `./script/deploy-cloudflare`, which sets `DEPLOY_TARGET=cloudflare` and stores progress in a private R2 bucket. If `school.settings.json` provides an optional `"customDomain": "<hostname>"`, the script sets `"workers_dev": false` and attaches custom domain `routes` in `wrangler.cloudflare.jsonc`. Pass `--config-only` to generate this config file without building or deploying.
+Island enrollment asks for a character (`warrior`, `wizard`, `priest`, `ranger`; sprites and completion seals live in `school-kit/island/roles/`, see [island/roles/NOTICE.txt](island/roles/NOTICE.txt)) instead of a theme color. The choice is stored in the browser as `learningRole` and only changes the identity card sprite and completion seal; student ID, progress, course, and page colors stay as they are.
 
-Applying the kit merges those dependencies into the school's `package.json`,
-writes `.npmrc` (`legacy-peer-deps=true`), and runs `npm install` only when the
-dependency list actually changed. It does not rewrite a lockfile that is already
-consistent. `node_modules` must be a real directory, not a symlink to the
-template.
+## Lesson Markdown extensions and validation
 
-New schools scaffold `chrome: "island"` on `school.config.ts`. The kit reads
-that field after the shared overlay steps. If it is absent or not exactly
-`island`, apply stays the current overlay-only behavior: it does not install
-island pages, island components, or island dependencies. Island schools take
-their page shell from `school-kit/island/`, not from `school-kit/overlay/`.
-Apply copies these complete files: `layouts/Base.astro`, `pages/index.astro`,
-`pages/lessons/[slug].astro`, `components/TeachingMode.astro`,
-`components/AgentPrompt.astro`, `components/SourceCite.astro`, the island React
-components, `island.css`, and the role sprites. A second apply compares those
-files and writes nothing when they already match. This documents the install
-path only; it does not claim a verified teaching loop.
+Authoring rules for citations and interactive fences live in [generation/protocol.md](../generation/protocol.md). The kit ships the remark/Shiki pipeline, vendor asset bundlers, island components, and validation helpers used by `finish` and `scripts/verify-lesson-blocks.mjs`:
 
-Island enrollment asks for a character instead of a theme color. The four
-walk cycles and completion seals (warrior, wizard, priest, ranger) live in
-`school-kit/island/roles/`; see `NOTICE.txt` there. Choosing a character only
-changes that picture and the seal shown on a finished lesson. The lower start
-button enrolls with that character. The choice is stored in this browser as
-`learningRole`. The student ID, progress, course, and page colors stay as they are.
+- **`{{cite …}}` inline source citation** (`src/lib/source-cite.mjs` remark plugin + `SourceCite.astro`): renders the marked phrase as a dashed underline on the self-read page; hovering or focusing opens a card with the exact saved sentence (`url` may be omitted for sources without a web page; `Escape` closes the card without reopening on returned focus). `assertSourceCites` checks that each cited quote exists in the listed `public/sources` file. Teachers still read `/sources/`.
+- **```` ```predict ```` and ```` ```numberline ```` blocks** (`src/lib/predict-block.mjs` + `IslandPredict` / `IslandNumberline`): mount on `pre[data-language="predict"]` (multiple-choice or "I'm ready" reveal with keyboard navigation and `aria-live`) and `pre[data-language="numberline"]` (SVG number axis with pointer dragging, Arrow/Home/End slider navigation, and `aria-live` readouts for points, opposites, absolute values, and distances). If parsing fails, the raw code block is preserved. `assertPredictBlocks` / `assertNumberlineBlocks` validate fields, integer ranges, tick alignments, and 1–3 points.
+- **```` ```<python|js|ts> run ```` blocks** (`src/lib/run-block.mjs` + `IslandRunBlock` on `pre[data-run="true"]`): provides a lazy-loaded CodeMirror 6 editor (syntax highlighting, line numbers, indent guides, 4-space Tab, active line highlight, bracket matching, and a `textarea` fallback if loading fails) and executes inside shared Web Workers created on first click of "运行" with a 10-second timeout. An Astro integration copies Pyodide core assets from `node_modules/pyodide` to `public/vendor/pyodide/` only when lessons contain `python run`; JS/TS run in a worker with client-side `sucrase` type stripping. `assertRunBlocks` and `verify-lesson-blocks.mjs` reject disallowed imports/prompts and execute every block.
+- **```` ```<html|jsx|tsx> preview [demo] ```` blocks** (`src/lib/run-block.mjs`, `src/lib/three-bundle.mjs` + `IslandRunBlock` on `pre[data-preview="true"]`): renders a CodeMirror 6 editor alongside an `<iframe sandbox="allow-scripts">` (without `allow-same-origin`, populated via `srcdoc`, ~500ms debounce, forwarding `console`, unhandled errors, height, and truncated `innerText` via `postMessage`). Each new preview document mounts a fresh iframe because Chrome can drop a large `srcdoc` update on an iframe whose first load is still pending. JSX/TSX transform in-browser via `sucrase` and render with Preact (default, UMD loaded via Vite `?raw`) or React 19 (for React courses, bundled on demand via `esbuild` to `/vendor/react-preview/runtime.js`). Adding `demo` opens the block expanded with code hidden behind a toggle and auto-sizes inline demo height from `preview-metrics` between 200–720px (defaulting to 380px until first metrics; taller content scrolls inside). When a lesson imports `three` or `three/addons/controls/OrbitControls.js`, `src/lib/three-bundle.mjs` bundles the school's pinned `three` with `esbuild` into `public/vendor/three-preview/` and passes those modules to the sandboxed iframe as `data:` URLs in an import map (no network fetch, `allow-same-origin` stays off). Generation checks execute run blocks and, when local Chrome/Chromium is available, load `html preview` documents in headless Chrome to reject runtime errors (skipping with a notice if Chrome is absent).
+- **Heading and code normalization** (`src/lib/render-guard.mjs`): `remarkNormalizeLessonH1` drops a leading H1 that repeats the frontmatter title; TOC and section tabs follow the shallowest heading level in the body; inline code renders without backticks, code blocks get a non-overlapping language/copy toolbar, and the monospace stack includes box-drawing glyphs.
 
-Lesson Markdown may mark a short, source-backed phrase with a plain-text
-`{{cite …}}` marker (see `generation/protocol.md`). The overlay ships
-`src/lib/source-cite.mjs` and wires it as a remark plugin in `astro.config.mjs`
-so the self-read page renders that phrase as a dashed underline; hovering or
-focusing opens a card with the exact saved sentence. Island chrome mounts
-`SourceCite.astro` on the lesson page for that card; `url` may be omitted for
-sources without a web page (the card then shows no original-page link). Escape
-closes the card without immediately reopening it on the returned focus.
-`finish` / generation checks call `assertSourceCites` so a quote must exist in
-the listed `public/sources` file. Markers are optional; lessons without them
-stay valid. Teachers still read the saved file over `/sources/`; the card is
-not a substitute for `agentInstructions`.
-
-Lesson Markdown may also include fenced ```predict blocks for "predict then
-reveal" cards (see `generation/protocol.md`). The overlay ships
-`src/lib/predict-block.mjs` (and `.d.mts`) and configures `predict` syntax in
-`astro.config.mjs`. Island chrome mounts `IslandPredict` cards in place of valid
-`pre[data-language="predict"]` blocks on the self-read page, allowing learners to
-predict (via multiple-choice buttons or "I'm ready") before revealing the answer
-and explanation with keyboard navigation and `aria-live` announcements. If parsing
-fails, the raw code block is preserved without breaking the page. Generation
-checks call `assertPredictBlocks` to validate required fields and choice
-consistency. The block remains fully readable as plain text for AI teachers
-without querying any backend or recording progress.
-
-Lesson Markdown may also include fenced ```python run, ```javascript run (or ```js run),
-and ```typescript run (or ```ts run) blocks for in-browser execution (see
-`generation/protocol.md`). The overlay ships `src/lib/run-block.mjs` (and `.d.mts`),
-configures a Shiki transformer in `astro.config.mjs` to tag `data-run="true"`, and
-provides an Astro integration that copies Pyodide core assets from `node_modules/pyodide`
-to `public/vendor/pyodide/` only when lessons in that School contain `python run` blocks
-(JavaScript and TypeScript execute in a dedicated worker using client-side `sucrase`
-TypeScript stripping without extra vendor files). Island chrome mounts `IslandRunBlock` in
-place of `pre[data-run="true"]` for supported languages, providing a CodeMirror 6 editor
-(lazy-loaded on mount, with syntax highlighting, line numbers, indent guides, 4-space Tab indentation,
-active line highlight, bracket matching, and a textarea fallback if loading fails), execution/reset
-controls, optional stdin input for Python, and separate stdout/stderr displays. Runtimes
-execute inside shared Web Workers created dynamically only upon the first click of "运行",
-enforcing a 10-second timeout. Generation checks call `assertRunBlocks` to ensure `run`
-is only used on supported languages without `>>>` prompts in Python and without `import`,
-`export`, or `require` statements in JavaScript/TypeScript.
-
-Lesson Markdown may also include fenced ```html preview, ```jsx preview, and ```tsx preview
-blocks for real-time frontend rendering in the browser (see `generation/protocol.md`). Shiki
-transformer in `astro.config.mjs` tags them with `data-preview="true"`. Island chrome mounts
-`IslandRunBlock` in preview mode with an editable CodeMirror 6 editor on the left (stacked on mobile)
-and an `<iframe sandbox="allow-scripts">` preview on the right (without `allow-same-origin`,
-populated via `srcdoc`). Code changes automatically re-render after a ~500ms debounce. An injected
-helper intercepts `console` logs, unhandled errors, and forwards body height and `innerText`
-(truncated to 500 characters) via `parent.postMessage` to update a compact console below the preview.
-JSX/TSX blocks are transformed in-browser using `sucrase` and render with either Preact (default,
-using Preact UMD bundles dynamically loaded via Vite `?raw` on first preview use) or React 19
-(for React courses, bundle generated on demand via `esbuild` to `/vendor/react-preview/runtime.js`
-and fetched on first preview use, rendering with `ReactDOMClient.createRoot`). Generation checks
-execute run blocks, and when a local Chrome/Chromium is available, load html preview documents in
-headless Chrome to reject runtime errors (uncaught exceptions, unhandled rejections, and preview error
-events); if no Chrome is found, html runtime execution is skipped with a printed notice.
-
-Adding `demo` to a preview fence (```html preview demo, also jsx/tsx) turns it
-into an interactive demo for any subject: the block opens expanded, shows only
-the live page full width, and keeps the editor and console behind a 查看代码 /
-View code toggle; runtime errors still show. For inline demos with code hidden,
-the frame automatically sizes to its content height (clamped between 200–720px,
-defaulting to 380px until the first metrics message; content taller than 720px scrolls inside).
-Previews may import `three` and `three/addons/controls/OrbitControls.js`. When a lesson does,
-the build bundles the School's pinned `three` (an island dependency) with esbuild into
-`public/vendor/three-preview/`, and the page passes those modules to the sandboxed
-iframe as `data:` URLs in an import map, so nothing is fetched from the network
-and `allow-same-origin` stays off. Each new preview document mounts a fresh
-iframe, because Chrome can drop a large `srcdoc` update on an iframe whose first
-load is still pending.
-
-Lesson Markdown may also include fenced ```numberline blocks for interactive number
-line widgets (see `generation/protocol.md`). The overlay configures `numberline`
-syntax in `astro.config.mjs` and ships parsing and validation in
-`src/lib/predict-block.mjs`. Island chrome mounts `IslandNumberline` in place of valid
-`pre[data-language="numberline"]` elements on the self-read page, rendering an SVG
-number axis with mouse/touch pointer dragging, keyboard slider navigation (Arrow keys
-step, Home/End jump to bounds), `aria-live` real-time value readouts (displaying points,
-opposites, absolute values, and distances), and responsive width scaling. If parsing fails,
-the raw code block is preserved without breaking the page. Generation checks validate
-integer range spans, tick mark alignments, point counts (1 to 3), and option constraints.
-
-Island lesson rendering adapts headings, code, and table of contents presentation
-for consistency. Heading levels follow the shallowest level present in the body
-(the table of contents and section tabs are built from it). A
-`remarkNormalizeLessonH1` remark plugin in `src/lib/render-guard.mjs` (wired in
-`astro.config.mjs`) drops a leading H1 that repeats the frontmatter title. Inline
-code renders without typographic backticks, code blocks get a toolbar with a
-language label and a copy button that no longer covers code, and the monospace
-stack includes fonts with box-drawing glyphs.
+All interactive blocks remain readable as plain text in the lesson Markdown for AI teachers without querying any backend or recording progress.
 
 ## Website language
 
-Fixed UI copy uses `school.settings.json.language`: `zh` (default) or `en`
-(including `en-US` / `en-GB`). Natural-language values such as `English`,
-`英文`, or `英语` also select English; other values fall back to Chinese.
-Course content remains independently editable and is not translated by this layer.
+Fixed UI copy uses `school.settings.json.language`: `zh` (default) or `en` (including `en-US` / `en-GB`; natural-language values such as `English`, `英文`, or `英语` also select English; other values fall back to Chinese). Course content is not translated by this layer.
 
-`src/lib/ui-messages.json` is the shared text catalog. `src/lib/ui.ts` selects
-server-rendered copy; `ClientUI.astro` exposes the same selected messages to
-inline browser scripts, including status/error messages and completion dates.
-`scripts/localize-school.py` wires inherited Template pages during overlay
-application. Scaffolding applies this automatically to every new School.
-Reapply the overlay to existing Schools, then restart development or rebuild
-after changing their language setting. Keep internal mode values, routes,
-API fields, and progress semantics unchanged when editing UI copy.
+`src/lib/ui-messages.json` is the shared text catalog. `src/lib/ui.ts` selects server-rendered copy; `ClientUI.astro` exposes the same selected messages to inline browser scripts, including status/error messages and completion dates. `scripts/localize-school.py` wires inherited template pages during overlay application. Reapply the overlay to existing schools and restart or rebuild after changing `language`. Keep internal mode values, routes, API fields, and progress semantics unchanged when editing UI copy.
 
 ## Public and experimental courses
 
-A school opts into the public catalog by setting `publication` on
-`school.config.ts`. Schools without this field stay experimental. The kit
-does not scan `schools/` to decide visibility.
+A school opts into the public catalog by setting `publication` on `school.config.ts`. Schools without this field stay experimental (`<meta name="robots" content="noindex">`, `/catalog.json` and `/sitemap.xml` return 404, `robots.txt` does not advertise a sitemap, canonical URLs may stay relative). The kit does not scan `schools/` to decide visibility.
 
-A public course must set `visibility: "public"`, an `https` origin with no
-username, password, path, query, or hash, one of these six `group` values,
-non-empty `prerequisites` and `outcomes`, non-empty `publicName` and
-`description`, and at least one lesson. Missing any of these fails the
-build.
+A public course must set `visibility: "public"`, an `https` origin with no username, password, path, query, or hash, one of these six `group` values, non-empty `prerequisites` and `outcomes`, non-empty `publicName` and `description`, and at least one lesson (missing any fails the build):
 
 - 编程语言、后端与开发环境
 - Web 前端开发
@@ -198,29 +59,10 @@ build.
 - 数据科学、测试及其他应用
 - 游戏开发
 
-Public courses emit `/catalog.json` with `name` (the public name),
-`origin`, `group`, `intro` (the description), `prerequisites`, `outcomes`,
-lesson titles and absolute `/lessons/{slug}` URLs in `order`, and a
-fingerprint of those fields only. They also emit `/sitemap.xml` for course
-HTML pages and a `robots.txt` that includes `Sitemap: {origin}/sitemap.xml`.
-Each HTML page uses `{origin}{pathname}` for canonical and `og:url`.
-
-Experimental courses add `<meta name="robots" content="noindex">`.
-`/catalog.json` and `/sitemap.xml` return 404. `robots.txt` does not
-advertise a sitemap. Canonical URLs may stay relative.
-
-This documents the template. It does not claim a public deployment.
+Public courses emit `/catalog.json` (with `name`, `origin`, `group`, `intro`, `prerequisites`, `outcomes`, ordered lesson titles and absolute `/lessons/{slug}` URLs, and a fingerprint of those fields only), `/sitemap.xml` for course HTML pages, a `robots.txt` with `Sitemap: {origin}/sitemap.xml`, and `{origin}{pathname}` for canonical and `og:url`. This documents the template; it does not claim a public deployment.
 
 ## Teachers and generators
 
-The HTTP teaching contract (`/llms.txt`), lesson/source access, profiles, and
-progress API are shared by compatible teacher Harnesses. Only Pi reads
-`/harness/pi.txt`; other Harnesses use their own HTTP/terminal tools. The
-website prompt is shared and the optional Pi adapter link is conditional.
+The HTTP teaching contract (`/llms.txt`), lesson/source access, profiles, and progress API are shared by compatible teacher harnesses. Only Pi reads `/harness/pi.txt`; other harnesses use their own HTTP/terminal tools. The website prompt is shared and the optional Pi adapter link is conditional.
 
-Pi remains the default automated CLI generator and interactive `teach`
-launcher. `create --prepare-only` prepares sources plus `GENERATION.md` for
-the current Coding Agent; `finish NAME` uses the same curriculum checks and
-build without calling Pi. `teach --prompt-only` returns a shared continuation
-prompt rather than launching a teacher. No alternate adapter or session
-format is required.
+Pi remains the default automated CLI generator and interactive `teach` launcher. `create --prepare-only` prepares sources plus `GENERATION.md` for the current Coding Agent; `finish NAME` uses the same curriculum checks and build without calling Pi. `teach --prompt-only` returns a shared continuation prompt rather than launching a teacher. No alternate adapter or session format is required.

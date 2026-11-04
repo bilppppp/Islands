@@ -10,7 +10,7 @@
 npm run school -- start NAME
 ```
 
-会传入 `DEPLOY_TARGET=dev`，继续用 Cloudflare 适配器和本地 KV，监听 `127.0.0.1`。
+会传入 `DEPLOY_TARGET=dev`，使用 Cloudflare 适配器和 `.wrangler/` 下的本地 KV，监听 `127.0.0.1`。本机备份进度时保留 `.wrangler/`。
 
 ## 自有服务器
 
@@ -20,13 +20,13 @@ npm run school -- start NAME
 ./script/serve
 ```
 
-脚本固定 `DEPLOY_TARGET=node`，依次执行 `npm ci`、`npm run build`，再启动 `node dist/server/entry.mjs`。默认 `HOST=0.0.0.0`、`PORT=4321`，可用环境变量覆盖。
+脚本固定 `DEPLOY_TARGET=node`，依次执行 `npm ci`、`npm run build`，再启动 `node dist/server/entry.mjs`。默认 `HOST=0.0.0.0`、`PORT=4321`，进度默认保存在 `.school-data/`（可用 `PROGRESS_DIR` 覆盖）。自有服务器备份进度时保留 `.school-data/`（或所配置的 `PROGRESS_DIR`）。
 
 `./script/serve --start-only` 只启动已有构建产物，不重新安装或构建，也不删除 `.school-data` 或 `PROGRESS_DIR`。
 
 `node_modules` 必须是真实目录。如果是软链接，脚本会失败退出。`npm ci` 需要一份已经套用 School Kit 后重写过的 `package-lock.json`。
 
-公开地址可设置 `PUBLIC_ORIGIN`（只接受 http 或 https 的源）。只有前面有可信反代时才设置 `TRUST_PROXY=true`。
+公开地址可设置 `PUBLIC_ORIGIN`（只接受 `http` 或 `https` 的源）。只有前面有可信反向代理时才设置 `TRUST_PROXY=true`。
 
 ## Vercel
 
@@ -36,7 +36,7 @@ npm run school -- start NAME
 ./script/deploy-vercel
 ```
 
-仓库里也可以运行 `npm run school -- deploy NAME`。脚本会关联当前目录的 Vercel 项目，写入 `DEPLOY_TARGET=vercel`，并在还没有 `BLOB_STORE_ID` 时创建一个私有 Blob 存储再部署到生产环境。平台上的 `VERCEL_OIDC_TOKEN` 由 Vercel 自动提供，不需要写进仓库。
+仓库根目录也可以运行 `npm run school -- deploy NAME`。脚本会关联当前目录的 Vercel 项目，写入 `DEPLOY_TARGET=vercel`，并在还没有 `BLOB_STORE_ID` 时创建一个私有 Blob 存储再部署到生产环境。平台上的 `VERCEL_OIDC_TOKEN` 由 Vercel 自动提供，不需要写进仓库。`*.vercel.app` 在中国大陆可能打不开，对外使用建议绑定自定义域名。
 
 已有自定义域名时，可以另外设置 `PUBLIC_ORIGIN`。没有这份变量时，接口使用请求自己的来源。
 
@@ -52,8 +52,14 @@ npm run school -- start NAME
 ./script/deploy-cloudflare
 ```
 
-仓库里也可以运行 `npm run school -- deploy-cloudflare NAME`。脚本会为这所学校准备一个私有 R2 桶，用 `DEPLOY_TARGET=cloudflare` 构建，再发布到该 Worker 的 `workers.dev` 地址。进度仍是每个学生一份 JSON，键和原来的对象存储相同。
+仓库根目录也可以运行 `npm run school -- deploy-cloudflare NAME`。脚本会为这所学校准备一个私有 R2 桶，写出 `wrangler.cloudflare.jsonc`，用 `DEPLOY_TARGET=cloudflare` 构建并发布。进度仍是每个学生一份 JSON，保存在该校的 R2 桶里。
 
-本机 `start` 继续用 `wrangler.jsonc` 里的本地 KV，不会改到这个 R2 桶。这条命令也不会改域名。自定义域名要等 `workers.dev` 上的注册和进度读写都通过之后，再单独切换。
+- 未在 `school.settings.json` 配置 `customDomain` 时，`wrangler.cloudflare.jsonc` 开启 `"workers_dev": true`，发布到该 Worker 的 `workers.dev` 地址。
+- 若 `school.settings.json` 配置了 `"customDomain": "<域名>"`（重新套用 School Kit 时会保留该字段），脚本会在 `wrangler.cloudflare.jsonc` 中写入 `"workers_dev": false` 并挂载该自定义域名 `routes`。
+- 执行 `./script/deploy-cloudflare --config-only` 只生成 `wrangler.cloudflare.jsonc`，不创建 R2 桶、不构建也不部署。
 
-公开地址在绑上自定义域名后可以设置 `PUBLIC_ORIGIN`。没有这份变量时，接口使用请求自己的来源。
+本机 `start` 继续使用 `wrangler.jsonc` 里的本地 KV，不会读写这个 R2 桶。公开地址需要固定时可设置 `PUBLIC_ORIGIN`；未设置时接口使用请求自己的来源。
+
+## 脱离本仓库独立运行
+
+要脱离本仓库单独运行某所学校：复制整个 `schools/NAME` 目录（不要把 `node_modules` 做成软链接），在该目录执行 `npm ci`。本机开发运行 `npm run dev`，自有服务器运行 `./script/serve`。
