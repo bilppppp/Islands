@@ -181,7 +181,6 @@ GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准
 - [Pi](https://github.com/badlogic/pi-mono)（现重定向至 [earendil-works/pi](https://github.com/earendil-works/pi)）：默认的生成与教学 Harness。课程与教学协议保持 Harness 中立。
 - [siteone-crawler](https://github.com/janreges/siteone-crawler)（MIT）：多页文档站的抓取工具。未安装时从官方 GitHub Release 下载到 `tools/cache`，不作为仓库文件提交。
 - [animal-island-ui](https://github.com/guokaigdg/animal-island-ui)（MIT）：新建 School 的岛屿页面组件。
-- Eldiran 的 [32×32 RPG Character Sprites](https://opengameart.org/content/32x32-rpg-character-sprites)（CC0）：战士、巫师、牧师、游侠的三帧行走图。裁切说明见 [school-kit/island/roles/NOTICE.txt](school-kit/island/roles/NOTICE.txt)。
 - 课程化组织还参考了 [codebase-to-course](https://github.com/zarazhangrui/codebase-to-course)、[Repo2NotebookLM](https://github.com/bilppppp/Repo2NotebookLM) 和 [archify](https://github.com/tt-a1i/archify)。这些项目提供了方向，没有作为运行依赖集成。
 
 ## 许可
