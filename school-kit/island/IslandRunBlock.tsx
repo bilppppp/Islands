@@ -4,6 +4,7 @@ import IslandAskTeacher, { t } from "./IslandAskTeacher";
 import IslandCodeEditor from "./IslandCodeEditor";
 import {
 	buildPreviewDocument,
+	clampDemoFrameHeight,
 	normalizeRunLang,
 	previewUsesThree,
 	resolvePreviewRuntime,
@@ -244,6 +245,7 @@ export default function IslandRunBlock({
 	>([]);
 	const [previewError, setPreviewError] = useState<string | null>(null);
 	const [pageText, setPageText] = useState("");
+	const [frameHeight, setFrameHeight] = useState<number | null>(null);
 	const previewDebounceTimerRef = useRef<number | null>(null);
 	const lastPreviewCodeRef = useRef<string | null>(null);
 	const inlineIframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -456,6 +458,9 @@ export default function IslandRunBlock({
 				if (typeof data.innerText === "string") {
 					setPageText(data.innerText);
 				}
+				if (typeof data.height === "number") {
+					setFrameHeight(clampDemoFrameHeight(data.height));
+				}
 			}
 		};
 
@@ -511,6 +516,7 @@ export default function IslandRunBlock({
 			setConsoleLogs([]);
 			setPreviewError(null);
 			setPageText("");
+			setFrameHeight(null);
 			setIsVisible(true);
 			updatePreview(initialCode);
 		}
@@ -655,24 +661,31 @@ export default function IslandRunBlock({
 
 	const placeholder = t("previewScrollToRender");
 
-	const renderPreviewFrame = (inModal = false) => (
-		<div className="island-preview-frame-wrap">
-			{isVisible ? (
-				<iframe
-					key={previewDocVersion}
-					ref={inModal ? modalIframeRef : inlineIframeRef}
-					sandbox="allow-scripts"
-					srcDoc={previewDoc}
-					className="island-preview-iframe"
-					title={`${langTitle} 预览页面`}
-				/>
-			) : (
-				<div className="island-preview-placeholder">
-					{placeholder}
-				</div>
-			)}
-		</div>
-	);
+	const renderPreviewFrame = (inModal = false) => {
+		const isDemoInline = !inModal && demo && !showCode;
+		const frameWrapStyle = isDemoInline && frameHeight !== null
+			? { height: `${frameHeight}px` }
+			: undefined;
+
+		return (
+			<div className="island-preview-frame-wrap" style={frameWrapStyle}>
+				{isVisible ? (
+					<iframe
+						key={previewDocVersion}
+						ref={inModal ? modalIframeRef : inlineIframeRef}
+						sandbox="allow-scripts"
+						srcDoc={previewDoc}
+						className="island-preview-iframe"
+						title={`${langTitle} 预览页面`}
+					/>
+				) : (
+					<div className="island-preview-placeholder">
+						{placeholder}
+					</div>
+				)}
+			</div>
+		);
+	};
 
 	const renderConsole = () => {
 		const hasConsoleOutput = consoleLogs.length > 0 || Boolean(previewError);

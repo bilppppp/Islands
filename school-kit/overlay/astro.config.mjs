@@ -15,6 +15,7 @@ import remarkMath from "remark-math";
 import { remarkSourceCite } from "./src/lib/source-cite.mjs";
 import { lessonRenderGuardIntegration, remarkNormalizeLessonH1 } from "./src/lib/render-guard.mjs";
 import { collectRunBlocks } from "./src/lib/run-block.mjs";
+import { bundleThreeVendor } from "./src/lib/three-bundle.mjs";
 import { assertVercelBuildEnv, resolveDeployTarget } from "./src/lib/deploy-target";
 
 const deployTarget = resolveDeployTarget();
@@ -162,45 +163,7 @@ function pyodideVendorIntegration() {
 				}
 				const threeVendorDir = resolve(rootDir, "public/vendor/three-preview");
 				if (hasThreePreview) {
-					const threePkg = resolve(rootDir, "node_modules/three/package.json");
-					if (!existsSync(threePkg)) {
-						throw new Error(
-							`[pyodide-vendor] 课文的 preview 块 import 了 three，但在 ${rootDir} 中未找到 node_modules/three。请在该 School 目录下执行 npm install 或运行 python3 scripts/apply-school-kit.py ${rootDir}。`,
-						);
-					}
-					const threeVersion = JSON.parse(readFileSync(threePkg, "utf-8")).version;
-					const versionFile = join(threeVendorDir, "version.json");
-					const outputs = ["three.js", "orbit-controls.js"];
-					let needsBuild = outputs.some((name) => !existsSync(join(threeVendorDir, name)));
-					if (!needsBuild) {
-						try {
-							needsBuild = JSON.parse(readFileSync(versionFile, "utf-8")).three !== threeVersion;
-						} catch {
-							needsBuild = true;
-						}
-					}
-					if (needsBuild) {
-						mkdirSync(threeVendorDir, { recursive: true });
-						const req = createRequire(resolve(rootDir, "package.json"));
-						const esbuild = req("esbuild");
-						const build = (contents, outfile, keepThreeExternal = false) =>
-							esbuild.build({
-								stdin: { contents, resolveDir: rootDir, loader: "js" },
-								bundle: true,
-								format: "esm",
-								minify: true,
-								platform: "browser",
-								// Only the exact "three" specifier stays external ("external" would also skip three/addons/*).
-								plugins: keepThreeExternal
-									? [{ name: "three-external", setup(b) { b.onResolve({ filter: /^three$/ }, () => ({ path: "three", external: true })); } }]
-									: [],
-								outfile: join(threeVendorDir, outfile),
-							});
-						await build('export * from "three";\n', "three.js");
-						// OrbitControls keeps its bare "three" import so the preview import map hands it the same instance.
-						await build('export * from "three/addons/controls/OrbitControls.js";\n', "orbit-controls.js", true);
-						writeFileSync(versionFile, JSON.stringify({ three: threeVersion }));
-					}
+					await bundleThreeVendor(rootDir, threeVendorDir);
 				} else if (existsSync(threeVendorDir)) {
 					rmSync(threeVendorDir, { recursive: true, force: true });
 				}

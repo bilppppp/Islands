@@ -15,6 +15,11 @@ import {
   normalizeRunLang,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
 import { parseFrontmatter, hasCompletionLine } from './source-state.mjs';
+import {
+  findChromeBinary,
+  printChromeMissingNotice,
+  launchHeadlessChromeSync,
+} from './chrome-runner.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
@@ -93,6 +98,7 @@ export function verifyLessonBlocks(
     schoolDir = process.env.ISLANDS_DEPS_SCHOOL || resolve(root, 'schools/astro-zero-to-one'),
     fileTimeoutMs = 60000,
     blockTimeoutMs = 10000,
+    cdpWsUrl = null,
   } = {}
 ) {
   try {
@@ -157,6 +163,7 @@ export function verifyLessonBlocks(
       schoolDir,
       blockTimeoutMs,
       blocks: blocksToRun,
+      cdpWsUrl,
     });
 
     const proc = spawnSync(process.execPath, [CHILD_SCRIPT], {
@@ -789,6 +796,29 @@ export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
     ? readdirSync(lessonsDir).filter((n) => /\.mdx?$/.test(n)).sort()
     : [];
 
+  let hasAnyHtmlPreview = false;
+  for (const file of files) {
+    try {
+      const text = readFileSync(join(lessonsDir, file), 'utf8');
+      const fences = scanCodeFences(text);
+      if (fences.some((f) => /(?:^|\s)preview(?:\s|$)/.test(f.info) && f.info.trim().split(/\s+/)[0] === 'html')) {
+        hasAnyHtmlPreview = true;
+        break;
+      }
+    } catch {}
+  }
+
+  let schoolChrome = null;
+  if (hasAnyHtmlPreview) {
+    if (findChromeBinary()) {
+      try {
+        schoolChrome = launchHeadlessChromeSync();
+      } catch {}
+    } else {
+      printChromeMissingNotice();
+    }
+  }
+
   const allBlocks = [];
   const lessonResults = [];
   const lessonEntries = [];
@@ -801,57 +831,66 @@ export function verifySchoolLessons(lessonsDir, schoolDirOrOptions = {}) {
   };
   let allOk = true;
 
-  for (const file of files) {
-    const filePath = join(lessonsDir, file);
-    const text = readFileSync(filePath, 'utf8');
-    lessonEntries.push({ file, text });
-    const result = verifyLessonBlocks(text, file, {
-      schoolDir,
-      fileTimeoutMs: options.fileTimeoutMs,
-      blockTimeoutMs: options.blockTimeoutMs,
-    });
+  try {
+    for (const file of files) {
+      const filePath = join(lessonsDir, file);
+      const text = readFileSync(filePath, 'utf8');
+      lessonEntries.push({ file, text });
+      const result = verifyLessonBlocks(text, file, {
+        schoolDir,
+        fileTimeoutMs: options.fileTimeoutMs,
+        blockTimeoutMs: options.blockTimeoutMs,
+        cdpWsUrl: schoolChrome ? schoolChrome.wsUrl : (options.cdpWsUrl || null),
+      });
 
-    let predictCount = 0;
-    let numberlineCount = 0;
-    try {
-      predictCount = collectPredictBlocks(text, file).length;
-    } catch {}
-    try {
-      numberlineCount = collectNumberlineBlocks(text, file).length;
-    } catch {}
+      let predictCount = 0;
+      let numberlineCount = 0;
+      try {
+        predictCount = collectPredictBlocks(text, file).length;
+      } catch {}
+      try {
+        numberlineCount = collectNumberlineBlocks(text, file).length;
+      } catch {}
 
-    let runCount = 0;
-    let previewCount = 0;
-    try {
-      const runBlocks = collectRunBlocks(text, file);
-      runCount = runBlocks.filter((b) => b.mode === 'run').length;
-      previewCount = runBlocks.filter((b) => b.mode === 'preview').length;
-    } catch {
-      runCount = (result.blocks || []).filter((b) => b.mode === 'run').length;
-      previewCount = (result.blocks || []).filter((b) => b.mode === 'preview').length;
+      let runCount = 0;
+      let previewCount = 0;
+      try {
+        const runBlocks = collectRunBlocks(text, file);
+        runCount = runBlocks.filter((b) => b.mode === 'run').length;
+        previewCount = runBlocks.filter((b) => b.mode === 'preview').length;
+      } catch {
+        runCount = (result.blocks || []).filter((b) => b.mode === 'run').length;
+        previewCount = (result.blocks || []).filter((b) => b.mode === 'preview').length;
+      }
+
+      const totalCount = predictCount + numberlineCount + runCount + previewCount;
+      perLesson[file] = {
+        total: totalCount,
+        predict: predictCount,
+        numberline: numberlineCount,
+        run: runCount,
+        preview: previewCount,
+      };
+
+      byType.predict += predictCount;
+      byType.numberline += numberlineCount;
+      byType.run += runCount;
+      byType.preview += previewCount;
+
+      for (const block of result.blocks || []) {
+        allBlocks.push({ ...block, file });
+      }
+      if (!result.ok) {
+        allOk = false;
+      }
+      lessonResults.push({ file, result });
     }
-
-    const totalCount = predictCount + numberlineCount + runCount + previewCount;
-    perLesson[file] = {
-      total: totalCount,
-      predict: predictCount,
-      numberline: numberlineCount,
-      run: runCount,
-      preview: previewCount,
-    };
-
-    byType.predict += predictCount;
-    byType.numberline += numberlineCount;
-    byType.run += runCount;
-    byType.preview += previewCount;
-
-    for (const block of result.blocks || []) {
-      allBlocks.push({ ...block, file });
+  } finally {
+    if (schoolChrome) {
+      try {
+        schoolChrome.close();
+      } catch {}
     }
-    if (!result.ok) {
-      allOk = false;
-    }
-    lessonResults.push({ file, result });
   }
 
   const totalBlocks = allBlocks.length;
@@ -914,6 +953,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
     console.log(`[${status}] 【${block.file}】第 ${block.index} 个块 (第 ${block.line} 行) [${block.lang} ${block.mode}${runtimeStr}] - ${block.ms}ms`);
     if (block.stdout && block.stdout.trim()) {
       console.log(`  stdout:\n${block.stdout.trim().split('\n').map((l) => '    ' + l).join('\n')}`);
+    }
+    if (block.note) {
+      console.log(`  note: ${block.note}`);
     }
     if (!block.ok) {
       const errText = block.error || block.stderr || '未知错误';

@@ -13,7 +13,12 @@ import {
   collectRunBlocks,
   assertRunBlocks,
   buildPreviewDocument,
+  clampDemoFrameHeight,
+  DEMO_FRAME_MIN_HEIGHT,
+  DEMO_FRAME_MAX_HEIGHT,
+  DEMO_FRAME_DEFAULT_HEIGHT,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
+import { findChromeBinary } from './chrome-runner.mjs';
 import {
   verifyLessonBlocks,
   formatBlockErrors,
@@ -880,6 +885,58 @@ describe('preview demo flag and bundled three', () => {
       assert.deepEqual(resolveEditorLanguage('javascript'), { name: 'javascript', typescript: false, jsx: false });
       assert.deepEqual(resolveEditorLanguage('js'), { name: 'javascript', typescript: false, jsx: false });
       assert.deepEqual(resolveEditorLanguage('unknown'), { name: 'javascript', typescript: false, jsx: false });
+    });
+  });
+
+  describe('clampDemoFrameHeight', () => {
+    it('clamps values below minimum to 200px', () => {
+      assert.equal(clampDemoFrameHeight(0), 200);
+      assert.equal(clampDemoFrameHeight(150), 200);
+      assert.equal(clampDemoFrameHeight(-50), 200);
+      assert.equal(clampDemoFrameHeight(199.9), 200);
+    });
+
+    it('clamps values above maximum to 720px', () => {
+      assert.equal(clampDemoFrameHeight(721), 720);
+      assert.equal(clampDemoFrameHeight(1200), 720);
+    });
+
+    it('preserves rounded values within [200, 720]', () => {
+      assert.equal(clampDemoFrameHeight(200), 200);
+      assert.equal(clampDemoFrameHeight(380), 380);
+      assert.equal(clampDemoFrameHeight(550.4), 550);
+      assert.equal(clampDemoFrameHeight(720), 720);
+    });
+
+    it('falls back to default 380px for null, undefined, NaN, or non-finite inputs', () => {
+      assert.equal(clampDemoFrameHeight(), 380);
+      assert.equal(clampDemoFrameHeight(null), 380);
+      assert.equal(clampDemoFrameHeight(undefined), 380);
+      assert.equal(clampDemoFrameHeight(NaN), 380);
+      assert.equal(clampDemoFrameHeight(Infinity), 380);
+      assert.equal(clampDemoFrameHeight('invalid'), 380);
+    });
+  });
+
+  describe('html preview runtime execution in headless Chrome', () => {
+    const hasChrome = Boolean(findChromeBinary());
+
+    it('fails an html preview block whose script throws a runtime error (undefined.x)', { skip: !hasChrome ? 'Chrome/Chromium not found' : false }, () => {
+      const errorDoc = lesson('```html preview\n<h1>Test</h1>\n<script>undefined.x</script>\n```');
+      const res = verifyLessonBlocks(errorDoc, 'error-preview.md');
+      assert.equal(res.ok, false);
+      assert.equal(res.blocks.length, 1);
+      assert.equal(res.blocks[0].ok, false);
+      assert.match(res.blocks[0].error, /Cannot read properties of undefined|运行时错误/);
+    });
+
+    it('passes a clean html preview block', { skip: !hasChrome ? 'Chrome/Chromium not found' : false }, () => {
+      const cleanDoc = lesson('```html preview demo\n<div id="counter">0</div>\n<script>\ndocument.getElementById("counter").textContent = "1";\n</script>\n```');
+      const res = verifyLessonBlocks(cleanDoc, 'clean-preview.md');
+      assert.equal(res.ok, true);
+      assert.equal(res.blocks.length, 1);
+      assert.equal(res.blocks[0].ok, true);
+      assert.equal(res.blocks[0].error, null);
     });
   });
 });

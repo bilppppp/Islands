@@ -29,6 +29,18 @@ export const PROGRAMMING_LANGUAGES = new Set([
 // (public/vendor/three-preview/) so the sandboxed preview never fetches from the network.
 export const THREE_SPECIFIERS = new Set(['three', 'three/addons/controls/OrbitControls.js']);
 
+export const DEMO_FRAME_MIN_HEIGHT = 200;
+export const DEMO_FRAME_MAX_HEIGHT = 720;
+export const DEMO_FRAME_DEFAULT_HEIGHT = 380;
+
+export function clampDemoFrameHeight(height) {
+  const n = typeof height === 'number' ? height : parseFloat(height);
+  if (!Number.isFinite(n)) {
+    return DEMO_FRAME_DEFAULT_HEIGHT;
+  }
+  return Math.min(DEMO_FRAME_MAX_HEIGHT, Math.max(DEMO_FRAME_MIN_HEIGHT, Math.round(n)));
+}
+
 export const EXTERNAL_RESOURCE_WARNING =
   'html preview 引用了外部 http:// 或 https:// 资源：部分学习者（比如国内）可能访问不了，建议把资源复制到课程的 public/ 下。';
 

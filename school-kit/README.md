@@ -119,19 +119,24 @@ transformer in `astro.config.mjs` tags them with `data-preview="true"`. Island c
 `IslandRunBlock` in preview mode with an editable CodeMirror 6 editor on the left (stacked on mobile)
 and an `<iframe sandbox="allow-scripts">` preview on the right (without `allow-same-origin`,
 populated via `srcdoc`). Code changes automatically re-render after a ~500ms debounce. An injected
-helper intercepts `console` logs, unhandled errors, and forwards body height (clamped between
-120–600px) and `innerText` (truncated to 500 characters) via `parent.postMessage` to update a compact
-console below the preview. JSX/TSX blocks are transformed in-browser using `sucrase` and render with
-either Preact (default, using Preact UMD bundles dynamically loaded via Vite `?raw` on first preview use)
-or React 19 (for React courses, bundle generated on demand via `esbuild` to `/vendor/react-preview/runtime.js`
-and fetched on first preview use, rendering with `ReactDOMClient.createRoot`).
+helper intercepts `console` logs, unhandled errors, and forwards body height and `innerText`
+(truncated to 500 characters) via `parent.postMessage` to update a compact console below the preview.
+JSX/TSX blocks are transformed in-browser using `sucrase` and render with either Preact (default,
+using Preact UMD bundles dynamically loaded via Vite `?raw` on first preview use) or React 19
+(for React courses, bundle generated on demand via `esbuild` to `/vendor/react-preview/runtime.js`
+and fetched on first preview use, rendering with `ReactDOMClient.createRoot`). Generation checks
+execute run blocks, and when a local Chrome/Chromium is available, load html preview documents in
+headless Chrome to reject runtime errors (uncaught exceptions, unhandled rejections, and preview error
+events); if no Chrome is found, html runtime execution is skipped with a printed notice.
 
 Adding `demo` to a preview fence (```html preview demo, also jsx/tsx) turns it
 into an interactive demo for any subject: the block opens expanded, shows only
 the live page full width, and keeps the editor and console behind a 查看代码 /
-View code toggle; runtime errors still show. Previews may import `three` and
-`three/addons/controls/OrbitControls.js`. When a lesson does, the build bundles
-the School's pinned `three` (an island dependency) with esbuild into
+View code toggle; runtime errors still show. For inline demos with code hidden,
+the frame automatically sizes to its content height (clamped between 200–720px,
+defaulting to 380px until the first metrics message; content taller than 720px scrolls inside).
+Previews may import `three` and `three/addons/controls/OrbitControls.js`. When a lesson does,
+the build bundles the School's pinned `three` (an island dependency) with esbuild into
 `public/vendor/three-preview/`, and the page passes those modules to the sandboxed
 iframe as `data:` URLs in an import map, so nothing is fetched from the network
 and `allow-same-origin` stays off. Each new preview document mounts a fresh

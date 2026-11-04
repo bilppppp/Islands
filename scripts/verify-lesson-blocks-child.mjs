@@ -15,7 +15,22 @@ const { PYTHON_BOOTSTRAP, runPythonSnippet } = await import(pyWorkerUrl);
 
 // Import transform options directly from school-kit/overlay/src/lib/run-block.mjs
 const runBlockUrl = pathToFileURL(resolve(root, 'school-kit/overlay/src/lib/run-block.mjs')).href;
-const { previewTransformOptions, tsRunTransformOptions } = await import(runBlockUrl);
+const {
+  previewTransformOptions,
+  tsRunTransformOptions,
+  buildPreviewDocument,
+  previewUsesThree,
+} = await import(runBlockUrl);
+
+const threeBundleUrl = pathToFileURL(resolve(root, 'school-kit/overlay/src/lib/three-bundle.mjs')).href;
+const { getThreeModuleSources } = await import(threeBundleUrl);
+
+const {
+  findChromeBinary,
+  printChromeMissingNotice,
+  launchHeadlessChromeSync,
+  HeadlessChromeClient,
+} = await import('./chrome-runner.mjs');
 
 // Minimal Preact stub renderer
 function renderPreactStub(vnode, depth = 0) {
@@ -51,7 +66,7 @@ async function main() {
     return;
   }
 
-  const { schoolDir, blockTimeoutMs = 10000, blocks = [] } = data;
+  const { schoolDir, blockTimeoutMs = 10000, blocks = [], cdpWsUrl = null } = data;
   const schoolName = basename(schoolDir);
 
   let req;
@@ -138,10 +153,48 @@ async function main() {
     sucraseTransform = req('sucrase').transform;
   }
 
+  const hasHtmlPreview = blocks.some((b) => b.mode === 'preview' && b.lang === 'html');
+  let chromeClient = null;
+  let ownChromeInstance = null;
+  let chromeUnavailable = false;
+
+  if (hasHtmlPreview) {
+    if (cdpWsUrl) {
+      try {
+        chromeClient = new HeadlessChromeClient(cdpWsUrl);
+        await chromeClient.connect();
+      } catch {
+        chromeClient = null;
+        chromeUnavailable = true;
+      }
+    } else {
+      const binary = findChromeBinary();
+      if (!binary) {
+        chromeUnavailable = true;
+        printChromeMissingNotice();
+      } else {
+        try {
+          ownChromeInstance = launchHeadlessChromeSync();
+          if (ownChromeInstance) {
+            chromeClient = new HeadlessChromeClient(ownChromeInstance.wsUrl);
+            await chromeClient.connect();
+          } else {
+            chromeUnavailable = true;
+            printChromeMissingNotice();
+          }
+        } catch {
+          chromeUnavailable = true;
+          printChromeMissingNotice();
+        }
+      }
+    }
+  }
+
   const results = [];
 
-  for (const block of blocks) {
-    process.stderr.write(`BLOCK ${block.index} START\n`);
+  try {
+    for (const block of blocks) {
+      process.stderr.write(`BLOCK ${block.index} START\n`);
     const t0 = performance.now();
 
     const res = {
@@ -203,8 +256,37 @@ async function main() {
           return undefined;
         };
         if (block.lang === 'html') {
-          res.ok = true;
-          res.html = block.code;
+          if (!chromeClient || chromeUnavailable) {
+            res.ok = true;
+            res.html = block.code;
+          } else {
+            const usesThree = previewUsesThree(block.code);
+            let moduleSources = undefined;
+            let skipDueToMissingThree = false;
+
+            if (usesThree) {
+              moduleSources = await getThreeModuleSources(schoolDir);
+              if (!moduleSources) {
+                skipDueToMissingThree = true;
+              }
+            }
+
+            if (skipDueToMissingThree) {
+              res.ok = true;
+              res.html = block.code;
+              res.note = '跳过运行时执行：该 School 缺少 three 依赖';
+            } else {
+              const doc = buildPreviewDocument({
+                lang: 'html',
+                code: block.code,
+                moduleSources,
+              });
+              const execRes = await chromeClient.executeHtmlPreview(doc, 1500);
+              res.ok = execRes.ok;
+              res.error = execRes.error;
+              res.html = block.code;
+            }
+          }
         } else if (block.runtime === 'react') {
           const React = req('react');
           const ReactDOMServer = req('react-dom/server');
@@ -299,6 +381,18 @@ async function main() {
     results.push(res);
     process.stderr.write(`BLOCK ${block.index} RESULT ${JSON.stringify(res)}\n`);
   }
+} finally {
+  if (chromeClient) {
+    try {
+      await chromeClient.close();
+    } catch {}
+  }
+  if (ownChromeInstance) {
+    try {
+      ownChromeInstance.close();
+    } catch {}
+  }
+}
 
   process.stdout.write(JSON.stringify({ ok: results.every((r) => r.ok), blocks: results }));
 }

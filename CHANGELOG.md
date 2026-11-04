@@ -6,6 +6,8 @@
 
 ### 新增
 
+- 课程检查执行 HTML 预览：当本地存在 Chrome/Chromium 浏览器时，通过无头浏览器加载执行每个 `html preview` 块（与网页渲染一致的沙箱 iframe），拦截加载及后续约 1.5 秒内的未捕获异常、Promise 拒绝与 preview-error 运行时错误；若未检测到 Chrome 则打印提示并跳过执行。预览若引用了 `three` 库，验证时自动从依赖学校打包注入本地模块源。
+- 演示组件高度自适应内容：对代码隐藏的内联 `demo` 预览框，高度依据上报的 `preview-metrics` 动态自适应并限制在 200px 至 720px 之间（首次度量前保持 380px，超长内容在框内滚动）；查看代码与弹窗全屏时保持原有高度逻辑。
 - 课程检查新增非阻断提醒：当 `COURSE.md` 登记了 Wanted interactions 但整门课没有 `html preview demo` 时，提醒先确认能否用 demo 按来源规则实现，做不了再在登记里写明原因。
 
 ### 变更
