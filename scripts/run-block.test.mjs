@@ -17,6 +17,7 @@ import {
   DEMO_FRAME_MIN_HEIGHT,
   DEMO_FRAME_MAX_HEIGHT,
   DEMO_FRAME_DEFAULT_HEIGHT,
+  DEMO_FRAME_BORDER_HEIGHT,
 } from '../school-kit/overlay/src/lib/run-block.mjs';
 import { findChromeBinary } from './chrome-runner.mjs';
 import {
@@ -915,6 +916,10 @@ describe('preview demo flag and bundled three', () => {
       assert.equal(clampDemoFrameHeight(NaN), 380);
       assert.equal(clampDemoFrameHeight(Infinity), 380);
       assert.equal(clampDemoFrameHeight('invalid'), 380);
+    });
+
+    it('exports DEMO_FRAME_BORDER_HEIGHT to account for wrapper border-box 1px borders', () => {
+      assert.equal(DEMO_FRAME_BORDER_HEIGHT, 2);
     });
   });
 

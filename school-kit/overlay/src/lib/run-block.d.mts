@@ -21,6 +21,7 @@ export const THREE_SPECIFIERS: Set<string>;
 export const DEMO_FRAME_MIN_HEIGHT: number;
 export const DEMO_FRAME_MAX_HEIGHT: number;
 export const DEMO_FRAME_DEFAULT_HEIGHT: number;
+export const DEMO_FRAME_BORDER_HEIGHT: number;
 export function clampDemoFrameHeight(height?: number | null): number;
 
 export function normalizeRunLang(lang: string): string;

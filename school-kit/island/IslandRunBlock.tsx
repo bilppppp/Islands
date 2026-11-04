@@ -3,6 +3,7 @@ import { Collapse, Modal } from "animal-island-ui";
 import IslandAskTeacher, { t } from "./IslandAskTeacher";
 import IslandCodeEditor from "./IslandCodeEditor";
 import {
+	DEMO_FRAME_BORDER_HEIGHT,
 	buildPreviewDocument,
 	clampDemoFrameHeight,
 	normalizeRunLang,
@@ -664,7 +665,7 @@ export default function IslandRunBlock({
 	const renderPreviewFrame = (inModal = false) => {
 		const isDemoInline = !inModal && demo && !showCode;
 		const frameWrapStyle = isDemoInline && frameHeight !== null
-			? { height: `${frameHeight}px` }
+			? { height: `${frameHeight + DEMO_FRAME_BORDER_HEIGHT}px` }
 			: undefined;
 
 		return (

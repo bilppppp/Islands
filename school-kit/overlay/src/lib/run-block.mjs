@@ -32,6 +32,9 @@ export const THREE_SPECIFIERS = new Set(['three', 'three/addons/controls/OrbitCo
 export const DEMO_FRAME_MIN_HEIGHT = 200;
 export const DEMO_FRAME_MAX_HEIGHT = 720;
 export const DEMO_FRAME_DEFAULT_HEIGHT = 380;
+// .island-preview-frame-wrap has a 1px border on top and bottom (box-sizing: border-box),
+// so wrapper height needs an extra 2px so the inner iframe matches the content height.
+export const DEMO_FRAME_BORDER_HEIGHT = 2;
 
 export function clampDemoFrameHeight(height) {
   const n = typeof height === 'number' ? height : parseFloat(height);
