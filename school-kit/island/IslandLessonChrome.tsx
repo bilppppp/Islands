@@ -94,6 +94,8 @@ function mountHeading(heading: HTMLElement, variant: "tab" | "layer", withIcon: 
 	host.dataset.headingVariant = variant;
 	host.dataset.headingText = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
 	if (withIcon) host.className = "island-heading-mark";
+	host.setAttribute("role", "heading");
+	host.setAttribute("aria-level", heading.tagName.substring(1));
 	heading.replaceWith(host);
 	createRoot(host).render(
 		<>

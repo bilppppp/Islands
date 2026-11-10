@@ -584,9 +584,9 @@ import ClientUI from "../components/ClientUI.astro";
       >
         <div class="island-brand-row mb-4 px-1">
           <a href="/" class="island-mobile-brand" data-school-name={courseShortName}>
-            <h1 class="island-school-title m-0">
+            <div class="island-school-title m-0">
               <IslandMark client:load name={courseShortName} size="small" />
-            </h1>
+            </div>
           </a>
           <IslandClock client:load />
         </div>
