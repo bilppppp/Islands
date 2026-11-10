@@ -81,6 +81,7 @@ export default function IslandRocket() {
 		let raf = 0;
 		let hintTimeout = 0;
 		let disposed = false;
+		let userPlaced = false;
 
 		const rand = (a: number, b: number) => a + Math.random() * (b - a);
 		const clamp = (value: number, lo: number, hi: number) => Math.min(Math.max(value, lo), hi);
@@ -110,8 +111,15 @@ export default function IslandRocket() {
 			canvas.style.height = `${window.innerHeight}px`;
 			ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 			if (state.mode === "idle") {
-				const next = parked(state.x || window.innerWidth - 56, state.y || window.innerHeight - 64);
-				setRocket(next.x, next.y);
+				if (!userPlaced) {
+					const home = parked(window.innerWidth - 56, window.innerHeight - 64);
+					setRocket(home.x, home.y);
+					state.anchor = { ...home };
+				} else {
+					const next = parked(state.x || window.innerWidth - 56, state.y || window.innerHeight - 64);
+					setRocket(next.x, next.y);
+					state.anchor = { ...next };
+				}
 			}
 		}
 
@@ -542,6 +550,7 @@ export default function IslandRocket() {
 					};
 					requestAnimationFrame(spring);
 				} else {
+					userPlaced = true;
 					state.anchor = { x: state.x, y: state.y };
 				}
 			}
