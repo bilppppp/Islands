@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { CountUp } from "animal-island-ui";
 
 type SchoolProgress = {
@@ -35,7 +35,7 @@ function announceDone() {
 	window.dispatchEvent(new CustomEvent("school:island-countup-done"));
 }
 
-export default function IslandCountUp({ currentLessonSlug = "" }: Props) {
+function IslandCountUp({ currentLessonSlug = "" }: Props) {
 	const [start, setStart] = useState(0);
 	const [end, setEnd] = useState(0);
 	const [counting, setCounting] = useState(false);
@@ -150,3 +150,7 @@ export default function IslandCountUp({ currentLessonSlug = "" }: Props) {
 		</div>
 	);
 }
+
+// Exported through memo so @astrojs/react recognizes it without probing: its SSR check
+// otherwise calls this component outside a render and React logs "Invalid hook call".
+export default memo(IslandCountUp);

@@ -28,6 +28,8 @@ New schools scaffold `chrome: "island"` on `school.config.ts`. The kit reads tha
 
 Island enrollment asks for a character (`warrior`, `wizard`, `priest`, `ranger`; sprites and completion seals live in `school-kit/island/roles/`, see [island/roles/NOTICE.txt](island/roles/NOTICE.txt)) instead of a theme color. The choice is stored in the browser as `learningRole` and only changes the identity card sprite and completion seal; student ID, progress, course, and page colors stay as they are.
 
+Island roots hydrated from `.astro` files with `client:load` / `client:visible` are server-rendered first, and `@astrojs/react` probes a plain function component by calling it outside a render. That probe can make React log `Invalid hook call` on every request (it did for `IslandCountUp`); exporting such a root wrapped in `memo` lets the renderer recognize it without the probe. To find the component, run the dev server with `DEPLOY_TARGET=node` and print a stack from `console.error`.
+
 ## Lesson Markdown extensions and validation
 
 Authoring rules for citations and interactive fences live in [generation/protocol.md](../generation/protocol.md). The kit ships the remark/Shiki pipeline, vendor asset bundlers, island components, and validation helpers used by `finish` and `scripts/verify-lesson-blocks.mjs`:
