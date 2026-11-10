@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, Notification, Select, Tooltip } from "animal-island-ui";
+import { Button, Select } from "animal-island-ui";
+import { showAskTeacherNotice, t } from "./IslandAskTeacher";
 
 const depthOptions = [
 	{ key: "brief", label: "简短" },
 	{ key: "some-context", label: "适中" },
 	{ key: "all-details", label: "充分" },
 ];
-
-const SAVED_NOTICE_KEY = "island-prefs-saved";
 
 export default function IslandPrefs() {
 	const [depth, setDepth] = useState("some-context");
@@ -30,12 +29,11 @@ export default function IslandPrefs() {
 	}, []);
 
 	const save = async () => {
-		Notification.destroy(SAVED_NOTICE_KEY);
 		setPending(true);
 		try {
 			const id = (window.school as { getStudentId?: () => string | null } | undefined)?.getStudentId?.();
 			if (!id) {
-				Notification.info({ message: "还没有学习身份" });
+				showAskTeacherNotice({ type: "info", message: t("prefsNeedIdentity") });
 				return;
 			}
 			const response = await fetch(`/api/profile/${encodeURIComponent(id)}`, {
@@ -44,12 +42,12 @@ export default function IslandPrefs() {
 				body: JSON.stringify({ depthPreference: depth }),
 			});
 			if (!response.ok) {
-				Notification.error({ message: "偏好没有保存" });
+				showAskTeacherNotice({ type: "error", message: t("prefsSaveFailed") });
 				return;
 			}
-			Notification.success({ key: SAVED_NOTICE_KEY, message: "偏好已保存" });
+			showAskTeacherNotice({ type: "success", message: t("prefsSaved") });
 		} catch {
-			Notification.error({ message: "偏好没有保存" });
+			showAskTeacherNotice({ type: "error", message: t("prefsSaveFailed") });
 		} finally {
 			setPending(false);
 		}
@@ -71,11 +69,9 @@ export default function IslandPrefs() {
 					}}
 				/>
 			</div>
-			<Tooltip className="island-save-tip" title="偏好已保存" trigger="click" variant="island" bordered placement="top">
-				<Button type="primary" disabled={!studentId || pending} onClick={save}>
-					保存偏好
-				</Button>
-			</Tooltip>
+			<Button type="primary" disabled={!studentId || pending} onClick={save}>
+				保存偏好
+			</Button>
 		</section>
 	);
 }

@@ -293,7 +293,7 @@ import { t } from "../lib/ui";
           cipherReveal(studentId, fast, function() {
             fireCelebration();
             if (!fast) {
-              window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "success", message: "学习身份已领好" } }));
+              window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "success", message: window.schoolUI.t("enrollNoticeDone") } }));
               window.school.updateAllCheckmarks();
               if (typeof window.school.updateEnrolledIndicator === "function") {
                 window.school.updateEnrolledIndicator();
@@ -342,7 +342,7 @@ import { t } from "../lib/ui";
         window.school.enroll().then(function(data) {
           showEnrolled(data.studentId, true, false);
         }).catch(function() {
-          window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "error", message: "注册没有成功" } }));
+          window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "error", message: window.schoolUI.t("enrollNoticeFailed") } }));
           if (enrollError) enrollError.classList.remove("hidden");
           setPickerState(window.schoolUI.t("chooseRole"), false);
           isSubmitting = false;

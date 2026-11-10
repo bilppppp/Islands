@@ -173,7 +173,12 @@
     "askTeacherPredictWrong": "I was wrong",
     "askTeacherPredictOpen": "Question: {question} / Answer revealed after thinking: {answer}",
     "askTeacherNumberlineRange": "Number line range {min} to {max}",
-    "askTeacherNumberlineCaption": "Hint: {caption}"
+    "askTeacherNumberlineCaption": "Hint: {caption}",
+    "enrollNoticeDone": "Your student ID is ready!",
+    "enrollNoticeFailed": "Enrollment did not succeed. Please try again.",
+    "prefsSaved": "Preferences saved.",
+    "prefsSaveFailed": "Preferences could not be saved.",
+    "prefsNeedIdentity": "No student ID yet."
   },
   "zh": {
     "teachingMode": "教学模式",
@@ -349,6 +354,11 @@
     "askTeacherPredictWrong": "我猜错了",
     "askTeacherPredictOpen": "题目：{question}／我想好之后看到的答案：{answer}",
     "askTeacherNumberlineRange": "数轴范围 {min} 到 {max}",
-    "askTeacherNumberlineCaption": "提示：{caption}"
+    "askTeacherNumberlineCaption": "提示：{caption}",
+    "enrollNoticeDone": "学习身份已领好",
+    "enrollNoticeFailed": "注册没有成功",
+    "prefsSaved": "偏好已保存",
+    "prefsSaveFailed": "偏好没有保存",
+    "prefsNeedIdentity": "还没有学习身份"
   }
 }
