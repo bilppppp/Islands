@@ -363,6 +363,10 @@ import { t } from "../lib/ui";
           stepButton.classList.add("hidden");
           stepColor.classList.remove("hidden");
           setSelectedRole(selectedRole);
+          var activeOption = document.querySelector('#role-picker .island-role-option[aria-pressed="true"]');
+          if (activeOption && typeof activeOption.focus === "function") {
+            activeOption.focus();
+          }
         });
       }
 
