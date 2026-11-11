@@ -915,11 +915,18 @@ html[data-learning-role="ranger"] {
 }
 
 [class*="animal-ribbon"][class*="animal-color-brown"],
-.animal-color-brown-Xr3XB {
+[class*="animal-layer"][class*="animal-color-brown"] {
   --rf: #806941;
   --rb: #5c4722;
   --rk: #3a2810;
   --rt: #ffffff;
+}
+
+[class*="animal-tab"][class*="animal-color-brown"],
+[class*="animal-tab"][class*="animal-color-brown"] [class*="animal-tabText"],
+[class*="animal-tab"][class*="animal-color-brown"] .island-heading-rich {
+  --animal-text-color: #27190c;
+  color: #27190c;
 }
 
 [class*="animal-tag"][class*="animal-color-brown-outlined"],
