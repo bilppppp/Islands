@@ -5,6 +5,7 @@
 export const prerender = true;
 
 import Base from "../layouts/Base.astro";
+import TeachingMode from "../components/TeachingMode.astro";
 import { Card, Button, Divider } from "animal-island-ui";
 import IslandMark from "../components/island/IslandMark";
 import IslandLessonBoard from "../components/island/IslandLessonBoard";
@@ -139,6 +140,9 @@ import { t } from "../lib/ui";
       </div>
       <p class="island-role-confirm">{t("confirmRole")}</p>
       </Card>
+      <div id="teaching-mode-slot-unenrolled" class="mt-4">
+        <TeachingMode />
+      </div>
       <p id="enroll-error" class="mt-2 text-red-500 text-sm hidden">{t("enrollError")}</p>
     </div>
   </div>
@@ -289,6 +293,7 @@ import { t } from "../lib/ui";
         pageHeader.classList.add("hidden");
         paintId(studentId);
         idCard.classList.remove("hidden");
+        syncTeachingModeSlot();
 
         if (animate) {
           cipherReveal(studentId, fast, function() {
@@ -325,12 +330,27 @@ import { t } from "../lib/ui";
         });
       }
 
+      function syncTeachingModeSlot() {
+        var modeControl = document.getElementById("teaching-mode-control");
+        if (!modeControl) return;
+        var studentId = window.school ? window.school.getStudentId() : null;
+        var target = studentId
+          ? document.getElementById("island-prefs-mode-slot")
+          : document.getElementById("teaching-mode-slot-unenrolled");
+        if (target && modeControl.parentElement !== target) {
+          target.appendChild(modeControl);
+        }
+      }
+
       // On page load: if already enrolled, show card + lesson list with fast cipher + celebration
       var existingId = window.school.getStudentId();
       setSelectedRole(selectedRole);
       if (existingId) {
         showEnrolled(existingId, true, true);
       }
+      syncTeachingModeSlot();
+      window.addEventListener("school:enrolled", syncTeachingModeSlot);
+      window.addEventListener("school:progress", syncTeachingModeSlot);
 
       function submitEnrollment() {
         if (isSubmitting) return;

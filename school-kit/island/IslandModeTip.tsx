@@ -1,13 +1,13 @@
-import { useEffect, useState, type MouseEvent } from "react";
-import { Tooltip } from "animal-island-ui";
+import { useEffect, useState } from "react";
 
 interface Props {
 	mode: "simple" | "immersive";
 	label: string;
 	title: string;
+	compact?: boolean;
 }
 
-export default function IslandModeTip({ mode, label, title }: Props) {
+export default function IslandModeTip({ mode, label, title, compact }: Props) {
 	const [pressed, setPressed] = useState(false);
 
 	useEffect(() => {
@@ -27,27 +27,17 @@ export default function IslandModeTip({ mode, label, title }: Props) {
 		return () => root?.removeEventListener("teaching-mode-visual", onVisual);
 	}, [mode]);
 
-	const place = (event: MouseEvent<HTMLButtonElement>) => {
-		const host = event.currentTarget.parentElement;
-		if (!host) return;
-		const x = Math.min(window.innerWidth - 130, Math.max(130, event.clientX));
-		const y = Math.max(76, event.clientY);
-		host.style.setProperty("--island-tip-x", `${x}px`);
-		host.style.setProperty("--island-tip-y", `${y}px`);
-	};
-
 	return (
-		<Tooltip title={title} variant="island" bordered placement="top" className="island-mode-tip">
-			<button
-				type="button"
-				className={`teaching-mode-option rounded-lg border px-3 py-3 text-left transition-colors${pressed ? " theme-active-nav border-transparent" : " border-gray-300 dark:border-stone-700"}`}
-				data-teaching-mode={mode}
-				aria-pressed={pressed ? "true" : "false"}
-				onMouseEnter={place}
-				onMouseMove={place}
-			>
-				<span className="block font-medium">{label}</span>
-			</button>
-		</Tooltip>
+		<button
+			type="button"
+			className={`teaching-mode-option w-full rounded-lg border text-left transition-colors ${
+				compact ? "px-2.5 py-2" : "px-3 py-2.5"
+			}${pressed ? " theme-active-nav border-transparent" : " border-gray-300 dark:border-stone-700 bg-white/40 hover:bg-white/70"}`}
+			data-teaching-mode={mode}
+			aria-pressed={pressed ? "true" : "false"}
+		>
+			<span className="block font-medium text-sm teaching-mode-label">{label}</span>
+			<span className="block text-xs teaching-mode-desc mt-0.5 leading-snug">{title}</span>
+		</button>
 	);
 }

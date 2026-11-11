@@ -2,7 +2,7 @@
   "en": {
     "teachingMode": "Teaching mode",
     "modeAnytime": "You can change this at any time.",
-    "modeScope": "This changes how your teacher guides you. It does not regenerate the course.",
+    "modeScope": "Decide how your AI teacher guides you. You can change this at any time.",
     "simple": "Simple",
     "immersive": "Immersive",
     "simpleDescription": "Focused explanations and fewer detours.",
@@ -191,7 +191,7 @@
   "zh": {
     "teachingMode": "教学模式",
     "modeAnytime": "你可以随时调整。",
-    "modeScope": "此设置调整教师的教学方式，无需重新生成课程。",
+    "modeScope": "决定 AI 教师怎么带你学，随时能换。",
     "simple": "简单模式",
     "immersive": "沉浸模式",
     "simpleDescription": "聚焦重点，精简讲解与延伸。",

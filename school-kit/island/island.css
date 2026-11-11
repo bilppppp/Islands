@@ -420,23 +420,46 @@ html[data-learning-role="ranger"] {
   font-size: 0.85rem;
 }
 
-.island-mode-tip {
+.teaching-mode-option {
   display: block;
   width: 100%;
+  color: #794f27;
+  cursor: pointer;
 }
 
-.island-mode-tip .teaching-mode-option {
-  width: 100%;
+.teaching-mode-option .teaching-mode-label {
+  font-weight: 600;
+  color: #794f27;
 }
 
-.island-mode-panel .island-mode-tip [role="tooltip"] {
-  position: fixed;
-  top: var(--island-tip-y, 0);
-  left: var(--island-tip-x, 0);
-  right: auto;
-  bottom: auto;
-  margin: 0;
-  transform: translate(-50%, calc(-100% - 12px));
+.teaching-mode-option .teaching-mode-desc {
+  font-size: 0.75rem;
+  color: #8a6d4b;
+}
+
+.teaching-mode-option.theme-active-nav {
+  background: #e6f9f6 !important;
+  border-color: #11a89b !important;
+  color: #0f766e !important;
+}
+
+.teaching-mode-option.theme-active-nav .teaching-mode-label {
+  color: #0f766e;
+}
+
+.teaching-mode-option.theme-active-nav .teaching-mode-desc {
+  color: #0d8f84;
+}
+
+.island-prefs-fold #teaching-mode-control {
+  margin-bottom: 1.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.island-mode-compact {
+  margin-bottom: 1rem;
 }
 
 .island-path {
