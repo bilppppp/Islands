@@ -12,6 +12,19 @@ import IslandPromptNotice from "./island/IslandPromptNotice";
 import { t } from "../lib/ui";
 ---
 
+<div class="island-prompt-card island-prompt-locked hidden" data-prompt-locked>
+  <div class="island-prompt-row">
+    <IslandPageIcon client:load size={28} />
+    <div class="island-prompt-meta">
+      <p class="island-prompt-title">{t("promptLockedTitle")}</p>
+      <p class="island-prompt-lead">{t("promptLockedLead")}</p>
+    </div>
+    <div class="island-prompt-actions">
+      <a class="theme-button" href="/">{t("chooseIdentity")}</a>
+    </div>
+  </div>
+</div>
+
 <div class="agent-prompt-card island-prompt-card hidden" data-lesson-title={title} data-prompt={prompt}>
   <div class="island-prompt-row">
     <IslandPageIcon client:load size={28} />
@@ -57,7 +70,12 @@ import { t } from "../lib/ui";
 
     if (!window.school) return;
     var studentId = window.school.getStudentId();
-    if (!studentId) return;
+    if (!studentId) {
+      document.querySelectorAll("[data-prompt-locked]").forEach(function(el) {
+        el.classList.remove("hidden");
+      });
+      return;
+    }
 
     document.querySelectorAll(".agent-prompt-card").forEach(function(card) {
       var lessonTitle = card.getAttribute("data-lesson-title");
