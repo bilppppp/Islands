@@ -53,7 +53,8 @@
     "@codemirror/lang-javascript": "6.2.5",
     "@codemirror/lang-html": "6.4.12",
     "@lezer/highlight": "1.2.5",
-    "@replit/codemirror-indentation-markers": "6.5.3"
+    "@replit/codemirror-indentation-markers": "6.5.3",
+    "remark-cjk-friendly": "2.3.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.7",
