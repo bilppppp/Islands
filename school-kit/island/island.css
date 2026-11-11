@@ -2769,3 +2769,45 @@ button.source-cite:focus-visible {
     min-height: 0;
   }
 }
+
+/* Disenroll page button restyling (P3-5) */
+#reset-button {
+  background-color: #0b7f76 !important;
+  color: #fffdf7 !important;
+  border-color: #0b7f76 !important;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+#reset-button:hover:not(:disabled) {
+  background-color: #086961 !important;
+  border-color: #086961 !important;
+}
+
+#disenroll-button {
+  background-color: transparent !important;
+  color: #c62828 !important;
+  border-color: #e57373 !important;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+#disenroll-button:hover:not(:disabled) {
+  background-color: #ffebee !important;
+  border-color: #ef5350 !important;
+  color: #b71c1c !important;
+}
+
+html.dark #disenroll-button,
+:global(.dark) #disenroll-button {
+  background-color: transparent !important;
+  color: #ef9a9a !important;
+  border-color: #b91c1c !important;
+}
+
+html.dark #disenroll-button:hover:not(:disabled),
+:global(.dark) #disenroll-button:hover:not(:disabled) {
+  background-color: rgba(239, 83, 80, 0.15) !important;
+  border-color: #ef5350 !important;
+  color: #ffcdd2 !important;
+}
