@@ -2825,3 +2825,35 @@ html.dark .island-editor-hint,
 :global(.dark) .island-editor-hint {
   color: #a8a29e;
 }
+
+/* Skip to content link (P2-16) */
+.island-skip-link {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: 999;
+}
+
+.island-skip-link:focus,
+.island-skip-link:focus-visible {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  padding: 8px 16px;
+  background: #fffdf7;
+  color: #0b7f76;
+  border: 2px solid #0b7f76;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  outline: 2px solid #0b7f76;
+  outline-offset: 2px;
+}
+
+html.dark .island-skip-link:focus,
+:global(.dark) .island-skip-link:focus {
+  background: #292524;
+  color: #4de2da;
+  border-color: #4de2da;
+  outline-color: #4de2da;
+}

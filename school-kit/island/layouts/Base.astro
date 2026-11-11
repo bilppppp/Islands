@@ -554,6 +554,7 @@ import ClientUI from "../components/ClientUI.astro";
     </script>
   </head>
   <body class="min-h-screen">
+    <a href="#main-content" class="island-skip-link sr-only focus:not-sr-only">{t("skipToContent")}</a>
     <IslandShell client:load shortName={courseShortName}>
     <div class="island-shell lg:flex">
       <!-- Mobile header -->
@@ -677,7 +678,7 @@ import ClientUI from "../components/ClientUI.astro";
       </nav>
 
       <!-- Main content -->
-      <main class="flex-1 min-w-0 p-6 lg:p-12 max-w-3xl">
+      <main id="main-content" tabindex="-1" class="flex-1 min-w-0 p-6 lg:p-12 max-w-3xl focus:outline-none">
         <slot />
       </main>
       <aside class="island-rail hidden xl:block w-72 shrink-0 sticky top-0 h-screen overflow-y-auto p-6">
