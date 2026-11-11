@@ -61,12 +61,30 @@ export default function IslandPromptNotice() {
 		};
 	}, []);
 
+	const line1 = t("promptCopiedModalLine1");
+	const line2Template = t("promptCopiedModalLine2");
+	const tool = t("promptCopiedModalTool");
+	const parts = line2Template.split("{tool}");
+	const charCount =
+		line1.length +
+		(parts.length === 2
+			? parts[0].length + tool.length + parts[1].length
+			: line2Template.length);
+
+	const prefersReduced =
+		typeof window !== "undefined" &&
+		window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+	const typeSpeed = 35;
+	const typingDuration = prefersReduced ? 0 : charCount * typeSpeed;
+	const autoCloseDelay = typingDuration + 1200;
+
 	useEffect(() => {
 		if (!open || closing) return;
 
 		timerRef.current = window.setTimeout(() => {
 			closeModal();
-		}, 1600);
+		}, autoCloseDelay);
 
 		const onWindowClick = () => {
 			closeModal();
@@ -92,30 +110,25 @@ export default function IslandPromptNotice() {
 			window.removeEventListener("click", onWindowClick, true);
 			window.removeEventListener("keydown", onKeyDown, true);
 		};
-	}, [open, closing, closeModal]);
+	}, [open, closing, closeModal, autoCloseDelay]);
 
-	const line1 = t("promptCopiedModalLine1");
-	const line2Template = t("promptCopiedModalLine2");
-	const tool = t("promptCopiedModalTool");
-	const parts = line2Template.split("{tool}");
-
-	const prefersReduced =
-		typeof window !== "undefined" &&
-		window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-	const maskStyle = prefersReduced
-		? undefined
-		: {
-				opacity: closing ? 0 : 1,
-				transition: "opacity 150ms ease",
-			};
+	const maskStyle: React.CSSProperties = {
+		backgroundColor: "rgba(114, 93, 66, 0.18)",
+		...(prefersReduced
+			? {}
+			: {
+					opacity: closing ? 0 : 1,
+					transition: "opacity 150ms ease",
+				}),
+	};
 
 	return (
 		<Modal
 			open={open}
 			onClose={closeModal}
 			footer={null}
-			typewriter={false}
+			typewriter={!prefersReduced}
+			typeSpeed={typeSpeed}
 			className={closing ? "island-prompt-modal is-closing" : "island-prompt-modal"}
 			maskStyle={maskStyle}
 		>
