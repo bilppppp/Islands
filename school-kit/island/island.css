@@ -2510,7 +2510,94 @@ button.source-cite:focus-visible {
 }
 
 @media (max-width: 767.98px) {
+  /* Reduce outer page padding on phones to preserve horizontal canvas */
+  .island-shell main {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* 1. Reduce stacked horizontal padding for lesson prose card */
+  article.prose,
+  div.prose {
+    padding: 1.25rem 0.75rem;
+    border-radius: 14px;
+  }
+
+  /* 2. animal-island-ui Collapse answer content area padding reduction */
+  .island-run-collapse [class*="animal-answerContent"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  /* animal-island-ui Collapse question header padding */
+  .island-run-collapse [class*="animal-questionHeader"] {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* 3. Run and demo card padding */
+  .island-run-card {
+    padding: 0.75rem 0.6rem;
+    border-radius: 12px;
+  }
+
+  /* 4. Fullscreen preview/demo modal: fill viewport 100vw / 100dvh with no cloud frame */
+  .island-preview-modal[class*="animal-modal"],
+  [class*="animal-mask"] .island-preview-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Remove decorative rounded frame, clip-path and bulky padding on animal-island-ui modal inner */
+  .island-preview-modal [class*="animal-modalClipped"],
+  .island-preview-modal [class*="animal-gameClipped"] {
+    width: 100% !important;
+    height: 100% !important;
+    padding: 10px 10px 8px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    clip-path: none !important;
+  }
+
+  /* Remove 80px extra left padding from modal header on phone */
+  .island-preview-modal [class*="animal-header"] {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .island-preview-modal [class*="animal-title"] {
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+
+  .island-preview-modal [class*="animal-body"] {
+    padding-bottom: 0 !important;
+    flex: 1 1 auto;
+    height: calc(100% - 44px);
+  }
+
+  .island-preview-modal-content {
+    padding: 0.5rem 0.25rem !important;
+    gap: 0.5rem;
+    height: 100%;
+    flex: 1 1 auto;
+  }
+
+  .island-preview-modal-grid {
+    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   .island-preview-modal .island-demo-modal-grid .island-preview-view-col {
-    height: min(60vh, 480px);
+    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 }
