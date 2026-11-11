@@ -471,7 +471,7 @@
     "nextStation": "下一站",
     "notReachedYet": "还没走到",
     "adjustLearningStyle": "调整我的学习方式",
-    "lessonsCompleted": "已完成各站",
+    "lessonsCompleted": "已完成站数",
     "progressLessons": "已完成 {done}/{total} 站",
     "sourceCiteTitle": "来源原句",
     "sourceCiteLocal": "本地材料",
