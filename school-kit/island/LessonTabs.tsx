@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Tabs } from "animal-island-ui";
+import { t } from "./IslandAskTeacher";
 
 interface Props {
 	readLabel: string;
 	teachLabel: string;
+	ariaLabel?: string;
 }
 
-export default function LessonTabs({ readLabel, teachLabel }: Props) {
+export default function LessonTabs({ readLabel, teachLabel, ariaLabel }: Props) {
 	const [active, setActive] = useState("read");
 
 	useEffect(() => {
@@ -39,7 +41,7 @@ export default function LessonTabs({ readLabel, teachLabel }: Props) {
 			<Tabs
 				activeKey={active}
 				onChange={setActive}
-				aria-label="这一关"
+				aria-label={ariaLabel || t("thisLesson")}
 				items={[
 					{ key: "read", label: readLabel, children: null },
 					{ key: "teach", label: teachLabel, children: null },

@@ -1,12 +1,16 @@
-<div id="source-cite-pop" class="source-cite-pop" role="region" aria-label="来源原句" hidden>
+---
+import { t } from "../lib/ui";
+---
+
+<div id="source-cite-pop" class="source-cite-pop" role="region" aria-label={t("sourceCiteTitle")} hidden>
   <div class="source-cite-arrow" hidden></div>
-  <p class="source-cite-kicker">来源原句</p>
+  <p class="source-cite-kicker">{t("sourceCiteTitle")}</p>
   <p class="source-cite-title" id="source-cite-heading"></p>
   <p class="source-cite-quote" id="source-cite-quote"></p>
   <div class="source-cite-meta">
     <span class="source-cite-path" id="source-cite-path"></span>
-    <a id="source-cite-local" href="">本地材料</a>
-    <a id="source-cite-url" href="" target="_blank" rel="noreferrer">原始页面</a>
+    <a id="source-cite-local" href="">{t("sourceCiteLocal")}</a>
+    <a id="source-cite-url" href="" target="_blank" rel="noreferrer">{t("sourceCiteUrl")}</a>
   </div>
 </div>
 

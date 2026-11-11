@@ -6,7 +6,7 @@ import IslandPageIcon from "./IslandPageIcon";
 import IslandPredict from "./IslandPredict";
 import IslandRunBlock from "./IslandRunBlock";
 import IslandNumberline from "./IslandNumberline";
-import { useClipboardCopy } from "./IslandAskTeacher";
+import { useClipboardCopy, t } from "./IslandAskTeacher";
 import { parsePredictBlock, parseNumberlineBlock } from "../../lib/predict-block.mjs";
 import { isRunnableLang, isPreviewLang } from "../../lib/run-block.mjs";
 
@@ -26,9 +26,9 @@ function IslandShikiBlock({ pre }: { pre: HTMLElement }) {
 	};
 
 	const labels = {
-		idle: { text: "复制", label: "复制代码" },
-		copied: { text: "已复制", label: "代码已复制" },
-		error: { text: "复制失败", label: "代码复制失败" },
+		idle: { text: t("copy"), label: t("copyCode") },
+		copied: { text: t("copiedTag"), label: t("codeCopied") },
+		error: { text: t("copyFailedTag"), label: t("copyCodeFailed") },
 	};
 	const current = labels[status];
 	const rawLang = pre.getAttribute("data-language") ?? pre.dataset.language ?? "";
@@ -229,8 +229,8 @@ export default function IslandLessonChrome() {
 			{tocHost
 				? createPortal(
 						headings.length > 0 ? (
-							<nav className="island-toc" aria-label="本关目录">
-								<p className="island-toc-label">本关目录</p>
+							<nav className="island-toc" aria-label={t("lessonToc")}>
+								<p className="island-toc-label">{t("lessonToc")}</p>
 								<ul>
 									{headings.map((heading) => (
 										<li key={heading.id}>
@@ -243,7 +243,7 @@ export default function IslandLessonChrome() {
 						tocHost,
 					)
 				: null}
-			<Loading active={saving} tip="正在保存" />
+			<Loading active={saving} tip={t("savingTip")} />
 		</div>
 	);
 }

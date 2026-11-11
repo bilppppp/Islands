@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import IslandPrefs from "./IslandPrefs";
 import { pageMarkIcon } from "./island-icons";
+import { t } from "./IslandAskTeacher";
 
 export interface BoardLesson {
 	slug: string;
@@ -90,12 +91,12 @@ export default function IslandLessonBoard({ lessons }: { lessons: BoardLesson[] 
 
 	return (
 		<div className="island-board">
-			{allDone ? <p className="island-path-done">这一路的关卡都走完了。</p> : null}
+			{allDone ? <p className="island-path-done">{t("allLessonsDone")}</p> : null}
 			<ol className="island-path">
 				{orderedLessons.map((lesson) => {
 					const kind = kindOf(lesson);
-					const cta = kind === "current" && visited[lesson.slug] ? "继续学习" : "开始学习";
-					const kicker = kind === "done" ? `第 ${lesson.order} 站 · 已完成` : kind === "current" ? "下一站" : "还没走到";
+					const cta = kind === "current" && visited[lesson.slug] ? t("continue") : t("start");
+					const kicker = kind === "done" ? t("stationDoneKicker", { order: lesson.order }) : kind === "current" ? t("nextStation") : t("notReachedYet");
 					return (
 						<li key={lesson.slug} className={`island-station island-station-${kind}`} data-lesson-slug={lesson.slug} data-lesson-stub={lesson.stub ? "true" : "false"}>
 							<div className="lesson-row island-station-body">
@@ -118,7 +119,7 @@ export default function IslandLessonBoard({ lessons }: { lessons: BoardLesson[] 
 					<span className="island-prefs-mark" aria-hidden="true">
 						{prefsOpen ? "−" : "+"}
 					</span>
-					<span className="island-prefs-title">调整我的学习方式</span>
+					<span className="island-prefs-title">{t("adjustLearningStyle")}</span>
 					{MarkIcon ? (
 						<span className={`island-prefs-icon${prefsOpen ? " is-open" : ""}`} aria-hidden="true">
 							<MarkIcon size={20} />

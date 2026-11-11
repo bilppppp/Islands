@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { CountUp } from "animal-island-ui";
+import { t } from "./IslandAskTeacher";
 
 type SchoolProgress = {
 	completedLessons?: unknown[];
@@ -44,10 +45,6 @@ function IslandCountUp({ currentLessonSlug = "" }: Props) {
 	const lastCount = useRef(0);
 	const seenCurrentComplete = useRef(false);
 	const serverSynced = useRef(false);
-	const lang =
-		typeof document !== "undefined" && document.documentElement.lang.startsWith("zh")
-			? "zh"
-			: "en";
 
 	useEffect(() => {
 		const currentComplete = () =>
@@ -131,7 +128,7 @@ function IslandCountUp({ currentLessonSlug = "" }: Props) {
 
 	return (
 		<div className="island-count-wrap">
-			<p className="island-count-label">{lang === "zh" ? "已完成关卡" : "Lessons completed"}</p>
+			<p className="island-count-label">{t("lessonsCompleted")}</p>
 			<CountUp
 				start={start}
 				end={end}

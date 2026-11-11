@@ -314,7 +314,7 @@ export default function IslandCodeEditor({
 				modules.syntaxHighlighting(islandHighlightStyle),
 				langCompartment.of(getLanguageExtension(lang, modules)),
 				modules.EditorView.contentAttributes.of({
-					"aria-label": ariaLabel || "Code Editor",
+					"aria-label": ariaLabel || t("codeEditor"),
 				}),
 				modules.EditorView.updateListener.of((update) => {
 					if (update.docChanged) {
