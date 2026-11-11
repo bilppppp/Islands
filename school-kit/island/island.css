@@ -2811,3 +2811,17 @@ html.dark #disenroll-button:hover:not(:disabled),
   border-color: #ef5350 !important;
   color: #ffcdd2 !important;
 }
+
+/* Code editor keyboard hint (P2-14) */
+.island-editor-hint {
+  font-size: 12px;
+  color: #725d42;
+  margin-top: 4px;
+  line-height: 1.4;
+  user-select: none;
+}
+
+html.dark .island-editor-hint,
+:global(.dark) .island-editor-hint {
+  color: #a8a29e;
+}

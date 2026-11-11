@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { EditorView as EditorViewType } from "@codemirror/view";
 import type { Compartment as CompartmentType, Extension } from "@codemirror/state";
 import { resolveEditorLanguage } from "../../lib/run-block.mjs";
+import { t } from "./IslandAskTeacher";
 
 export interface IslandCodeEditorProps {
 	value: string;
@@ -389,11 +390,14 @@ export default function IslandCodeEditor({
 			className={`island-run-editor-wrap${inModal ? " island-run-editor-modal" : ""}${className ? ` ${className}` : ""}`}
 		>
 			{cmLoaded && !cmFailed ? (
-				<div
-					ref={containerRef}
-					className="island-code-editor"
-					style={inlineStyle}
-				/>
+				<>
+					<div
+						ref={containerRef}
+						className="island-code-editor"
+						style={inlineStyle}
+					/>
+					<div className="island-editor-hint">{t("editorKeyboardHint")}</div>
+				</>
 			) : (
 				<textarea
 					ref={textareaRef}
