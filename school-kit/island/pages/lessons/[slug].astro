@@ -53,7 +53,7 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
     <IslandTypewriter client:load text={lesson.data.description} />
   </header>
 
-  <div id="lesson-completed-banner" class="island-done-banner hidden">
+  <div id="lesson-completed-banner" class="island-done-banner hidden" role="status" aria-live="polite">
     <span class="island-done-check" aria-hidden="true">
       <svg viewBox="0 0 16 16" width="14" height="14"><path d="M3 8.5 6.2 12 13 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
     </span>
@@ -73,19 +73,12 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
       {lesson.data.agentOnly && (
         <div id="lesson-agent-only" class="mt-10 pt-6 border-t border-gray-200 dark:border-stone-800 hidden">
           <p id="lesson-agent-only-text" class="text-center text-sm text-gray-500 dark:text-stone-500">{t("agentContinue")}</p>
-          {next && (
-            <a
-              id="lesson-agent-only-next"
-              href={`/lessons/${next.data.slug}`}
-              class="theme-button mt-4 flex w-full justify-center cursor-pointer items-center gap-2 rounded-lg px-6 py-4 text-sm font-medium select-none hidden"
-            >{t("nextLesson", { title: next.data.title })}</a>
-          )}
         </div>
       )}
   </div>
   <AgentPrompt title={lesson.data.title} />
   {next && (
-    <a class="island-next-bar" href={`/lessons/${next.data.slug}`}>下一站：{next.data.title} →</a>
+    <a class="island-next-bar" href={`/lessons/${next.data.slug}`}>{t("nextLesson", { title: next.data.title })}</a>
   )}
   <IslandLessonChrome client:only="react" />
 
@@ -96,7 +89,7 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
       var nudge = document.getElementById("lesson-enroll-nudge");
       var agentOnlyBlock = document.getElementById("lesson-agent-only");
       var agentOnlyText = document.getElementById("lesson-agent-only-text");
-      var agentOnlyNext = document.getElementById("lesson-agent-only-next");
+      var nextLink = document.querySelector(".island-next-bar");
       if (!window.school) return;
 
       // Show enroll nudge to unenrolled visitors, hide it once enrolled
@@ -111,42 +104,26 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
 
       var wasAlreadyComplete = window.school.isLessonComplete(lessonSlug);
       var celebrated = false;
-      var jumpScheduled = false;
-
-      function prefersIslandReducedMotion() {
-        return window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      }
-
-      function afterIslandCelebration(url) {
-        if (!url || jumpScheduled) return;
-        jumpScheduled = true;
-        if (prefersIslandReducedMotion()) {
-          window.location.href = url;
-          return;
-        }
-        window.__islandCancelDepart = false;
-        window.dispatchEvent(new CustomEvent("school:island-depart", { detail: { url: url, ms: 3000 } }));
-        var done = false;
-        function finish() {
-          if (done || window.__islandCancelDepart) return;
-          done = true;
-          window.location.href = url;
-        }
-        setTimeout(finish, 3000);
-      }
 
       function noteIslandLessonComplete() {
         window.__islandLessonJustCompleted = true;
         window.dispatchEvent(new CustomEvent("school:island-lesson-complete"));
       }
 
-      function celebrateIfNewlyComplete(nextHref) {
+      function highlightNextAction() {
+        if (nextLink) {
+          nextLink.classList.add("is-complete");
+          nextLink.setAttribute("data-complete", "true");
+        }
+      }
+
+      function celebrateIfNewlyComplete() {
         var nowComplete = window.school.isLessonComplete(lessonSlug);
         if (celebrated || wasAlreadyComplete || !nowComplete) return false;
         celebrated = true;
         wasAlreadyComplete = true;
         noteIslandLessonComplete();
-        if (nextHref) afterIslandCelebration(nextHref);
+        highlightNextAction();
         return true;
       }
 
@@ -159,6 +136,7 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
         var completion = window.school.getLessonCompletion(lessonSlug);
         if (bannerText) bannerText.textContent = formatBannerText(completion);
         banner.classList.remove("hidden");
+        highlightNextAction();
       }
 
       // Agent-only lessons: show the agent-only block instead of the action button
@@ -167,8 +145,7 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
 
         if (window.school.isLessonComplete(lessonSlug)) {
           showBanner();
-            if (agentOnlyText) agentOnlyText.textContent = window.schoolUI.t("agentDone");
-          if (agentOnlyNext) agentOnlyNext.classList.remove("hidden");
+          if (agentOnlyText) agentOnlyText.textContent = window.schoolUI.t("agentDone");
         }
 
         var origUpdateAgentOnly = window.school.updateAllCheckmarks.bind(window.school);
@@ -178,14 +155,10 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
           if (!window.school.isLessonComplete(lessonSlug)) return;
           showBanner();
           if (agentOnlyText) agentOnlyText.textContent = window.schoolUI.t("agentDone");
-          if (agentOnlyNext) agentOnlyNext.classList.remove("hidden");
-          celebrateIfNewlyComplete(agentOnlyNext ? agentOnlyNext.getAttribute("href") : "");
+          celebrateIfNewlyComplete();
         };
         return;
       }
-
-      var nextLink = document.querySelector(".island-next-bar");
-      var nextUrl = nextLink ? nextLink.getAttribute("href") : "";
 
       if (wasAlreadyComplete) showBanner();
 
@@ -195,7 +168,7 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
         if (nudge && window.school.getStudentId()) nudge.classList.add("hidden");
         if (!window.school.isLessonComplete(lessonSlug)) return;
         showBanner();
-        celebrateIfNewlyComplete(nextUrl);
+        celebrateIfNewlyComplete();
       };
     })();
   </script>

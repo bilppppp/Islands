@@ -231,13 +231,30 @@ html[data-learning-role="ranger"] {
   margin-top: 1.25rem;
   padding: 0.95rem 1.25rem;
   border-radius: 999px;
-  background: #11a89b;
-  color: #fffdf7;
+  border: 1.5px solid #e4d5b7;
+  background: #fffdf7;
+  color: #794f27;
   font-weight: 700;
   text-decoration: none;
+  transition: all 0.15s ease;
 }
 
 .island-next-bar:hover {
+  border-color: #11a89b;
+  color: #11a89b;
+}
+
+.island-next-bar.is-complete,
+.island-next-bar[data-complete="true"] {
+  border-color: #11a89b;
+  background: #11a89b;
+  color: #fffdf7;
+  box-shadow: 0 4px 14px rgba(17, 168, 155, 0.25);
+}
+
+.island-next-bar.is-complete:hover,
+.island-next-bar[data-complete="true"]:hover {
+  background: #0d8f84;
   color: #fffdf7;
 }
 
@@ -249,7 +266,6 @@ html[data-learning-role="ranger"] {
 .island-board,
 .island-prefs,
 .island-lesson-chrome,
-.island-depart,
 .island-progress-block {
   display: flex;
   flex-direction: column;
@@ -687,9 +703,6 @@ html[data-learning-role="ranger"] {
   list-style: none;
 }
 
-.island-depart {
-  align-items: flex-start;
-}
 
 .island-toybox {
   display: flex;
