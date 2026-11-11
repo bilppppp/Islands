@@ -40,7 +40,7 @@ The course has lessons and may have exercises. Use ${origin}/api/lessons and ${o
 Adapt to these optional profile fields. If a field is absent, use a beginner-friendly default.
 ${profileGuidelines}
 
-Harness-specific runtime setup, when needed, is published separately from this contract. The shared contract above remains the source of teaching behavior and course semantics for every harness.
+Harness-specific runtime setup, when needed, is published separately from this contract. If your harness is Pi, also fetch ${origin}/harness/pi.txt. The shared contract above remains the source of teaching behavior and course semantics for every harness.
 `;
 
   return new Response(content, {

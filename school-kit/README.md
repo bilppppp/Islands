@@ -16,7 +16,7 @@ Applying the kit creates `school.settings.json` only when missing (never rewriti
 - `src/components/TeachingMode.astro` — mode selector and profile persistence (wired into `Base.astro`; progress refresh emits a browser event so mode changes via the teacher API update the control without adding another polling loop).
 - `src/pages/api/lessons/[slug].ts` — returns current mode guidance when a `studentId` query parameter is supplied, and reduces `{{cite …}}` markers to plain text for teacher consumption.
 - `src/pages/llms.txt.ts` — shared teacher contract, independent of Pi.
-- `src/pages/harness/pi.txt.ts` — Pi-only HTTP/bash adapter contract (the lesson prompt stays limited to the shared contract plus the conditional Pi adapter URL).
+- `src/pages/harness/pi.txt.ts` — Pi-only HTTP/bash adapter contract (the website prompt is fully harness-neutral; `/llms.txt` points Pi to this adapter).
 - `astro.config.mjs`, `src/lib/deploy-target.ts`, `src/lib/store*.ts`, `src/lib/public-origin.ts` — adapter selection from `DEPLOY_TARGET` (`dev`, `node`, `vercel`, `cloudflare`), progress storage (`.wrangler/`, `.school-data/`, private Vercel Blob via `BLOB_STORE_ID`, private Cloudflare R2), and `publicOrigin`.
 - `script/serve`, `script/deploy-vercel`, `script/deploy-cloudflare`, `DEPLOYMENT.md`, `.env.example` — runtime and deployment scripts. See [overlay/DEPLOYMENT.md](overlay/DEPLOYMENT.md) for target commands, `school.settings.json.customDomain` (`"workers_dev": false` + `routes` in `wrangler.cloudflare.jsonc`), `--config-only`, and environment variables.
 
@@ -65,6 +65,6 @@ Public courses emit `/catalog.json` (with `name`, `origin`, `group`, `intro`, `p
 
 ## Teachers and generators
 
-The HTTP teaching contract (`/llms.txt`), lesson/source access, profiles, and progress API are shared by compatible teacher harnesses. Only Pi reads `/harness/pi.txt`; other harnesses use their own HTTP/terminal tools. The website prompt is shared and the optional Pi adapter link is conditional.
+The HTTP teaching contract (`/llms.txt`), lesson/source access, profiles, and progress API are shared by compatible teacher harnesses. Only Pi reads `/harness/pi.txt`; other harnesses use their own HTTP/terminal tools. The website prompt is fully harness-neutral, and `/llms.txt` points Pi to its adapter.
 
 Pi remains the default automated CLI generator and interactive `teach` launcher. `create --prepare-only` prepares sources plus `GENERATION.md` for the current Coding Agent; `finish NAME` uses the same curriculum checks and build without calling Pi. `teach --prompt-only` returns a shared continuation prompt rather than launching a teacher. No alternate adapter or session format is required.
