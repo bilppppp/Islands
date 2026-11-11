@@ -698,7 +698,7 @@ import ClientUI from "../components/ClientUI.astro";
           sidebar.classList.remove("fixed", "inset-0", "z-50", "bg-white", "dark:bg-stone-900");
           sidebar.classList.add("lg:block");
           toggle.setAttribute("aria-expanded", "false");
-          toggle.setAttribute("aria-label", window.schoolUI ? window.schoolUI.t("openNav") : "Open navigation");
+          toggle.setAttribute("aria-label", window.schoolUI ? window.schoolUI.t("openNav") : "");
           document.body.style.overflow = "";
           if (restoreFocus) toggle.focus();
         };
@@ -708,7 +708,7 @@ import ClientUI from "../components/ClientUI.astro";
           sidebar.classList.add("fixed", "inset-0", "z-50", "bg-white", "dark:bg-stone-900");
           sidebar.classList.remove("lg:block");
           toggle.setAttribute("aria-expanded", "true");
-          toggle.setAttribute("aria-label", window.schoolUI ? window.schoolUI.t("closeNav") : "Close navigation");
+          toggle.setAttribute("aria-label", window.schoolUI ? window.schoolUI.t("closeNav") : "");
           document.body.style.overflow = "hidden";
         };
 

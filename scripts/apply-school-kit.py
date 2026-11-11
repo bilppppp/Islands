@@ -312,7 +312,9 @@ def patch_publication_head(base_path: Path) -> bool:
     return write_if_changed(base_path, text) if text != original else False
 
 
-def patch_base_layout(base_path: Path) -> bool:
+def patch_base_layout(base_path: Path, island: bool = False) -> bool:
+    if island:
+        return False
     text = base_path.read_text()
     original = text
 
@@ -667,7 +669,7 @@ def apply(target: Path) -> list[str]:
             changed.append(str(relative))
 
     if not island:
-        if patch_base_layout(target / "src/layouts/Base.astro"):
+        if patch_base_layout(target / "src/layouts/Base.astro", island=island):
             changed.append("src/layouts/Base.astro")
         if patch_public_titles(target / "src/layouts/Base.astro"):
             changed.append("src/layouts/Base.astro (public titles)")
