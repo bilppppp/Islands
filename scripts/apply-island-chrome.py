@@ -66,6 +66,7 @@ ISLAND_RUNTIME_FILES = (
     (ISLAND / "IslandNumberline.tsx", Path("src/components/island/IslandNumberline.tsx")),
     (ISLAND / "IslandAskTeacher.tsx", Path("src/components/island/IslandAskTeacher.tsx")),
     (ISLAND / "IslandPageIcon.tsx", Path("src/components/island/IslandPageIcon.tsx")),
+    (ISLAND / "IslandPromptNotice.tsx", Path("src/components/island/IslandPromptNotice.tsx")),
     (ISLAND / "LessonTabs.tsx", Path("src/components/island/LessonTabs.tsx")),
     (ISLAND / "island-icons.ts", Path("src/components/island/island-icons.ts")),
     (ISLAND / "pyodide-worker.js", Path("public/pyodide-worker.js")),

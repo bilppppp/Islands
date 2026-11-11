@@ -233,6 +233,52 @@ html[data-learning-role="ranger"] {
   text-decoration: none;
 }
 
+.island-copy-line {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.island-copy-mark {
+  color: #fc0;
+}
+
+.island-prompt-modal {
+  animation: island-modal-pop 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.island-prompt-modal.is-closing {
+  animation: island-modal-fade 150ms ease forwards !important;
+}
+
+@keyframes island-modal-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes island-modal-fade {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .island-prompt-modal,
+  .island-prompt-modal.is-closing {
+    animation: none !important;
+  }
+}
 
 .island-prompt-body {
   margin: 0.85rem 0 0;
