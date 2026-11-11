@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Loading } from "animal-island-ui";
+import { Loading, Title } from "animal-island-ui";
+import IslandPageIcon from "./IslandPageIcon";
 import IslandPredict from "./IslandPredict";
 import IslandRunBlock from "./IslandRunBlock";
 import IslandNumberline from "./IslandNumberline";
@@ -55,6 +56,61 @@ declare global {
 	interface Window {
 		__islandCancelDepart?: boolean;
 	}
+}
+
+function HeadingTitle({ children }: { children: ReactNode }) {
+	return (
+		<Title variant="layer" color="brown" size="small">
+			{children}
+		</Title>
+	);
+}
+
+function HeadingSlot({ nodes }: { nodes: ChildNode[] }) {
+	const slotRef = useRef<HTMLSpanElement | null>(null);
+
+	useEffect(() => {
+		const slot = slotRef.current;
+		if (!slot) return;
+		for (const node of nodes) {
+			slot.appendChild(node);
+		}
+	}, [nodes]);
+
+	return <span className="island-heading-rich" ref={slotRef} />;
+}
+
+function contentNodes(heading: HTMLElement): ChildNode[] {
+	const anchor = heading.querySelector(":scope > a.heading-anchor");
+	if (anchor && heading.childNodes.length === 1) return Array.from(anchor.childNodes);
+	return Array.from(heading.childNodes);
+}
+
+function mountHeading(heading: HTMLElement, variant: "tab" | "layer", withIcon: boolean) {
+	const nodes = contentNodes(heading);
+	const host = document.createElement("div");
+	if (heading.id) host.id = heading.id;
+	host.dataset.heading = heading.tagName.toLowerCase();
+	host.dataset.headingVariant = variant;
+	host.dataset.headingText = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
+	if (withIcon) host.className = "island-heading-mark";
+	host.setAttribute("role", "heading");
+	host.setAttribute("aria-level", heading.tagName.substring(1));
+	heading.replaceWith(host);
+	createRoot(host).render(
+		<>
+			{withIcon ? <IslandPageIcon size={22} /> : null}
+			{variant === "layer" ? (
+				<HeadingTitle>
+					<HeadingSlot nodes={nodes} />
+				</HeadingTitle>
+			) : (
+				<span className="island-heading-plain-text">
+					<HeadingSlot nodes={nodes} />
+				</span>
+			)}
+		</>,
+	);
 }
 
 export default function IslandLessonChrome() {
@@ -133,14 +189,16 @@ export default function IslandLessonChrome() {
 				headingElements.forEach((heading) => {
 					const level = parseInt(heading.tagName.substring(1), 10);
 					const text = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
-					heading.dataset.heading = heading.tagName.toLowerCase();
-					heading.dataset.headingText = text;
 					if (level === primaryLevel) {
 						found.push({ id: heading.id, text });
-						heading.dataset.headingVariant = firstPrimary ? "tab" : "layer";
-						firstPrimary = false;
+						if (firstPrimary) {
+							firstPrimary = false;
+							mountHeading(heading, "tab", true);
+							return;
+						}
+						mountHeading(heading, "layer", false);
 					} else if (level === secondaryLevel) {
-						heading.dataset.headingVariant = "layer";
+						mountHeading(heading, "layer", false);
 					} else {
 						heading.classList.add("island-prose-subheading");
 					}
