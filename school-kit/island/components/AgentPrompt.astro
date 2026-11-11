@@ -30,11 +30,11 @@ import { t } from "../lib/ui";
     <IslandPageIcon client:load size={28} />
     <div class="island-prompt-meta">
       <p class="island-prompt-title">教师同行</p>
-      <p class="island-prompt-lead">已为你准备好本关引导提示。</p>
+      <p class="island-prompt-lead">{t("promptStepsLead")}</p>
     </div>
     <div class="island-prompt-actions">
       <button type="button" class="island-prompt-expand" aria-expanded="false">展开</button>
-      <button type="button" class="agent-prompt-copy">{t("copy")}</button>
+      <button type="button" class="theme-button agent-prompt-copy">{t("copyPrompt")}</button>
     </div>
   </div>
   <pre class="agent-prompt-text island-prompt-body hidden"></pre>

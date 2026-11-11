@@ -197,14 +197,29 @@ html[data-learning-role="ranger"] {
   margin-left: auto;
 }
 
-.island-prompt-expand,
-.island-prompt-card .agent-prompt-copy {
+.island-prompt-expand {
   border: 1px solid #e4d5b7;
   border-radius: 999px;
   background: transparent;
   color: #794f27;
   padding: 0.35rem 0.85rem;
   cursor: pointer;
+}
+
+.island-prompt-card .agent-prompt-copy {
+  border: 1px solid #11a89b;
+  border-radius: 999px;
+  background: #11a89b;
+  color: #fffdf7;
+  padding: 0.35rem 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.island-prompt-card .agent-prompt-copy:hover {
+  background: #0d8f84;
+  border-color: #0d8f84;
 }
 
 .island-prompt-locked .theme-button {
