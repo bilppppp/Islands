@@ -14,6 +14,8 @@ import IslandTypewriter from "../../components/island/IslandTypewriter";
 import IslandLessonChrome from "../../components/island/IslandLessonChrome";
 import { Tag } from "animal-island-ui";
 import { getCollection, render } from "astro:content";
+import { scanCodeFences } from "../../lib/predict-block.mjs";
+import { collectRunBlocks } from "../../lib/run-block.mjs";
 
 export async function getStaticPaths() {
   const lessons = await getCollection("lessons");
@@ -26,9 +28,18 @@ export async function getStaticPaths() {
 const { lesson } = Astro.props;
 const { Content } = await render(lesson);
 const lessonBody = lesson.body ?? "";
-const hasCode = /```(?!mermaid\b)/.test(lessonBody);
+const fences = scanCodeFences(lessonBody);
+const runBlocks = collectRunBlocks(lessonBody);
+const hasActiveRunOrPreview = runBlocks.some((b) => b.mode === "run" || (b.mode === "preview" && !b.demo));
+const hasNormalCodeFence = fences.some((fence) => {
+  const info = (fence.info || "").trim();
+  if (/^(?:mermaid|predict|numberline)(?:\s|$)/.test(info)) return false;
+  const tokens = info.split(/\s+/);
+  if (tokens.includes("run") || tokens.includes("preview")) return false;
+  return true;
+});
+const hasCode = hasActiveRunOrPreview || hasNormalCodeFence;
 const hasTable = /^\|.+\|$/m.test(lessonBody);
-const minutes = Math.max(1, Math.round(lessonBody.length / 280));
 
 const allLessons = (await getCollection("lessons")).sort((a, b) => a.data.order - b.data.order);
 const currentIndex = allLessons.findIndex((l) => l.data.slug === lesson.data.slug);
@@ -48,7 +59,6 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
       <Tag color="brown" variant="outlined">{t("lessonNumber", { number: lesson.data.order })}</Tag>
       {hasCode && <Tag color="app-blue" variant="soft">含代码</Tag>}
       {hasTable && <Tag color="app-teal" variant="soft">含表格</Tag>}
-      <Tag color="brown" variant="soft">约 {minutes} 分钟</Tag>
     </div>
     <h1 class="island-lesson-title"><IslandMark client:load name={lesson.data.title} size="middle" /></h1>
     <IslandTypewriter client:load text={lesson.data.description} />
