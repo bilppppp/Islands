@@ -11,6 +11,7 @@ import { defineConfig, sessionDrivers } from "astro/config";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
+import remarkCjkFriendly from "remark-cjk-friendly";
 import remarkMath from "remark-math";
 import { remarkSourceCite } from "./src/lib/source-cite.mjs";
 import { lessonRenderGuardIntegration, remarkNormalizeLessonH1 } from "./src/lib/render-guard.mjs";
@@ -238,7 +239,7 @@ export default defineConfig({
 	adapter,
 	integrations: [mdx(), pyodideVendorIntegration(), lessonRenderGuardIntegration()],
 	markdown: {
-		remarkPlugins: [remarkMath, remarkNormalizeLessonH1, remarkSourceCite],
+		remarkPlugins: [remarkCjkFriendly, remarkMath, remarkNormalizeLessonH1, remarkSourceCite],
 		rehypePlugins: [
 			rehypeSlug,
 			[
