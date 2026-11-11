@@ -89,7 +89,7 @@ html[data-chrome="island"] body {
 .island-page-icon {
   display: inline-flex;
   flex: none;
-  color: #11a89b;
+  color: #0b7f76;
 }
 
 .island-done-banner:not(.hidden) {
@@ -156,6 +156,12 @@ html[data-learning-role="ranger"] {
   border: 1px solid #e4d5b7;
   border-radius: 16px;
   background: #fffdf7;
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.island-prompt-card.is-open {
+  border-color: #0b7f76;
+  box-shadow: 0 6px 20px -3px rgba(11, 127, 118, 0.15), 0 2px 6px -1px rgba(114, 93, 66, 0.06);
 }
 
 .island-prompt-row {
@@ -182,7 +188,7 @@ html[data-learning-role="ranger"] {
 
 .island-prompt-lead,
 .island-prompt-confirm {
-  color: #8a6d4b;
+  color: #7a5f3f;
   font-size: 0.9rem;
 }
 
@@ -197,14 +203,62 @@ html[data-learning-role="ranger"] {
   margin-left: auto;
 }
 
-.island-prompt-expand,
-.island-prompt-card .agent-prompt-copy {
+.island-prompt-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border: 1px solid #e4d5b7;
   border-radius: 999px;
   background: transparent;
   color: #794f27;
-  padding: 0.35rem 0.85rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  line-height: 1.25;
   cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.island-prompt-expand:hover {
+  background: #f7f3df;
+}
+
+.island-prompt-chevron {
+  display: inline-block;
+  flex-shrink: 0;
+  transition: transform 220ms ease;
+  transform-origin: center;
+}
+
+.island-prompt-card.is-open .island-prompt-chevron,
+.island-prompt-expand[aria-expanded="true"] .island-prompt-chevron {
+  transform: rotate(180deg);
+}
+
+.island-prompt-card .agent-prompt-copy {
+  border: 1px solid #0b7f76;
+  border-radius: 999px;
+  background: #0b7f76;
+  color: #fffdf7;
+  padding: 0.35rem 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.island-prompt-card .agent-prompt-copy:hover {
+  background: #086961;
+  border-color: #086961;
+}
+
+.island-prompt-locked .theme-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
 }
 
 .island-copy-line {
@@ -217,12 +271,80 @@ html[data-learning-role="ranger"] {
   color: #fc0;
 }
 
+.island-prompt-modal {
+  animation: island-modal-pop 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.island-prompt-modal.is-closing {
+  animation: island-modal-fade 150ms ease forwards !important;
+}
+
+@keyframes island-modal-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes island-modal-fade {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .island-prompt-modal,
+  .island-prompt-modal.is-closing {
+    animation: none !important;
+  }
+  .island-prompt-card,
+  .island-prompt-chevron,
+  .island-prompt-unfold {
+    transition: none !important;
+  }
+}
+
+.island-prompt-unfold {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 220ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease;
+}
+
+.island-prompt-card.is-open .island-prompt-unfold {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.island-prompt-sheet {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.island-prompt-sheet-inner {
+  margin-top: 0.85rem;
+  padding: 0.9rem 1rem;
+  background: #f7f3df;
+  border-radius: 12px;
+  border-top: 2px dashed #d6c5a5;
+}
+
 .island-prompt-body {
-  margin: 0.85rem 0 0;
+  margin: 0;
   color: #725d42;
   font-size: 0.85rem;
   line-height: 1.65;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .island-next-bar {
@@ -231,13 +353,30 @@ html[data-learning-role="ranger"] {
   margin-top: 1.25rem;
   padding: 0.95rem 1.25rem;
   border-radius: 999px;
-  background: #11a89b;
-  color: #fffdf7;
+  border: 1.5px solid #e4d5b7;
+  background: #fffdf7;
+  color: #794f27;
   font-weight: 700;
   text-decoration: none;
+  transition: all 0.15s ease;
 }
 
 .island-next-bar:hover {
+  border-color: #0b7f76;
+  color: #0b7f76;
+}
+
+.island-next-bar.is-complete,
+.island-next-bar[data-complete="true"] {
+  border-color: #0b7f76;
+  background: #0b7f76;
+  color: #fffdf7;
+  box-shadow: 0 4px 14px rgba(11, 127, 118, 0.25);
+}
+
+.island-next-bar.is-complete:hover,
+.island-next-bar[data-complete="true"]:hover {
+  background: #086961;
   color: #fffdf7;
 }
 
@@ -249,7 +388,6 @@ html[data-learning-role="ranger"] {
 .island-board,
 .island-prefs,
 .island-lesson-chrome,
-.island-depart,
 .island-progress-block {
   display: flex;
   flex-direction: column;
@@ -365,10 +503,21 @@ html[data-learning-role="ranger"] {
   overflow-wrap: anywhere;
 }
 
+#sidebar ol a .text-gray-400,
+#sidebar ol a span > span:first-child {
+  color: #57534e;
+}
+
 .island-shell {
   min-width: 0;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+@supports not (overflow: clip) {
+  .island-shell {
+    overflow-x: hidden;
+  }
 }
 
 .island-progress-block {
@@ -381,23 +530,50 @@ html[data-learning-role="ranger"] {
   font-size: 0.85rem;
 }
 
-.island-mode-tip {
+.teaching-mode-option {
   display: block;
   width: 100%;
+  color: #794f27;
+  cursor: pointer;
 }
 
-.island-mode-tip .teaching-mode-option {
-  width: 100%;
+.teaching-mode-option .teaching-mode-label {
+  font-weight: 600;
+  color: #794f27;
 }
 
-.island-mode-panel .island-mode-tip [role="tooltip"] {
-  position: fixed;
-  top: var(--island-tip-y, 0);
-  left: var(--island-tip-x, 0);
-  right: auto;
-  bottom: auto;
-  margin: 0;
-  transform: translate(-50%, calc(-100% - 12px));
+.teaching-mode-option .teaching-mode-desc {
+  font-size: 0.75rem;
+  color: #7a5f3f;
+}
+
+.teaching-mode-option.theme-active-nav {
+  background: #e6f9f6 !important;
+  border-color: #0b7f76 !important;
+  color: #0f766e !important;
+}
+
+.teaching-mode-option.theme-active-nav .teaching-mode-label {
+  color: #0f766e;
+}
+
+.teaching-mode-option.theme-active-nav .teaching-mode-desc {
+  color: #0d8f84;
+}
+
+.island-prefs-fold .island-prefs-mode-slot {
+  padding: 0 1.1rem;
+}
+
+.island-prefs-fold #teaching-mode-control {
+  margin-bottom: 1.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.island-mode-compact {
+  margin-bottom: 1rem;
 }
 
 .island-path {
@@ -434,7 +610,7 @@ html[data-learning-role="ranger"] {
   width: 0.72rem;
   height: 0.72rem;
   border-radius: 999px;
-  background: #11a89b;
+  background: #0b7f76;
   box-shadow: 0 0 0 3px #f7f3df;
 }
 
@@ -575,7 +751,7 @@ html[data-learning-role="ranger"] {
   height: 1.75rem;
   flex: 0 0 auto;
   border-radius: 999px;
-  background: #11a89b;
+  background: #0b7f76;
   color: #fffdf7;
   font-size: 1.15rem;
   line-height: 1;
@@ -681,9 +857,6 @@ html[data-learning-role="ranger"] {
   list-style: none;
 }
 
-.island-depart {
-  align-items: flex-start;
-}
 
 .island-toybox {
   display: flex;
@@ -714,6 +887,10 @@ html[data-learning-role="ranger"] {
   display: none;
 }
 
+.island-lesson-tabs [class*="animal-tabItem"][class*="animal-active"] {
+  background: #0b7f76 !important;
+}
+
 .island-toybox-actions {
   display: flex;
   flex-wrap: wrap;
@@ -737,21 +914,50 @@ html[data-learning-role="ranger"] {
   vertical-align: middle;
 }
 
+[class*="animal-ribbon"][class*="animal-color-brown"],
+[class*="animal-layer"][class*="animal-color-brown"] {
+  --rf: #806941;
+  --rb: #5c4722;
+  --rk: #3a2810;
+  --rt: #ffffff;
+}
+
+[class*="animal-tab"][class*="animal-color-brown"],
+[class*="animal-tab"][class*="animal-color-brown"] [class*="animal-tabText"],
+[class*="animal-tab"][class*="animal-color-brown"] .island-heading-rich {
+  --animal-text-color: #27190c;
+  color: #27190c;
+}
+
+[class*="animal-tag"][class*="animal-color-brown-outlined"],
+[class*="animal-tag"][class*="animal-color-brown-dashed"],
+[class*="animal-color-brown-outlined"],
+[class*="animal-color-brown-dashed"] {
+  color: #7a5f3f !important;
+  border-color: #7a5f3f !important;
+}
+
+[class*="animal-tag"][class*="animal-color-brown-solid"] {
+  background: #806941 !important;
+  border-color: #806941 !important;
+  color: #ffffff !important;
+}
+
 .theme-link {
-  color: #11a89b;
+  color: #0b7f76;
 }
 
 .theme-link:hover {
-  color: #0d8f84;
+  color: #086961;
 }
 
 .theme-button {
-  background: #11a89b;
+  background: #0b7f76;
   color: #fffdf7;
 }
 
 .theme-button:hover {
-  background: #0d8f84;
+  background: #086961;
 }
 
 .theme-panel {
@@ -774,17 +980,17 @@ html[data-learning-role="ranger"] {
 }
 
 .theme-solid-bg {
-  background: #11a89b;
+  background: #0b7f76;
 }
 
 .theme-card-band {
-  background: #11a89b;
+  background: #0b7f76;
   color: #fffdf7;
   box-shadow: 0 25px 50px -12px rgba(114, 93, 66, 0.25);
 }
 
 .lesson-link:hover .lesson-title {
-  color: #11a89b;
+  color: #0b7f76;
 }
 
 .lesson-row--next {
@@ -793,8 +999,8 @@ html[data-learning-role="ranger"] {
 }
 
 .lesson-status--complete {
-  border-color: #11a89b !important;
-  background: #11a89b !important;
+  border-color: #0b7f76 !important;
+  background: #0b7f76 !important;
 }
 
 .island-mode-panel {
@@ -813,13 +1019,13 @@ div.prose {
   padding: 1.75rem 1.85rem;
   --tw-prose-body: #725d42;
   --tw-prose-headings: #794f27;
-  --tw-prose-links: #11a89b;
+  --tw-prose-links: #0b7f76;
   --tw-prose-bold: #725d42;
-  --tw-prose-counters: #8a6d4b;
-  --tw-prose-bullets: #8a6d4b;
+  --tw-prose-counters: #7a5f3f;
+  --tw-prose-bullets: #7a5f3f;
   --tw-prose-hr: #c4b089;
   --tw-prose-quotes: #725d42;
-  --tw-prose-quote-borders: #11a89b;
+  --tw-prose-quote-borders: #0b7f76;
   --tw-prose-th-borders: #c4b089;
   --tw-prose-td-borders: #d4c4a8;
   --tw-prose-code: #725d42;
@@ -871,13 +1077,13 @@ div.prose h6,
 
 article.prose a,
 div.prose a {
-  color: #11a89b;
+  color: #0b7f76;
 }
 
 article.prose blockquote,
 div.prose blockquote {
   background: #f0e8d8;
-  border-left: 4px solid #11a89b;
+  border-left: 4px solid #0b7f76;
   padding: 0.75rem 1rem;
 }
 
@@ -893,7 +1099,7 @@ div.prose hr,
 div.prose table,
 div.prose th,
 div.prose td {
-  color: #8a6d4b;
+  color: #7a5f3f;
   border-color: #c4b089;
 }
 
@@ -964,7 +1170,7 @@ div.prose samp {
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #8a6d4b;
+  color: #7a5f3f;
 }
 
 .island-id-face {
@@ -1009,7 +1215,7 @@ div.prose samp {
 
 .island-role-confirm {
   margin: 0.85rem 0 0;
-  color: #8a6d4b;
+  color: #7a5f3f;
   font-size: 0.92rem;
 }
 
@@ -1035,8 +1241,8 @@ div.prose samp {
 }
 
 .island-role-option[aria-pressed="true"] {
-  border-color: #11a89b;
-  box-shadow: 0 0 0 2px rgba(17, 168, 155, 0.35);
+  border-color: #0b7f76;
+  box-shadow: 0 0 0 2px rgba(11, 127, 118, 0.35);
 }
 
 .island-role-name {
@@ -1293,7 +1499,7 @@ button.source-cite {
 }
 
 button.source-cite:focus-visible {
-  outline: 2px solid #11a89b;
+  outline: 2px solid #0b7f76;
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -1321,7 +1527,7 @@ button.source-cite:focus-visible {
 }
 
 .source-cite-kicker {
-  color: #11a89b;
+  color: #0b7f76;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1350,17 +1556,18 @@ button.source-cite:focus-visible {
 }
 
 .source-cite-meta a {
-  color: #11a89b;
+  color: #0b7f76;
   text-decoration: none;
 }
 
 .source-cite-meta a:hover,
 .source-cite-meta a:focus-visible {
+  color: #086961;
   text-decoration: underline;
 }
 
 .source-cite-path {
-  color: #8a6d4b;
+  color: #7a5f3f;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -1445,7 +1652,7 @@ button.source-cite:focus-visible {
 }
 
 .island-predict-choice:focus-visible {
-  outline: 2px solid #11a89b;
+  outline: 2px solid #0b7f76;
   outline-offset: 2px;
 }
 
@@ -1519,7 +1726,7 @@ button.source-cite:focus-visible {
   justify-content: center;
   min-height: 40px;
   padding: 0.5rem 1.35rem;
-  background: #11a89b;
+  background: #0b7f76;
   color: #ffffff;
   border: none;
   border-radius: 999px;
@@ -1531,11 +1738,11 @@ button.source-cite:focus-visible {
 }
 
 .island-predict-submit-btn:hover {
-  background: #0d8a7f;
+  background: #086961;
 }
 
 .island-predict-submit-btn:focus-visible {
-  outline: 2px solid #11a89b;
+  outline: 2px solid #0b7f76;
   outline-offset: 2px;
 }
 
@@ -1635,7 +1842,7 @@ button.source-cite:focus-visible {
 }
 
 .island-predict-reset-btn:focus-visible {
-  outline: 2px solid #11a89b;
+  outline: 2px solid #0b7f76;
   outline-offset: 2px;
 }
 
@@ -1914,7 +2121,7 @@ button.source-cite:focus-visible {
 .island-run-label {
   font-size: 12px;
   font-weight: 600;
-  color: #8a6d4b;
+  color: #7a5f3f;
 }
 
 .island-run-stdin-input {
@@ -2321,7 +2528,7 @@ button.source-cite:focus-visible {
 .island-numberline-tick-label {
   font-family: inherit;
   font-size: 12px;
-  fill: #8a6d4b;
+  fill: #7a5f3f;
   user-select: none;
 }
 
@@ -2408,7 +2615,7 @@ button.source-cite:focus-visible {
 
 .island-ask-teacher-btn:hover:not(:disabled) {
   background: #f7f3df;
-  border-color: #8a6d4b;
+  border-color: #7a5f3f;
   color: #543d22;
   transform: translateY(-1px);
 }
@@ -2451,7 +2658,94 @@ button.source-cite:focus-visible {
 }
 
 @media (max-width: 767.98px) {
+  /* Reduce outer page padding on phones to preserve horizontal canvas */
+  .island-shell main {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* 1. Reduce stacked horizontal padding for lesson prose card */
+  article.prose,
+  div.prose {
+    padding: 1.25rem 0.75rem;
+    border-radius: 14px;
+  }
+
+  /* 2. animal-island-ui Collapse answer content area padding reduction */
+  .island-run-collapse [class*="animal-answerContent"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-bottom: 0.75rem;
+  }
+
+  /* animal-island-ui Collapse question header padding */
+  .island-run-collapse [class*="animal-questionHeader"] {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* 3. Run and demo card padding */
+  .island-run-card {
+    padding: 0.75rem 0.6rem;
+    border-radius: 12px;
+  }
+
+  /* 4. Fullscreen preview/demo modal: fill viewport 100vw / 100dvh with no cloud frame */
+  .island-preview-modal[class*="animal-modal"],
+  [class*="animal-mask"] .island-preview-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  /* Remove decorative rounded frame, clip-path and bulky padding on animal-island-ui modal inner */
+  .island-preview-modal [class*="animal-modalClipped"],
+  .island-preview-modal [class*="animal-gameClipped"] {
+    width: 100% !important;
+    height: 100% !important;
+    padding: 10px 10px 8px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    clip-path: none !important;
+  }
+
+  /* Remove 80px extra left padding from modal header on phone */
+  .island-preview-modal [class*="animal-header"] {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+
+  .island-preview-modal [class*="animal-title"] {
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+
+  .island-preview-modal [class*="animal-body"] {
+    padding-bottom: 0 !important;
+    flex: 1 1 auto;
+    height: calc(100% - 44px);
+  }
+
+  .island-preview-modal-content {
+    padding: 0.5rem 0.25rem !important;
+    gap: 0.5rem;
+    height: 100%;
+    flex: 1 1 auto;
+  }
+
+  .island-preview-modal-grid {
+    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   .island-preview-modal .island-demo-modal-grid .island-preview-view-col {
-    height: min(60vh, 480px);
+    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 }

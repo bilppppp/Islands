@@ -127,7 +127,10 @@ export default function IslandLessonBoard({ lessons }: { lessons: BoardLesson[] 
 						<span className="island-prefs-icon" aria-hidden="true" />
 					)}
 				</button>
-				{prefsOpen ? <IslandPrefs /> : null}
+				<div className={`island-prefs-content${prefsOpen ? "" : " hidden"}`}>
+					<div id="island-prefs-mode-slot" className="island-prefs-mode-slot" dangerouslySetInnerHTML={{ __html: "" }} />
+					<IslandPrefs />
+				</div>
 			</section>
 		</div>
 	);

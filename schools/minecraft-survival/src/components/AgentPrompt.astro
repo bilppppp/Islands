@@ -12,32 +12,61 @@ import IslandPromptNotice from "./island/IslandPromptNotice";
 import { t } from "../lib/ui";
 ---
 
+<div class="island-prompt-card island-prompt-locked hidden" data-prompt-locked>
+  <div class="island-prompt-row">
+    <IslandPageIcon client:load size={28} />
+    <div class="island-prompt-meta">
+      <p class="island-prompt-title">{t("promptLockedTitle")}</p>
+      <p class="island-prompt-lead">{t("promptLockedLead")}</p>
+    </div>
+    <div class="island-prompt-actions">
+      <a class="theme-button" href="/">{t("chooseIdentity")}</a>
+    </div>
+  </div>
+</div>
+
 <div class="agent-prompt-card island-prompt-card hidden" data-lesson-title={title} data-prompt={prompt}>
   <div class="island-prompt-row">
     <IslandPageIcon client:load size={28} />
     <div class="island-prompt-meta">
       <p class="island-prompt-title">教师同行</p>
-      <p class="island-prompt-lead">已为你准备好本关引导提示。</p>
+      <p class="island-prompt-lead">{t("promptStepsLead")}</p>
     </div>
     <div class="island-prompt-actions">
-      <button type="button" class="island-prompt-expand" aria-expanded="false">展开</button>
-      <button type="button" class="agent-prompt-copy">{t("copy")}</button>
+      <button type="button" class="island-prompt-expand" aria-expanded="false">
+        <span class="island-prompt-expand-text">{t("promptExpand")}</span>
+        <svg class="island-prompt-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="theme-button agent-prompt-copy">{t("copyPrompt")}</button>
     </div>
   </div>
-  <pre class="agent-prompt-text island-prompt-body hidden"></pre>
-  <p role="status" aria-live="polite" class="agent-prompt-confirm hidden">{t("copyError")}</p>
+  <div class="island-prompt-unfold" aria-hidden="true">
+    <div class="island-prompt-sheet">
+      <div class="island-prompt-sheet-inner">
+        <pre class="agent-prompt-text island-prompt-body"></pre>
+      </div>
+    </div>
+  </div>
+  <p role="status" aria-live="polite" class="agent-prompt-confirm sr-only"></p>
   <IslandPromptNotice client:load />
 </div>
 
 <script is:inline>
   (function() {
     function setPromptOpen(card, open) {
-      var body = card.querySelector(".agent-prompt-text");
+      var unfold = card.querySelector(".island-prompt-unfold");
       var toggle = card.querySelector(".island-prompt-expand");
-      if (!body || !toggle) return;
-      body.classList.toggle("hidden", !open);
+      var textSpan = toggle ? toggle.querySelector(".island-prompt-expand-text") : null;
+      if (!unfold || !toggle) return;
+      card.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      toggle.textContent = open ? "收起" : "展开";
+      unfold.setAttribute("aria-hidden", open ? "false" : "true");
+      var label = open ? window.schoolUI.t("promptCollapse") : window.schoolUI.t("promptExpand");
+      if (textSpan) {
+        textSpan.textContent = label;
+      } else {
+        toggle.textContent = label;
+      }
     }
 
     document.querySelectorAll(".island-prompt-expand").forEach(function(toggle) {
@@ -57,7 +86,12 @@ import { t } from "../lib/ui";
 
     if (!window.school) return;
     var studentId = window.school.getStudentId();
-    if (!studentId) return;
+    if (!studentId) {
+      document.querySelectorAll("[data-prompt-locked]").forEach(function(el) {
+        el.classList.remove("hidden");
+      });
+      return;
+    }
 
     document.querySelectorAll(".agent-prompt-card").forEach(function(card) {
       var lessonTitle = card.getAttribute("data-lesson-title");
@@ -79,16 +113,29 @@ import { t } from "../lib/ui";
       promptText.textContent = prompt;
       card.classList.remove("hidden");
 
+      var copyTimeout;
       if (copyBtn) copyBtn.addEventListener("click", function() {
         Promise.resolve().then(function() {
           return navigator.clipboard.writeText(prompt);
         }).then(function() {
-          if (confirm) confirm.classList.add("hidden");
-          window.dispatchEvent(new CustomEvent("school:island-prompt-copied"));
+          if (confirm) {
+            confirm.textContent = window.schoolUI.t("promptCopiedNotice");
+          }
+          var originalText = copyBtn.getAttribute("data-original-text") || copyBtn.textContent;
+          copyBtn.setAttribute("data-original-text", originalText);
+          copyBtn.textContent = window.schoolUI.t("promptCopiedButton");
+          clearTimeout(copyTimeout);
+          copyTimeout = setTimeout(function() {
+            copyBtn.textContent = originalText;
+          }, 2000);
+
+          window.dispatchEvent(new CustomEvent("school:island-prompt-copied", {
+            detail: { trigger: copyBtn }
+          }));
         }).catch(function() {
           if (confirm) {
             confirm.textContent = window.schoolUI.t("copyError");
-            confirm.classList.remove("hidden");
+            confirm.classList.remove("sr-only");
           }
         });
       });

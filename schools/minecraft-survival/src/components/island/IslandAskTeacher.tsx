@@ -140,6 +140,7 @@ function getButtonLabel(kind: string, status: CopyStatus): string {
 }
 
 export interface AskTeacherNoticeOptions {
+	type?: "success" | "info" | "warning" | "error";
 	message: ReactNode;
 	description?: ReactNode;
 }
@@ -149,6 +150,7 @@ let noticeSeq = 0;
 
 // 库自带的 Notification 挂载代码是按 React 18 写的，在 React 19 下会失败。
 export function showAskTeacherNotice({
+	type = "success",
 	message,
 	description,
 }: AskTeacherNoticeOptions) {
@@ -176,7 +178,7 @@ export function showAskTeacherNotice({
 
 	const item: NotificationItem = {
 		key: "island-ask-teacher",
-		type: "success",
+		type,
 		position: "bottom",
 		placement: "bottom",
 		duration: 4.5,

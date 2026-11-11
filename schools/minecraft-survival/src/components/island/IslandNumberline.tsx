@@ -240,7 +240,7 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 									className="island-numberline-tick-label"
 									style={{
 										fontWeight: isOrigin ? "bold" : "normal",
-										fill: isOrigin ? "#543d22" : "#8a6d4b",
+										fill: isOrigin ? "#543d22" : "#7a5f3f",
 									}}
 								>
 									{formatNumber(v)}

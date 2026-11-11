@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Modal, Notification } from "animal-island-ui";
+import { Modal } from "animal-island-ui";
+import { showAskTeacherNotice } from "./IslandAskTeacher";
 
 type Notice = { kind?: "success" | "info" | "warning" | "error"; message: string; description?: string };
 
@@ -11,7 +12,7 @@ export default function IslandSignals() {
 			const detail = (event as CustomEvent<Notice>).detail;
 			if (!detail?.message) return;
 			const kind = detail.kind ?? "info";
-			Notification[kind]({ message: detail.message, description: detail.description });
+			showAskTeacherNotice({ type: kind, message: detail.message, description: detail.description });
 		};
 		const onExit = (event: MouseEvent) => {
 			const link = (event.target as Element | null)?.closest?.("#sidebar-disenroll-link");

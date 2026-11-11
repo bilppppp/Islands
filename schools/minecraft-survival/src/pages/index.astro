@@ -5,6 +5,7 @@
 export const prerender = true;
 
 import Base from "../layouts/Base.astro";
+import TeachingMode from "../components/TeachingMode.astro";
 import { Card, Button, Divider } from "animal-island-ui";
 import IslandMark from "../components/island/IslandMark";
 import IslandLessonBoard from "../components/island/IslandLessonBoard";
@@ -24,6 +25,7 @@ import { t } from "../lib/ui";
 ---
 
 <Base>
+  <h1 class="sr-only">{config.name}</h1>
 
   <!-- Student ID card: always at top, shown once enrolled -->
   <div id="student-id-card" class="hidden mb-8" style="max-width:420px; position:relative;">
@@ -109,16 +111,8 @@ import { t } from "../lib/ui";
 
   <!-- Not enrolled: enrollment widget -->
   <div id="not-enrolled-section" class="mb-12">
-    <div id="enroll-step-button" class="py-8 text-center">
-      <span id="enroll-button" class="inline-block">
-        <Button type="primary" size="large">{t("chooseIdentity")}</Button>
-      </span>
-      <p class="text-sm text-gray-500 dark:text-stone-500 mt-4">{t("privacy")}</p>
-    </div>
-
-    <div id="enroll-step-color" class="hidden">
-      <p id="role-picker-copy" class="text-sm text-gray-600 dark:text-stone-400 mb-4">{t("chooseRole")}</p>
-      <Card color="default" pattern="warm-peach-pink" className="island-role-card">
+    <p id="role-picker-copy" class="text-sm text-gray-600 dark:text-stone-400 mb-4">{t("chooseRole")}</p>
+    <Card color="default" pattern="warm-peach-pink" className="island-role-card">
       <div id="role-picker">
         <IslandCast
           client:load
@@ -137,25 +131,23 @@ import { t } from "../lib/ui";
         />
       </div>
       <p class="island-role-confirm">{t("confirmRole")}</p>
-      </Card>
-      <p id="enroll-error" class="mt-2 text-red-500 text-sm hidden">{t("enrollError")}</p>
+    </Card>
+    <div id="teaching-mode-slot-unenrolled" class="mt-4">
+      <TeachingMode />
     </div>
-  </div>
-
-  <!-- Bottom enroll CTA: hidden once enrolled -->
-  <div id="enroll-bottom-section" class="mt-10 py-8 text-center not-prose">
-    <span id="enroll-button-bottom" class="inline-block">
-      <Button type="primary" size="large">{t("enroll")}</Button>
-    </span>
-    <p class="text-sm text-gray-500 dark:text-stone-500 mt-4">{t("privacy")}</p>
+    <div class="mt-8 text-center not-prose">
+      <span id="enroll-button" class="inline-block">
+        <Button type="primary" size="large">{t("enroll")}</Button>
+      </span>
+      <p class="text-sm text-gray-500 dark:text-stone-500 mt-4">{t("privacy")}</p>
+    </div>
+    <p id="enroll-error" class="mt-2 text-red-500 text-sm hidden text-center">{t("enrollError")}</p>
   </div>
 
   <script is:inline>
     (function() {
       var idCard          = document.getElementById("student-id-card");
       var pageHeader      = document.getElementById("page-header");
-      var stepButton      = document.getElementById("enroll-step-button");
-      var stepColor       = document.getElementById("enroll-step-color");
       var enrollBtn       = document.getElementById("enroll-button");
       var colorPickerCopy = document.getElementById("role-picker-copy");
       var enrollError     = document.getElementById("enroll-error");
@@ -166,8 +158,6 @@ import { t } from "../lib/ui";
       }
       var notEnrolledSection  = document.getElementById("not-enrolled-section");
       var enrolledSection     = document.getElementById("enrolled-section");
-      var enrollBottomSection = document.getElementById("enroll-bottom-section");
-      var enrollBtnBottom     = document.getElementById("enroll-button-bottom");
 
       function roleOptions() {
         return Array.prototype.slice.call(
@@ -283,17 +273,17 @@ import { t } from "../lib/ui";
 
       function showEnrolled(studentId, animate, fast) {
         notEnrolledSection.classList.add("hidden");
-        if (enrollBottomSection) enrollBottomSection.classList.add("hidden");
         enrolledSection.classList.remove("hidden");
         pageHeader.classList.add("hidden");
         paintId(studentId);
         idCard.classList.remove("hidden");
+        syncTeachingModeSlot();
 
         if (animate) {
           cipherReveal(studentId, fast, function() {
             fireCelebration();
             if (!fast) {
-              window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "success", message: "学习身份已领好" } }));
+              window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "success", message: window.schoolUI.t("enrollNoticeDone") } }));
               window.school.updateAllCheckmarks();
               if (typeof window.school.updateEnrolledIndicator === "function") {
                 window.school.updateEnrolledIndicator();
@@ -324,44 +314,47 @@ import { t } from "../lib/ui";
         });
       }
 
+      function syncTeachingModeSlot() {
+        var modeControl = document.getElementById("teaching-mode-control");
+        if (!modeControl) return;
+        var studentId = window.school ? window.school.getStudentId() : null;
+        var target = studentId
+          ? document.getElementById("island-prefs-mode-slot")
+          : document.getElementById("teaching-mode-slot-unenrolled");
+        if (target && modeControl.parentElement !== target) {
+          target.appendChild(modeControl);
+        }
+      }
+
       // On page load: if already enrolled, show card + lesson list with fast cipher + celebration
       var existingId = window.school.getStudentId();
       setSelectedRole(selectedRole);
       if (existingId) {
         showEnrolled(existingId, true, true);
       }
+      syncTeachingModeSlot();
+      window.addEventListener("school:enrolled", syncTeachingModeSlot);
+      window.addEventListener("school:progress", syncTeachingModeSlot);
 
       function submitEnrollment() {
         if (isSubmitting) return;
         isSubmitting = true;
         if (enrollError) enrollError.classList.add("hidden");
-        if (stepButton) stepButton.classList.add("hidden");
-        if (stepColor) stepColor.classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
         setPickerState(window.schoolUI.t("generatingId"), true);
         window.school.enroll().then(function(data) {
           showEnrolled(data.studentId, true, false);
         }).catch(function() {
-          window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "error", message: "注册没有成功" } }));
+          window.dispatchEvent(new CustomEvent("school:island-notice", { detail: { kind: "error", message: window.schoolUI.t("enrollNoticeFailed") } }));
           if (enrollError) enrollError.classList.remove("hidden");
           setPickerState(window.schoolUI.t("chooseRole"), false);
           isSubmitting = false;
         });
       }
 
-      // The lower button enters with the selected character.
-      if (enrollBtnBottom) {
-        enrollBtnBottom.addEventListener("click", function() {
-          submitEnrollment();
-        });
-      }
-
-      // The upper button only opens the character picker.
       if (enrollBtn) {
         enrollBtn.addEventListener("click", function() {
-          stepButton.classList.add("hidden");
-          stepColor.classList.remove("hidden");
-          setSelectedRole(selectedRole);
+          submitEnrollment();
         });
       }
 

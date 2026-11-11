@@ -4,7 +4,6 @@
 //     https://opensource.org/licenses/Apache-2.0
 import "../styles/main.css";
 import "../styles/island.css";
-import TeachingMode from "../components/TeachingMode.astro";
 import IslandProgress from "../components/island/IslandProgress";
 import IslandCountUp from "../components/island/IslandCountUp";
 import IslandShell from "../components/island/IslandShell";
@@ -566,8 +565,10 @@ import ClientUI from "../components/ClientUI.astro";
           <IslandClock client:load />
           <button
             id="menu-toggle"
-            class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
-            aria-label={t("toggleNav")}
+            class="relative z-[60] p-3 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
+            aria-label={t("openNav")}
+            aria-expanded="false"
+            aria-controls="sidebar"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -580,17 +581,17 @@ import ClientUI from "../components/ClientUI.astro";
       <!-- Sidebar -->
       <nav
         id="sidebar"
-        class="hidden lg:block w-80 shrink-0 border-r border-gray-200 dark:border-stone-800 h-screen sticky top-0 overflow-y-auto p-6"
+        class="hidden lg:block w-full lg:w-80 shrink-0 border-r border-gray-200 dark:border-stone-800 h-screen sticky top-0 overflow-y-auto p-6 pt-20 lg:pt-6"
       >
-        <div class="island-brand-row mb-4 px-1">
+        <div class="island-brand-row mb-4 px-1 hidden lg:flex">
           <a href="/" class="island-mobile-brand" data-school-name={courseShortName}>
-            <h1 class="island-school-title m-0">
+            <div class="island-school-title m-0">
               <IslandMark client:load name={courseShortName} size="small" />
-            </h1>
+            </div>
           </a>
           <IslandClock client:load />
         </div>
-        <div class="mb-6 px-1">
+        <div class="mb-6 px-1 hidden lg:block">
           <IslandProgress client:load total={lessons.length} />
         </div>
         <ol class="space-y-1">
@@ -677,7 +678,6 @@ import ClientUI from "../components/ClientUI.astro";
 
       <!-- Main content -->
       <main class="flex-1 min-w-0 p-6 lg:p-12 max-w-3xl">
-        <TeachingMode />
         <slot />
       </main>
       <aside class="island-rail hidden xl:block w-72 shrink-0 sticky top-0 h-screen overflow-y-auto p-6">
@@ -693,14 +693,38 @@ import ClientUI from "../components/ClientUI.astro";
       const toggle = document.getElementById("menu-toggle");
       const sidebar = document.getElementById("sidebar");
       if (toggle && sidebar) {
+        const closeMenu = (restoreFocus = true) => {
+          sidebar.classList.add("hidden");
+          sidebar.classList.remove("fixed", "inset-0", "z-50", "bg-white", "dark:bg-stone-900");
+          sidebar.classList.add("lg:block");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.setAttribute("aria-label", window.schoolUI ? window.schoolUI.t("openNav") : "");
+          document.body.style.overflow = "";
+          if (restoreFocus) toggle.focus();
+        };
+
+        const openMenu = () => {
+          sidebar.classList.remove("hidden");
+          sidebar.classList.add("fixed", "inset-0", "z-50", "bg-white", "dark:bg-stone-900");
+          sidebar.classList.remove("lg:block");
+          toggle.setAttribute("aria-expanded", "true");
+          toggle.setAttribute("aria-label", window.schoolUI ? window.schoolUI.t("closeNav") : "");
+          document.body.style.overflow = "hidden";
+        };
+
         toggle.addEventListener("click", () => {
-          sidebar.classList.toggle("hidden");
-          if (!sidebar.classList.contains("hidden")) {
-            sidebar.classList.add("fixed", "inset-0", "z-50", "bg-white", "dark:bg-stone-900");
-            sidebar.classList.remove("lg:block");
+          const isOpen = toggle.getAttribute("aria-expanded") === "true";
+          if (isOpen) {
+            closeMenu(false);
           } else {
-            sidebar.classList.remove("fixed", "inset-0", "z-50", "bg-white", "dark:bg-stone-900");
-            sidebar.classList.add("lg:block");
+            openMenu();
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+            event.preventDefault();
+            closeMenu(true);
           }
         });
       }

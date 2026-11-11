@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Button, Countdown, Loading, Title } from "animal-island-ui";
+import { Loading, Title } from "animal-island-ui";
 import IslandPageIcon from "./IslandPageIcon";
 import IslandPredict from "./IslandPredict";
 import IslandRunBlock from "./IslandRunBlock";
@@ -94,6 +94,8 @@ function mountHeading(heading: HTMLElement, variant: "tab" | "layer", withIcon: 
 	host.dataset.headingVariant = variant;
 	host.dataset.headingText = heading.textContent?.replace(/^#+\s*/, "").trim() ?? "";
 	if (withIcon) host.className = "island-heading-mark";
+	host.setAttribute("role", "heading");
+	host.setAttribute("aria-level", heading.tagName.substring(1));
 	heading.replaceWith(host);
 	createRoot(host).render(
 		<>
@@ -108,7 +110,6 @@ function mountHeading(heading: HTMLElement, variant: "tab" | "layer", withIcon: 
 export default function IslandLessonChrome() {
 	const [headings, setHeadings] = useState<{ id: string; text: string }[]>([]);
 	const [tocHost, setTocHost] = useState<HTMLElement | null>(null);
-	const [departAt, setDepartAt] = useState<number | null>(null);
 	const [saving, setSaving] = useState(false);
 
 	useEffect(() => {
@@ -202,17 +203,11 @@ export default function IslandLessonChrome() {
 
 		setTocHost(document.getElementById("sidebar-lesson-toc"));
 
-		const onDepart = (event: Event) => {
-			const ms = (event as CustomEvent<{ ms?: number }>).detail?.ms ?? 3000;
-			setDepartAt(Date.now() + ms);
-		};
 		const onSaving = () => setSaving(true);
 		const onSaved = () => setSaving(false);
-		window.addEventListener("school:island-depart", onDepart);
 		window.addEventListener("school:island-saving", onSaving);
 		window.addEventListener("school:island-saving-done", onSaved);
 		return () => {
-			window.removeEventListener("school:island-depart", onDepart);
 			window.removeEventListener("school:island-saving", onSaving);
 			window.removeEventListener("school:island-saving-done", onSaved);
 		};
@@ -242,20 +237,6 @@ export default function IslandLessonChrome() {
 						tocHost,
 					)
 				: null}
-			{departAt ? (
-				<div className="island-depart">
-					<Countdown value={departAt} variant="island" size="small" prefix="去下一关" />
-					<Button
-						type="dashed"
-						onClick={() => {
-						window.__islandCancelDepart = true;
-							setDepartAt(null);
-						}}
-					>
-						留下
-					</Button>
-				</div>
-			) : null}
 			<Loading active={saving} tip="正在保存" />
 		</div>
 	);
