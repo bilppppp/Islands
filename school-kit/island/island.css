@@ -556,6 +556,10 @@ html[data-learning-role="ranger"] {
   color: #0d8f84;
 }
 
+.island-prefs-fold .island-prefs-mode-slot {
+  padding: 0 1.1rem;
+}
+
 .island-prefs-fold #teaching-mode-control {
   margin-bottom: 1.25rem;
   padding: 0;
