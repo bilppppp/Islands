@@ -80,12 +80,6 @@ html[data-chrome="island"] body {
   gap: 0.45rem;
 }
 
-.island-heading-mark {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
 .island-page-icon {
   display: inline-flex;
   flex: none;
@@ -915,18 +909,11 @@ html[data-learning-role="ranger"] {
 }
 
 [class*="animal-ribbon"][class*="animal-color-brown"],
-[class*="animal-layer"][class*="animal-color-brown"] {
+.animal-color-brown-Xr3XB {
   --rf: #806941;
   --rb: #5c4722;
   --rk: #3a2810;
   --rt: #ffffff;
-}
-
-[class*="animal-tab"][class*="animal-color-brown"],
-[class*="animal-tab"][class*="animal-color-brown"] [class*="animal-tabText"],
-[class*="animal-tab"][class*="animal-color-brown"] .island-heading-rich {
-  --animal-text-color: #27190c;
-  color: #27190c;
 }
 
 [class*="animal-tag"][class*="animal-color-brown-outlined"],
@@ -1034,11 +1021,38 @@ div.prose {
 }
 
 article.prose h2,
+div.prose h2 {
+  color: #794f27;
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1.35;
+  margin-top: 2.25rem;
+  margin-bottom: 0.85rem;
+  text-decoration: none;
+}
+
+article.prose h2::after,
+div.prose h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 10px;
+  margin-top: 0.45rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14' preserveAspectRatio='none'%3E%3Cpath d='M0 7 Q10 0 20 7 T40 7' fill='none' stroke='%23f5d04a' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 24px 8px;
+  background-position: left center;
+  pointer-events: none;
+}
+
 article.prose h3,
-div.prose h2,
 div.prose h3 {
   color: #794f27;
   font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin-top: 1.65rem;
+  margin-bottom: 0.6rem;
   text-decoration: none;
 }
 
@@ -1047,6 +1061,18 @@ div.prose h3 {
 .dark div.prose h2,
 .dark div.prose h3 {
   color: #d4a373;
+}
+
+article.prose :is(h1, h2, h3, h4, h5, h6) a.heading-anchor,
+div.prose :is(h1, h2, h3, h4, h5, h6) a.heading-anchor {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+article.prose :is(h1, h2, h3, h4, h5, h6) a.heading-anchor:hover,
+div.prose :is(h1, h2, h3, h4, h5, h6) a.heading-anchor:hover {
+  color: inherit !important;
+  text-decoration: none !important;
 }
 
 article.prose h4,
