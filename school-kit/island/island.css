@@ -156,6 +156,12 @@ html[data-learning-role="ranger"] {
   border: 1px solid #e4d5b7;
   border-radius: 16px;
   background: #fffdf7;
+  transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.island-prompt-card.is-open {
+  border-color: #11a89b;
+  box-shadow: 0 6px 20px -3px rgba(17, 168, 155, 0.15), 0 2px 6px -1px rgba(114, 93, 66, 0.06);
 }
 
 .island-prompt-row {
@@ -198,12 +204,34 @@ html[data-learning-role="ranger"] {
 }
 
 .island-prompt-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   border: 1px solid #e4d5b7;
   border-radius: 999px;
   background: transparent;
   color: #794f27;
-  padding: 0.35rem 0.85rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.85rem;
+  font-size: 0.875rem;
+  line-height: 1.25;
   cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.island-prompt-expand:hover {
+  background: #f7f3df;
+}
+
+.island-prompt-chevron {
+  display: inline-block;
+  flex-shrink: 0;
+  transition: transform 220ms ease;
+  transform-origin: center;
+}
+
+.island-prompt-card.is-open .island-prompt-chevron,
+.island-prompt-expand[aria-expanded="true"] .island-prompt-chevron {
+  transform: rotate(180deg);
 }
 
 .island-prompt-card .agent-prompt-copy {
@@ -278,14 +306,45 @@ html[data-learning-role="ranger"] {
   .island-prompt-modal.is-closing {
     animation: none !important;
   }
+  .island-prompt-card,
+  .island-prompt-chevron,
+  .island-prompt-unfold {
+    transition: none !important;
+  }
+}
+
+.island-prompt-unfold {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 220ms cubic-bezier(0.4, 0, 0.2, 1), opacity 220ms ease;
+}
+
+.island-prompt-card.is-open .island-prompt-unfold {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.island-prompt-sheet {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.island-prompt-sheet-inner {
+  margin-top: 0.85rem;
+  padding: 0.9rem 1rem;
+  background: #f7f3df;
+  border-radius: 12px;
+  border-top: 2px dashed #d6c5a5;
 }
 
 .island-prompt-body {
-  margin: 0.85rem 0 0;
+  margin: 0;
   color: #725d42;
   font-size: 0.85rem;
   line-height: 1.65;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .island-next-bar {
