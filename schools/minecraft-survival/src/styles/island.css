@@ -80,6 +80,23 @@ html[data-chrome="island"] body {
   gap: 0.45rem;
 }
 
+.island-heading-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.island-heading-plain-text {
+  color: #27190c;
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.dark .island-heading-plain-text {
+  color: #d4a373;
+}
+
 .island-page-icon {
   display: inline-flex;
   flex: none;
@@ -266,7 +283,7 @@ html[data-learning-role="ranger"] {
 }
 
 .island-prompt-modal {
-  animation: island-modal-pop 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: island-modal-pop 220ms cubic-bezier(0.34, 1.4, 0.64, 1) forwards !important;
 }
 
 .island-prompt-modal.is-closing {
@@ -276,7 +293,11 @@ html[data-learning-role="ranger"] {
 @keyframes island-modal-pop {
   0% {
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.88);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.035);
   }
   100% {
     opacity: 1;
@@ -909,7 +930,7 @@ html[data-learning-role="ranger"] {
 }
 
 [class*="animal-ribbon"][class*="animal-color-brown"],
-.animal-color-brown-Xr3XB {
+[class*="animal-layer"][class*="animal-color-brown"] {
   --rf: #806941;
   --rb: #5c4722;
   --rk: #3a2810;
@@ -1021,38 +1042,11 @@ div.prose {
 }
 
 article.prose h2,
-div.prose h2 {
-  color: #794f27;
-  font-weight: 700;
-  font-size: 1.45rem;
-  line-height: 1.35;
-  margin-top: 2.25rem;
-  margin-bottom: 0.85rem;
-  text-decoration: none;
-}
-
-article.prose h2::after,
-div.prose h2::after {
-  content: "";
-  display: block;
-  width: 48px;
-  height: 10px;
-  margin-top: 0.45rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14' preserveAspectRatio='none'%3E%3Cpath d='M0 7 Q10 0 20 7 T40 7' fill='none' stroke='%23f5d04a' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: repeat-x;
-  background-size: 24px 8px;
-  background-position: left center;
-  pointer-events: none;
-}
-
 article.prose h3,
+div.prose h2,
 div.prose h3 {
   color: #794f27;
   font-weight: 700;
-  font-size: 1.2rem;
-  line-height: 1.4;
-  margin-top: 1.65rem;
-  margin-bottom: 0.6rem;
   text-decoration: none;
 }
 
