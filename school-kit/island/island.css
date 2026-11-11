@@ -233,15 +233,6 @@ html[data-learning-role="ranger"] {
   text-decoration: none;
 }
 
-.island-copy-line {
-  display: block;
-  width: 100%;
-  text-align: center;
-}
-
-.island-copy-mark {
-  color: #fc0;
-}
 
 .island-prompt-body {
   margin: 0.85rem 0 0;

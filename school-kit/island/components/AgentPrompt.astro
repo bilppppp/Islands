@@ -8,7 +8,6 @@ const { title, prompt } = Astro.props;
 
 import "katex/dist/katex.min.css";
 import IslandPageIcon from "./island/IslandPageIcon";
-import IslandPromptNotice from "./island/IslandPromptNotice";
 import { t } from "../lib/ui";
 ---
 
@@ -39,7 +38,6 @@ import { t } from "../lib/ui";
   </div>
   <pre class="agent-prompt-text island-prompt-body hidden"></pre>
   <p role="status" aria-live="polite" class="agent-prompt-confirm hidden">{t("copyError")}</p>
-  <IslandPromptNotice client:load />
 </div>
 
 <script is:inline>
@@ -102,7 +100,12 @@ import { t } from "../lib/ui";
           return navigator.clipboard.writeText(prompt);
         }).then(function() {
           if (confirm) confirm.classList.add("hidden");
-          window.dispatchEvent(new CustomEvent("school:island-prompt-copied"));
+          window.dispatchEvent(new CustomEvent("school:island-notice", {
+            detail: {
+              kind: "success",
+              message: window.schoolUI.t("promptCopiedNotice")
+            }
+          }));
         }).catch(function() {
           if (confirm) {
             confirm.textContent = window.schoolUI.t("copyError");
