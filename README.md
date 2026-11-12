@@ -1,6 +1,6 @@
 # Islands
 
-Islands 把学习材料和学习目标做成一所独立网站（School）。网站发给学生一串身份并记住进度；关卡上的提示词交给 Coding Agent，就可以按课程讲解、问答和练习，下次用同一身份接着学。课程深度决定学什么，教学模式决定互动节奏。Pi 是默认的生成和教学入口；具备文件读写、终端和 HTTP 访问能力的 Coding Agent 也可以建校或授课。使用方式上的变化记在 [CHANGELOG.md](CHANGELOG.md)。
+Islands 把学习材料和学习目标做成一所独立网站（School）。网站发给学生一串身份并记住进度；把每一站页面上的提示词交给 Coding Agent，就可以按课程讲解、问答和练习，下次用同一身份接着学。课程深度决定学什么，教学模式决定互动节奏。Pi 是默认的生成和教学入口；具备文件读写、终端和 HTTP 访问能力的 Coding Agent 也可以建校或授课。使用方式上的变化记在 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 可以打开的课程
 
@@ -17,31 +17,31 @@ Islands 把学习材料和学习目标做成一所独立网站（School）。网
 
 Minecraft 生存入门首页：
 
-![Minecraft 生存入门首页，左侧是 7 关列表，右侧说明零基础在生存模式活过一周的目标](docs/images/minecraft-home.png)
+![Minecraft 生存入门首页，左侧是 7 站学习路线，中间是课程目标、四个角色选择和教学模式](docs/images/minecraft-home.png)
 
-第 3 关工作台配方演示：
+第 3 站工作台配方演示：
 
-![第 3 关工作台配方演示，选中石剑，展示 3×3 九宫格摆放与合成说明](docs/images/minecraft-demo.png)
+![第 3 站工作台配方演示，选中石剑，展示 3×3 九宫格摆放与合成说明](docs/images/minecraft-demo.png)
 
-仓库里的完整生成示例是 [minecraft-survival](schools/minecraft-survival/)。它从 [Minecraft Wiki](https://minecraft.wiki/) 生成，面向零基础初学者（初中生读得懂），使用岛屿页面，共 7 关，每关都包含依据保存的维基规则构建的交互演示。[COURSE.md](schools/minecraft-survival/COURSE.md) 说明了路线规划、选中的来源以及每一关存在的理由。较早的七年级数学页面留在 [schools/math-grade7](schools/math-grade7/)。
+仓库里的完整生成示例是 [minecraft-survival](schools/minecraft-survival/)。它从 [Minecraft Wiki](https://minecraft.wiki/) 生成，面向零基础初学者（初中生读得懂），使用岛屿页面，共 7 站，每一站都包含依据保存的维基规则构建的交互演示。[COURSE.md](schools/minecraft-survival/COURSE.md) 说明了路线规划、选中的来源以及每一站存在的理由。较早的七年级数学页面留在 [schools/math-grade7](schools/math-grade7/)。
 
 ## 核心能力
 
 - **材料直接变成课程网站。** 来源可以是 GitHub 仓库、公开网页或文档、论文 PDF，以及本地文件或目录。深度、已有基础和学习偏好可以用自然语言说明。
 - **用 Agent 创建，也用 Agent 上课。** 把下面的提示词交给支持终端工具的 Coding Agent 即可。当前 Agent 按协议写课程时不必安装 Pi；默认 CLI 的自动生成和 `teach` 会调用 Pi。
-- **进度留在网站上。** 完成当关互动后，教师通过进度 API 记下进度。教学模式可以在网页或对话里切换，不必重新生成课程。关卡完成表示参与了当关互动并得到反馈。学生身份是轻量标识，没有账号和权限系统。
-- **文档站可以一次取多页。** HTTP(S) HTML 文档会自动判断是否抓取，默认跟随同站链接，最多 500 页。写入课程的仍是生成时选中的页面。数学公式会在关卡页面中排版显示。
+- **进度留在网站上。** 完成这一站的互动后，教师通过进度 API 记下进度。教学模式可以在网页或对话里切换，不必重新生成课程。一站完成表示参与了这一站的互动并得到反馈。学生身份是轻量标识，没有账号和权限系统。
+- **文档站可以一次取多页。** HTTP(S) HTML 文档会自动判断是否抓取，默认跟随同站链接，最多 500 页。写入课程的仍是生成时选中的页面。数学公式会在课程页面中排版显示。
 - **同一份学校目录可以四处运行：** 本机、自有服务器、Vercel、Cloudflare Workers。
 
 ## 岛屿页面
 
-新建 School 默认使用岛屿页面（卡片、按钮与进度组件来自 [animal-island-ui](https://github.com/guokaigdg/animal-island-ui)）。生成课程的 Agent 只写关卡正文，不改页面。
+新建 School 默认使用岛屿页面（卡片、按钮与进度组件来自 [animal-island-ui](https://github.com/guokaigdg/animal-island-ui)）。生成课程的 Agent 只写每一站的正文，不改页面。
 
-关卡在首页排成一条路：已经完成的在上面，当前这一关展开，后面的关有锁的样子，但仍然可以打开。进入一关后，课文保持 Markdown，铺在羊皮纸上；关卡内支持预测揭晓卡、可运行代码块、实时预览与可操作演示。若关卡正文标了来源句，自读页上会有虚线下划线，悬停或聚焦可看到保存文件里的那一句原文。注册时先选战士、巫师、牧师或游侠（仅改变身份卡形象与完课印章），再领取学习身份。
+课程在首页排成一条学习路线，每一节课是一站：已经完成的在上面，当前这一站展开，后面的站有锁的样子，但仍然可以打开。进入一站后，课文保持 Markdown，铺在羊皮纸上；站内支持预测揭晓卡、可运行代码块、实时预览与可操作演示（演示默认只显示画面，代码收在「查看代码」后面）。若正文标了来源句，自读页上会有虚线下划线，悬停或聚焦可看到保存文件里的那一句原文，来源卡片显示材料标题或网址。注册时先选战士、巫师、牧师或游侠（仅改变身份卡形象与完课印章），再领取学习身份。
 
 ## 快速开始
 
-复制下面任意一段，发给支持终端工具的 Coding Agent。无需先记 CLI，也无需手写配置或安装 Skill。Agent 会定位项目、检查环境并启动网站。你在网页领取身份后，把关卡上的启动 Prompt 交给教师 Agent。
+复制下面任意一段，发给支持终端工具的 Coding Agent。无需先记 CLI，也无需手写配置或安装 Skill。Agent 会定位项目、检查环境并启动网站。你在网页领取身份后，把每一站页面上的启动 Prompt 交给教师 Agent。
 
 ### 首次使用：让 Agent 克隆项目
 
@@ -75,11 +75,11 @@ Agent 执行细节见 [AGENT_GUIDE.md](AGENT_GUIDE.md)。维护本仓库代码�
 ### 打开网站学习
 
 1. 打开启动后的网址，选择简单或沉浸模式，点「选择身份」选定角色，再点「开始学习」领取学习身份。
-2. 进入关卡，复制启动 Prompt 交给教师 Agent。使用 Pi 时，可粘贴进会话，或运行 `npm run school -- teach NAME --student 网页身份`。其他 Agent 加 `--prompt-only`，只生成通用提示词。已部署的学校加上 `--origin https://学校地址`（不能与 `--port` 同时使用）。
+2. 进入一站，在「交给教师」里复制启动 Prompt 交给教师 Agent。使用 Pi 时，可粘贴进会话，或运行 `npm run school -- teach NAME --student 网页身份`。其他 Agent 加 `--prompt-only`，只生成通用提示词。已部署的学校加上 `--origin https://学校地址`（不能与 `--port` 同时使用）。
 3. 按提示问答、推演或做实验。在网页上切换模式后，教师下一轮会读到新设置；对话里也可以直接要求放慢或展开推导。
 4. 教师记下进度后，当前页面会更新。另一台设备重新打开页面或刷新后看到新进度。新对话带上同一身份即可续学。
 
-教师需要能读取 HTTP、调用 REST，并遵守站点 `/llms.txt`。课程和材料通过关卡 API 与 `/sources/` 访问，进度接口见 `/api/openapi.json`。只有 Pi 需要阅读 `/harness/pi.txt`。
+教师需要能读取 HTTP、调用 REST，并遵守站点 `/llms.txt`。课程和材料通过课程 API 与 `/sources/` 访问，进度接口见 `/api/openapi.json`。网页提示词不针对任何 Harness；`/llms.txt` 会指引 Pi 再读取 `/harness/pi.txt`，其他教师不需要。
 
 ## CLI
 
@@ -114,7 +114,7 @@ npm run school -- start my-school
 
 `create` 可选参数：`--source`（可多次指定）、`--goal`、`--name NAME`、`--depth "入门/系统/深入或自由描述"`、`--background "已有基础"`、`--style "偏好"`、`--mode simple|immersive`、`--language zh`、`--port PORT`、`--ref TAG`（指定 Git 分支或 Tag，并记录解析到的 commit）、`--model PROVIDER/MODEL`（或环境变量 `SCHOOL_MODEL`，仅影响默认 Pi 路径，定义在 `scripts/pi.mjs`）。不带描述或参数执行 `create` 时，交互终端只询问来源和目标。
 
-同名 School 已存在时会报错退出，不会覆盖。中断后可查看保留的材料再运行 `npm run school -- retry NAME`（会重写课程，不重置进度）。已有学习进度时，直接编辑课程文件并保持关卡 `slug` 不变。
+同名 School 已存在时会报错退出，不会覆盖。中断后可查看保留的材料再运行 `npm run school -- retry NAME`（会重写课程，不重置进度）。已有学习进度时，直接编辑课程文件并保持每一站的 `slug` 不变。
 
 | 命令 | 作用 |
 | --- | --- |
@@ -150,7 +150,7 @@ GitHub 仓库、论文、PDF、DOCX、纯文本和本地路径按单份来源准
 ### 课程文件
 
 - `schools/NAME/COURSE.md`：路线、来源和深度取舍。
-- `src/content/lessons/*.md`：关卡正文和教学指引（调整顺序改 frontmatter 的 `order`）。来源句引用 `{{cite …}}` 与交互块写法见 [generation/protocol.md](generation/protocol.md)，局部修订见 [generation/update.md](generation/update.md)。
+- `src/content/lessons/*.md`：每一站的正文和教学指引（调整顺序改 frontmatter 的 `order`）。来源句引用 `{{cite …}}` 与交互块写法见 [generation/protocol.md](generation/protocol.md)，局部修订见 [generation/update.md](generation/update.md)。
 - `public/sources/`、`public/activities/`：供 HTTP 读取的参考材料、标明身份的派生文本，以及练习代码。
 - `school.settings.json`：创建时的配置、语言、默认教学模式和可选自定义域名。
 
