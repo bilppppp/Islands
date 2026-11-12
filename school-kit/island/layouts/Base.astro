@@ -578,7 +578,7 @@ import ClientUI from "../components/ClientUI.astro";
           <IslandClock client:load />
           <button
             id="menu-toggle"
-            class="relative z-[60] p-3 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
+            class="relative z-[60] min-w-[44px] min-h-[44px] flex items-center justify-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
             aria-label={t("openNav")}
             aria-expanded="false"
             aria-controls="sidebar"
@@ -617,7 +617,7 @@ import ClientUI from "../components/ClientUI.astro";
                 <a
                   href={href}
                   class:list={[
-                    "flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors",
+                    "flex items-center justify-between px-3 py-1.5 rounded-md text-sm min-h-[44px] transition-colors",
                     isActive
                       ? "theme-active-nav font-medium"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800",
@@ -640,7 +640,7 @@ import ClientUI from "../components/ClientUI.astro";
           <a
             href="/exercises"
             class:list={[
-              "block px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wider mb-1",
+              "flex items-center px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wider mb-1 min-h-[44px]",
               currentPath === "/exercises" || currentPath === "/exercises/"
                 ? "theme-active-nav font-medium"
                 : "text-gray-500 dark:text-stone-500 hover:text-gray-900 dark:hover:text-stone-200",
@@ -655,7 +655,7 @@ import ClientUI from "../components/ClientUI.astro";
                   <a
                     href={href}
                     class:list={[
-                      "flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors",
+                      "flex items-center justify-between px-3 py-1.5 rounded-md text-sm min-h-[44px] transition-colors",
                       isActive
                         ? "theme-active-nav font-medium"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800",
@@ -675,7 +675,7 @@ import ClientUI from "../components/ClientUI.astro";
           <a
             href="/glossary"
             class:list={[
-              "block px-3 py-1.5 rounded-md text-sm transition-colors",
+              "flex items-center px-3 py-1.5 rounded-md text-sm min-h-[44px] transition-colors",
               currentPath === "/glossary" || currentPath === "/glossary/"
                 ? "theme-active-nav font-medium"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800",
@@ -685,7 +685,7 @@ import ClientUI from "../components/ClientUI.astro";
           <a
             href="/troubleshooting"
             class:list={[
-              "block px-3 py-1.5 rounded-md text-sm transition-colors",
+              "flex items-center px-3 py-1.5 rounded-md text-sm min-h-[44px] transition-colors",
               currentPath === "/troubleshooting" || currentPath === "/troubleshooting/"
                 ? "theme-active-nav font-medium"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800",
@@ -694,7 +694,7 @@ import ClientUI from "../components/ClientUI.astro";
           <a
             id="sidebar-disenroll-link"
             href="/disenroll"
-            class="hidden block px-3 py-1.5 rounded-md text-sm transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800"
+            class="hidden flex items-center px-3 py-1.5 rounded-md text-sm min-h-[44px] transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800"
           >{t("disenroll")}</a>
         </div>
 
