@@ -2662,8 +2662,21 @@ button.source-cite:focus-visible {
   color: #c62828;
 }
 
-/* Island Preview Demos: live page only, code behind a toggle */
-.island-preview-card.island-demo-card .island-preview-frame-wrap {
+/* Island Preview Demos: live page only, single shell, code behind a toggle */
+.island-run-collapse .island-preview-card.island-demo-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 0;
+}
+
+.island-demo-card .island-run-header {
+  justify-content: flex-end;
+}
+
+.island-preview-card.island-demo-card:not(.island-demo-with-code) .island-preview-frame-wrap {
   height: 380px;
 }
 
@@ -2672,7 +2685,7 @@ button.source-cite:focus-visible {
 }
 
 @container (max-width: 599.98px) {
-  .island-preview-card.island-demo-card .island-preview-frame-wrap {
+  .island-preview-card.island-demo-card:not(.island-demo-with-code) .island-preview-frame-wrap {
     height: 300px;
   }
 }

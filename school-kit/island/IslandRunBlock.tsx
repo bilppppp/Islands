@@ -589,9 +589,9 @@ export default function IslandRunBlock({
 		teacherDisabled?: boolean;
 	}) => (
 		<div className="island-run-header">
-			{!inModal ? (
+			{!inModal && !demo ? (
 				<span className="island-run-badge">
-					{demo ? badgeSuffix : `${langTitle} ${badgeSuffix}`}
+					{`${langTitle} ${badgeSuffix}`}
 				</span>
 			) : null}
 			<div className="island-run-actions">
@@ -752,7 +752,7 @@ export default function IslandRunBlock({
 					answer={
 						<div
 							ref={containerRef}
-							className={`island-run-card island-preview-card${demo && !showCode ? " island-demo-card" : ""}`}
+							className={`island-run-card island-preview-card${demo ? " island-demo-card" : ""}${demo && showCode ? " island-demo-with-code" : ""}`}
 						>
 							{renderHeader({
 								badgeSuffix: demo ? t("demoBadge") : t("previewBadge"),
