@@ -271,6 +271,25 @@ export default function IslandCodeEditor({
 				"--indent-marker-active-bg-color": "rgba(232, 213, 188, 0.25)",
 				"--indent-marker-bg-color": "rgba(232, 213, 188, 0.08)",
 			},
+			".cm-scroller": {
+				scrollbarWidth: "thin",
+				scrollbarColor: "#5a4632 #221a13",
+			},
+			".cm-scroller::-webkit-scrollbar": {
+				width: "8px",
+				height: "8px",
+			},
+			".cm-scroller::-webkit-scrollbar-track": {
+				background: "#221a13",
+				borderRadius: "4px",
+			},
+			".cm-scroller::-webkit-scrollbar-thumb": {
+				background: "#5a4632",
+				borderRadius: "4px",
+			},
+			".cm-scroller::-webkit-scrollbar-thumb:hover": {
+				background: "#785e44",
+			},
 		});
 
 		const escapeKeymap = modules.keymap.of([

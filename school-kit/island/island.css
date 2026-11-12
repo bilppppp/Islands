@@ -2132,6 +2132,45 @@ button.source-cite:focus-visible {
   border-radius: 11px;
 }
 
+.island-code-editor,
+.island-code-editor .cm-editor,
+.island-code-editor .cm-scroller,
+.island-run-textarea {
+  scrollbar-width: thin;
+  scrollbar-color: #5a4632 #221a13;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar,
+.island-code-editor .cm-editor::-webkit-scrollbar,
+.island-code-editor::-webkit-scrollbar,
+.island-run-textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar-track,
+.island-code-editor .cm-editor::-webkit-scrollbar-track,
+.island-code-editor::-webkit-scrollbar-track,
+.island-run-textarea::-webkit-scrollbar-track {
+  background: #221a13;
+  border-radius: 4px;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar-thumb,
+.island-code-editor .cm-editor::-webkit-scrollbar-thumb,
+.island-code-editor::-webkit-scrollbar-thumb,
+.island-run-textarea::-webkit-scrollbar-thumb {
+  background: #5a4632;
+  border-radius: 4px;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar-thumb:hover,
+.island-code-editor .cm-editor::-webkit-scrollbar-thumb:hover,
+.island-code-editor::-webkit-scrollbar-thumb:hover,
+.island-run-textarea::-webkit-scrollbar-thumb:hover {
+  background: #785e44;
+}
+
 .island-run-stdin-wrap {
   display: flex;
   flex-direction: column;
@@ -2230,9 +2269,9 @@ button.source-cite:focus-visible {
   white-space: pre;
   overflow-x: auto;
   overflow-y: auto;
-  height: 240px;
-  min-height: 240px;
-  max-height: 240px;
+  height: auto;
+  min-height: 320px;
+  max-height: 60vh;
 }
 
 .island-preview-card .island-code-editor .cm-scroller {
@@ -2252,8 +2291,8 @@ button.source-cite:focus-visible {
   .island-preview-card .island-code-editor,
   .island-preview-card .island-code-editor .cm-editor {
     height: auto;
-    min-height: 180px;
-    max-height: 420px;
+    min-height: 320px;
+    max-height: 60vh;
   }
 
   .island-preview-card .island-preview-frame-wrap {
@@ -2270,8 +2309,8 @@ button.source-cite:focus-visible {
   .island-preview-card .island-code-editor,
   .island-preview-card .island-code-editor .cm-editor {
     height: auto;
-    min-height: 180px;
-    max-height: 420px;
+    min-height: 320px;
+    max-height: 60vh;
   }
 
   .island-preview-card .island-preview-frame-wrap {
@@ -2287,9 +2326,9 @@ button.source-cite:focus-visible {
   .island-preview-card .island-run-textarea,
   .island-preview-card .island-code-editor,
   .island-preview-card .island-code-editor .cm-editor {
-    height: 240px;
-    min-height: 240px;
-    max-height: 240px;
+    height: auto;
+    min-height: 320px;
+    max-height: 60vh;
   }
 
   .island-preview-card .island-preview-frame-wrap {
