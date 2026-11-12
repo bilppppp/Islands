@@ -1,9 +1,0 @@
-{
-  "randomMappingSavedBeforeOutputsComplete": true,
-  "samplesByteIdentical": {
-    "X": true,
-    "Y": true
-  },
-  "identityPathLeaks": false,
-  "noProtocolOrLogsInReviewWorkspace": true
-}

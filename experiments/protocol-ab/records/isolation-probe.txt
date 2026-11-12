@@ -1,3 +1,0 @@
-/Users/gravity/Desktop/AI/Agent-native Learning School /experiments/protocol-ab/work/A/school/src/content/lessons
-DENIED ../B/materials/material-1/index.js EPERM
-DENIED ../../../../generation/protocol.md EPERM

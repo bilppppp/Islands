@@ -10,18 +10,12 @@ __pycache__/
 /upstream/
 # Auto-downloaded siteone-crawler binaries
 /tools/cache/
-/sources/react/
 /schools/*/materials/
-/schools/workbuddy/
-/inputs/workbuddy.json
 
 # Local credentials
 .env
 .env.*
 !.env.example
-
-# Article drafts, screenshots, and rendered WeChat HTML
-/article-agent-native-learning-school/
 
 # Local Vercel project link and build output
 .vercel/
