@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { RocketIcon } from "naive-icons";
+import { t } from "./IslandAskTeacher";
 
 const THRESHOLD = 80;
 const VISIBILITY_HEIGHT = 480;
@@ -462,7 +463,7 @@ export default function IslandRocket() {
 			rocket.classList.add("launching", "armed");
 			syncVisible();
 			state.flight = buildFlight({ x: state.x, y: state.y });
-			message("点火成功！不知道会飞到哪里…", "good", true);
+			message(t("rocketIgnition"), "good", true);
 			if (reducedMotion.matches) {
 				finishFlight();
 				return;
@@ -504,7 +505,7 @@ export default function IslandRocket() {
 				setRocket(state.start.x, state.start.y + state.pull);
 				toggleGuide(state.start, state.pull);
 				rocket.classList.toggle("armed", state.armed);
-				if (state.armed) message("松开！准备发射", "ready");
+				if (state.armed) message(t("rocketReady"), "ready");
 				else hideMessage();
 				if (state.armed && !reducedMotion.matches) {
 					emit(state.x, state.y + 30, "smoke", 2);
@@ -517,7 +518,7 @@ export default function IslandRocket() {
 				guide.style.display = "none";
 				const next = parked(state.start.x + dx, state.start.y + dy);
 				setRocket(next.x, next.y, clamp(dx * 0.08, -8, 8));
-				message("拖到喜欢的位置，松手停靠");
+				message(t("rocketDrag"));
 			}
 		}
 
@@ -627,7 +628,7 @@ export default function IslandRocket() {
 				ref={rocketRef}
 				type="button"
 				className="island-rocket"
-				aria-label="返回顶部；向下拉动可发射火箭"
+				aria-label={t("rocketAria")}
 			>
 				<span className="island-rocket-craft">
 					<RocketIcon size={64} />

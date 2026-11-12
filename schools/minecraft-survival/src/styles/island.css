@@ -84,6 +84,8 @@ html[data-chrome="island"] body {
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  margin-top: 0;
+  margin-bottom: 0.85rem;
 }
 
 .island-heading-plain-text {
@@ -546,7 +548,10 @@ html[data-learning-role="ranger"] {
 }
 
 .teaching-mode-option {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 44px;
   width: 100%;
   color: #794f27;
   cursor: pointer;
@@ -851,11 +856,17 @@ html[data-learning-role="ranger"] {
 }
 
 .island-sidebar-toc .island-toc a {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 0.35rem 0.75rem;
   border-radius: 0.5rem;
   color: #725d42;
   text-decoration: none;
+}
+@media (pointer: coarse) {
+  .island-sidebar-toc .island-toc a {
+    min-height: 44px;
+  }
 }
 
 .island-sidebar-toc .island-toc a:hover {
@@ -900,6 +911,11 @@ html[data-learning-role="ranger"] {
 
 .island-lesson-tabs [role="tabpanel"] {
   display: none;
+}
+
+.island-lesson-tabs [role="tab"],
+.island-lesson-tabs [class*="animal-tabItem"] {
+  min-height: 44px;
 }
 
 .island-lesson-tabs [class*="animal-tabItem"][class*="animal-active"] {
@@ -1024,7 +1040,7 @@ div.prose {
   background: rgb(247, 243, 223);
   border-radius: 18px;
   border: 1px solid #e4d5b7;
-  padding: 1.75rem 1.85rem;
+  padding: 1.85rem;
   --tw-prose-body: #725d42;
   --tw-prose-headings: #794f27;
   --tw-prose-links: #0b7f76;
@@ -1039,6 +1055,21 @@ div.prose {
   --tw-prose-code: #725d42;
   --tw-prose-pre-bg: #fffbe7;
   --tw-prose-pre-code: #725d42;
+}
+
+article.prose > p:empty,
+div.prose > p:empty,
+.island-lesson-sheet > p:empty {
+  display: none;
+}
+
+article.prose > :first-child,
+div.prose > :first-child,
+.island-lesson-sheet > :first-child,
+.island-lesson-sheet > h2:first-of-type,
+.island-lesson-sheet > .island-heading-mark:first-of-type,
+.island-lesson-sheet > [data-heading]:first-of-type {
+  margin-top: 0 !important;
 }
 
 article.prose h2,
@@ -1652,7 +1683,7 @@ button.source-cite:focus-visible {
   display: flex;
   align-items: center;
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   padding: 0.6rem 0.95rem;
   background: #fbf8ee;
   border: 1.5px solid #dfcfad;
@@ -1744,7 +1775,7 @@ button.source-cite:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0.5rem 1.35rem;
   background: #0b7f76;
   color: #ffffff;
@@ -2132,6 +2163,45 @@ button.source-cite:focus-visible {
   border-radius: 11px;
 }
 
+.island-code-editor,
+.island-code-editor .cm-editor,
+.island-code-editor .cm-scroller,
+.island-run-textarea {
+  scrollbar-width: thin;
+  scrollbar-color: #5a4632 #221a13;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar,
+.island-code-editor .cm-editor::-webkit-scrollbar,
+.island-code-editor::-webkit-scrollbar,
+.island-run-textarea::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar-track,
+.island-code-editor .cm-editor::-webkit-scrollbar-track,
+.island-code-editor::-webkit-scrollbar-track,
+.island-run-textarea::-webkit-scrollbar-track {
+  background: #221a13;
+  border-radius: 4px;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar-thumb,
+.island-code-editor .cm-editor::-webkit-scrollbar-thumb,
+.island-code-editor::-webkit-scrollbar-thumb,
+.island-run-textarea::-webkit-scrollbar-thumb {
+  background: #5a4632;
+  border-radius: 4px;
+}
+
+.island-code-editor .cm-scroller::-webkit-scrollbar-thumb:hover,
+.island-code-editor .cm-editor::-webkit-scrollbar-thumb:hover,
+.island-code-editor::-webkit-scrollbar-thumb:hover,
+.island-run-textarea::-webkit-scrollbar-thumb:hover {
+  background: #785e44;
+}
+
 .island-run-stdin-wrap {
   display: flex;
   flex-direction: column;
@@ -2230,9 +2300,9 @@ button.source-cite:focus-visible {
   white-space: pre;
   overflow-x: auto;
   overflow-y: auto;
-  height: 240px;
-  min-height: 240px;
-  max-height: 240px;
+  height: auto;
+  min-height: 320px;
+  max-height: 60vh;
 }
 
 .island-preview-card .island-code-editor .cm-scroller {
@@ -2252,8 +2322,8 @@ button.source-cite:focus-visible {
   .island-preview-card .island-code-editor,
   .island-preview-card .island-code-editor .cm-editor {
     height: auto;
-    min-height: 180px;
-    max-height: 420px;
+    min-height: 320px;
+    max-height: 60vh;
   }
 
   .island-preview-card .island-preview-frame-wrap {
@@ -2270,8 +2340,8 @@ button.source-cite:focus-visible {
   .island-preview-card .island-code-editor,
   .island-preview-card .island-code-editor .cm-editor {
     height: auto;
-    min-height: 180px;
-    max-height: 420px;
+    min-height: 320px;
+    max-height: 60vh;
   }
 
   .island-preview-card .island-preview-frame-wrap {
@@ -2287,9 +2357,9 @@ button.source-cite:focus-visible {
   .island-preview-card .island-run-textarea,
   .island-preview-card .island-code-editor,
   .island-preview-card .island-code-editor .cm-editor {
-    height: 240px;
-    min-height: 240px;
-    max-height: 240px;
+    height: auto;
+    min-height: 320px;
+    max-height: 60vh;
   }
 
   .island-preview-card .island-preview-frame-wrap {
@@ -2662,8 +2732,21 @@ button.source-cite:focus-visible {
   color: #c62828;
 }
 
-/* Island Preview Demos: live page only, code behind a toggle */
-.island-preview-card.island-demo-card .island-preview-frame-wrap {
+/* Island Preview Demos: live page only, single shell, code behind a toggle */
+.island-run-collapse .island-preview-card.island-demo-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin-top: 0;
+}
+
+.island-demo-card .island-run-header {
+  justify-content: flex-end;
+}
+
+.island-preview-card.island-demo-card:not(.island-demo-with-code) .island-preview-frame-wrap {
   height: 380px;
 }
 
@@ -2672,7 +2755,7 @@ button.source-cite:focus-visible {
 }
 
 @container (max-width: 599.98px) {
-  .island-preview-card.island-demo-card .island-preview-frame-wrap {
+  .island-preview-card.island-demo-card:not(.island-demo-with-code) .island-preview-frame-wrap {
     height: 300px;
   }
 }
@@ -2687,7 +2770,7 @@ button.source-cite:focus-visible {
   /* 1. Reduce stacked horizontal padding for lesson prose card */
   article.prose,
   div.prose {
-    padding: 1.25rem 0.75rem;
+    padding: 0.75rem;
     border-radius: 14px;
   }
 
@@ -2768,4 +2851,127 @@ button.source-cite:focus-visible {
     flex: 1 1 auto;
     min-height: 0;
   }
+}
+
+/* Disenroll page button restyling (P3-5) */
+#reset-button {
+  background-color: #0b7f76 !important;
+  color: #fffdf7 !important;
+  border-color: #0b7f76 !important;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+#reset-button:hover:not(:disabled) {
+  background-color: #086961 !important;
+  border-color: #086961 !important;
+}
+
+#disenroll-button {
+  background-color: transparent !important;
+  color: #c62828 !important;
+  border-color: #e57373 !important;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+#disenroll-button:hover:not(:disabled) {
+  background-color: #ffebee !important;
+  border-color: #ef5350 !important;
+  color: #b71c1c !important;
+}
+
+html.dark #disenroll-button,
+:global(.dark) #disenroll-button {
+  background-color: transparent !important;
+  color: #ef9a9a !important;
+  border-color: #b91c1c !important;
+}
+
+html.dark #disenroll-button:hover:not(:disabled),
+:global(.dark) #disenroll-button:hover:not(:disabled) {
+  background-color: rgba(239, 83, 80, 0.15) !important;
+  border-color: #ef5350 !important;
+  color: #ffcdd2 !important;
+}
+
+/* Code editor keyboard hint (P2-14) */
+.island-editor-hint {
+  font-size: 12px;
+  color: #725d42;
+  margin-top: 4px;
+  line-height: 1.4;
+  user-select: none;
+}
+
+/* Skip to content link (P2-16) */
+.island-skip-link {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+  z-index: 999;
+}
+
+.island-skip-link:focus,
+.island-skip-link:focus-visible {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  padding: 8px 16px;
+  background: #fffdf7;
+  color: #0b7f76;
+  border: 2px solid #0b7f76;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  outline: 2px solid #0b7f76;
+  outline-offset: 2px;
+}
+
+/* Tap targets: minimum 44x44 CSS px hit area on touch (P3-8) */
+.island-back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  position: relative;
+}
+
+.island-back-link::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 44px;
+}
+
+.island-run-btn,
+.island-ask-teacher-btn,
+.island-code-copy-btn,
+.island-prompt-expand,
+.island-prompt-card .agent-prompt-copy,
+.island-predict-reset-btn,
+.island-numberline-reset-btn,
+[class*="animal-close"] {
+  position: relative;
+}
+
+.island-run-btn::before,
+.island-ask-teacher-btn::before,
+.island-code-copy-btn::before,
+.island-prompt-expand::before,
+.island-prompt-card .agent-prompt-copy::before,
+.island-predict-reset-btn::before,
+.island-numberline-reset-btn::before,
+[class*="animal-close"]::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 44px;
+  min-height: 44px;
+  width: 100%;
+  height: 100%;
 }

@@ -14,6 +14,8 @@ import IslandTypewriter from "../../components/island/IslandTypewriter";
 import IslandLessonChrome from "../../components/island/IslandLessonChrome";
 import { Tag } from "animal-island-ui";
 import { getCollection, render } from "astro:content";
+import { scanCodeFences } from "../../lib/predict-block.mjs";
+import { collectRunBlocks } from "../../lib/run-block.mjs";
 
 export async function getStaticPaths() {
   const lessons = await getCollection("lessons");
@@ -26,9 +28,18 @@ export async function getStaticPaths() {
 const { lesson } = Astro.props;
 const { Content } = await render(lesson);
 const lessonBody = lesson.body ?? "";
-const hasCode = /```(?!mermaid\b)/.test(lessonBody);
+const fences = scanCodeFences(lessonBody);
+const runBlocks = collectRunBlocks(lessonBody);
+const hasActiveRunOrPreview = runBlocks.some((b) => b.mode === "run" || (b.mode === "preview" && !b.demo));
+const hasNormalCodeFence = fences.some((fence) => {
+  const info = (fence.info || "").trim();
+  if (/^(?:mermaid|predict|numberline)(?:\s|$)/.test(info)) return false;
+  const tokens = info.split(/\s+/);
+  if (tokens.includes("run") || tokens.includes("preview")) return false;
+  return true;
+});
+const hasCode = hasActiveRunOrPreview || hasNormalCodeFence;
 const hasTable = /^\|.+\|$/m.test(lessonBody);
-const minutes = Math.max(1, Math.round(lessonBody.length / 280));
 
 const allLessons = (await getCollection("lessons")).sort((a, b) => a.data.order - b.data.order);
 const currentIndex = allLessons.findIndex((l) => l.data.slug === lesson.data.slug);
@@ -40,15 +51,14 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
 
 <Base title={lesson.data.title} description={lesson.data.description}>
   <div class="mb-6">
-    <a href="/" class="text-sm text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">{t("allLessons")}</a>
+    <a href="/" class="island-back-link text-sm text-gray-500 hover:text-gray-700 transition-colors">{t("allLessons")}</a>
   </div>
 
   <header class="island-lesson-header">
     <div class="island-lesson-tags">
       <Tag color="brown" variant="outlined">{t("lessonNumber", { number: lesson.data.order })}</Tag>
-      {hasCode && <Tag color="app-blue" variant="soft">含代码</Tag>}
-      {hasTable && <Tag color="app-teal" variant="soft">含表格</Tag>}
-      <Tag color="brown" variant="soft">约 {minutes} 分钟</Tag>
+      {hasCode && <Tag color="app-blue" variant="soft">{t("hasCode")}</Tag>}
+      {hasTable && <Tag color="app-teal" variant="soft">{t("hasTable")}</Tag>}
     </div>
     <h1 class="island-lesson-title"><IslandMark client:load name={lesson.data.title} size="middle" /></h1>
     <IslandTypewriter client:load text={lesson.data.description} />
@@ -64,13 +74,13 @@ import MermaidDiagrams from "../../components/MermaidDiagrams.astro";
   <div id="lesson-enroll-nudge" class="hidden mb-8 rounded-lg border border-gray-200 dark:border-stone-700 px-4 py-3 text-sm text-gray-600 dark:text-stone-400">
     <a href="/" class="theme-link font-medium underline underline-offset-2">{t("freeEnroll")}</a>{t("trackProgress")}</div>
 
-  <LessonTabs client:load readLabel="自己阅读" teachLabel="交给教师" />
-  <article class="prose dark:prose-invert max-w-none island-lesson-sheet" data-lesson-panel="read" data-lesson-body>
+  <LessonTabs client:load readLabel={t("readSelf")} teachLabel={t("handToTeacher")} ariaLabel={t("thisLesson")} />
+  <article class="prose dark:prose-invert max-w-none island-lesson-sheet" role="tabpanel" data-lesson-panel="read" data-lesson-body>
     <Content />
     <MermaidDiagrams />
   </article>
   <SourceCite />
-  <div data-lesson-panel="teach" hidden>
+  <div role="tabpanel" data-lesson-panel="teach" hidden>
     <TeachingMode compact />
     {lesson.data.agentOnly && (
       <div id="lesson-agent-only" class="mt-10 pt-6 border-t border-gray-200 dark:border-stone-800 hidden">

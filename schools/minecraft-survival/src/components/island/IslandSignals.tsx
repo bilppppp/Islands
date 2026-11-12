@@ -4,6 +4,13 @@ import { showAskTeacherNotice } from "./IslandAskTeacher";
 
 type Notice = { kind?: "success" | "info" | "warning" | "error"; message: string; description?: string };
 
+function t(key: string, values?: Record<string, string | number>): string {
+	if (typeof window !== "undefined" && (window as any).schoolUI?.t) {
+		return (window as any).schoolUI.t(key, values);
+	}
+	return key;
+}
+
 export default function IslandSignals() {
 	const [exitOpen, setExitOpen] = useState(false);
 
@@ -29,8 +36,8 @@ export default function IslandSignals() {
 	}, []);
 
 	return (
-		<Modal open={exitOpen} title="退出课程" onClose={() => setExitOpen(false)} onOk={() => { window.location.href = "/disenroll"; }}>
-			退出会清除这台浏览器上的学习身份。
+		<Modal open={exitOpen} title={t("exitModalTitle")} onClose={() => setExitOpen(false)} onOk={() => { window.location.href = "/disenroll"; }}>
+			{t("exitModalBody")}
 		</Modal>
 	);
 }

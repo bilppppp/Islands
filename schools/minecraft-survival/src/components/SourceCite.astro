@@ -1,16 +1,23 @@
-<div id="source-cite-pop" class="source-cite-pop" role="region" aria-label="来源原句" hidden>
+---
+import { t } from "../lib/ui";
+import settings from "../../school.settings.json";
+
+const materials = Array.isArray(settings?.materials) ? settings.materials : [];
+---
+
+<div id="source-cite-pop" class="source-cite-pop" role="region" aria-label={t("sourceCiteTitle")} hidden>
   <div class="source-cite-arrow" hidden></div>
-  <p class="source-cite-kicker">来源原句</p>
+  <p class="source-cite-kicker">{t("sourceCiteTitle")}</p>
   <p class="source-cite-title" id="source-cite-heading"></p>
   <p class="source-cite-quote" id="source-cite-quote"></p>
   <div class="source-cite-meta">
     <span class="source-cite-path" id="source-cite-path"></span>
-    <a id="source-cite-local" href="">本地材料</a>
-    <a id="source-cite-url" href="" target="_blank" rel="noreferrer">原始页面</a>
+    <a id="source-cite-local" href="">{t("sourceCiteLocal")}</a>
+    <a id="source-cite-url" href="" target="_blank" rel="noreferrer">{t("sourceCiteUrl")}</a>
   </div>
 </div>
 
-<script is:inline>
+<script is:inline define:vars={{ materials }}>
   (function () {
     var pop = document.getElementById("source-cite-pop");
     if (!pop) return;
@@ -35,14 +42,59 @@
       }).join("/");
     }
 
+    function findMaterial(full, rawUrl) {
+      if (!materials || !materials.length) return null;
+      for (var i = 0; i < materials.length; i++) {
+        var m = materials[i];
+        if (rawUrl && (m.url === rawUrl || m.fetchedURL === rawUrl)) return m;
+        if (m.path && (m.path === full || full.indexOf(m.path) === 0)) return m;
+        if (m.readableText && (m.readableText === full || full.indexOf(m.readableText) === 0)) return m;
+      }
+      var dir = full.split("/")[0];
+      if (dir) {
+        for (var j = 0; j < materials.length; j++) {
+          var mat = materials[j];
+          if ((mat.path && mat.path.indexOf(dir + "/") === 0) || (mat.readableText && mat.readableText.indexOf(dir + "/") === 0)) {
+            return mat;
+          }
+        }
+      }
+      return null;
+    }
+
+    function formatHumanTitle(full, rawUrl) {
+      var mat = findMaterial(full, rawUrl);
+      if (mat && (mat.title || mat.pageTitle)) {
+        return mat.title || mat.pageTitle;
+      }
+      var webUrl = rawUrl || (mat && (mat.url || mat.fetchedURL));
+      if (webUrl && /^https?:\/\//i.test(webUrl)) {
+        try {
+          var u = new URL(webUrl);
+          var hostPath = u.host + (u.pathname !== "/" ? u.pathname : "");
+          try {
+            return decodeURI(hostPath);
+          } catch (_) {
+            return hostPath;
+          }
+        } catch (_) {
+          return webUrl.replace(/^https?:\/\//i, "");
+        }
+      }
+      var parts = full.split("/");
+      var fileName = parts[parts.length - 1] || full;
+      var cleaned = fileName.replace(/\.txt$/i, "").replace(/^original\./i, "");
+      return cleaned || fileName;
+    }
+
     function fill(button) {
       var full = button.getAttribute("data-path") || "";
-      var parts = full.split("/");
+      var rawUrl = button.getAttribute("data-url");
       heading.textContent = button.getAttribute("data-heading") || "";
       quote.textContent = button.getAttribute("data-quote") || "";
-      path.textContent = parts[parts.length - 1] || full;
+      path.textContent = formatHumanTitle(full, rawUrl);
+      path.title = full;
       local.href = localHref(full);
-      var rawUrl = button.getAttribute("data-url");
       if (rawUrl) {
         url.href = rawUrl;
         url.hidden = false;

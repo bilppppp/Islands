@@ -132,7 +132,7 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 	const readouts = points.map((p) => {
 		const parts = [`${p.label} = ${formatNumber(p.value)}`];
 		if (showOpposite) {
-			parts.push(`相反数 ${formatNumber(-p.value)}`);
+			parts.push(t("numberlineOpposite", { value: formatNumber(-p.value) }));
 		}
 		if (showAbs) {
 			parts.push(`|${p.label}| = ${formatNumber(Math.abs(p.value))}`);
@@ -143,7 +143,11 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 	let distanceReadout: string | null = null;
 	if (showDistance && points.length === 2) {
 		const dist = Math.abs(points[0].value - points[1].value);
-		distanceReadout = `两点距离 |${points[0].label} − ${points[1].label}| = ${formatNumber(dist)}`;
+		distanceReadout = t("numberlineDistance", {
+			label1: points[0].label,
+			label2: points[1].label,
+			dist: formatNumber(dist),
+		});
 	}
 
 	const describeNumberline = (): string => {
@@ -173,7 +177,7 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 				<span className="island-predict-badge-icon" aria-hidden="true">
 					📏
 				</span>
-				<span>数轴探索</span>
+				<span>{t("numberlineExplore")}</span>
 			</div>
 
 			{block.caption && (
@@ -409,7 +413,10 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 								className="island-numberline-handle"
 								tabIndex={0}
 								role="slider"
-								aria-label={`点 ${p.label}，数值 ${formatNumber(p.value)}`}
+								aria-label={t("numberlinePointAria", {
+									label: p.label,
+									value: formatNumber(p.value),
+								})}
 								aria-valuemin={min}
 								aria-valuemax={max}
 								aria-valuenow={p.value}
@@ -485,7 +492,7 @@ export default function IslandNumberline({ block }: IslandNumberlineProps) {
 						className="island-numberline-reset-btn"
 						onClick={handleReset}
 					>
-						复位
+						{t("numberlineReset")}
 					</button>
 				)}
 			</div>

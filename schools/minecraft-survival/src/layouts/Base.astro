@@ -554,6 +554,7 @@ import ClientUI from "../components/ClientUI.astro";
     </script>
   </head>
   <body class="min-h-screen">
+    <a href="#main-content" class="island-skip-link sr-only focus:not-sr-only">{t("skipToContent")}</a>
     <IslandShell client:load shortName={courseShortName}>
     <div class="island-shell lg:flex">
       <!-- Mobile header -->
@@ -565,7 +566,7 @@ import ClientUI from "../components/ClientUI.astro";
           <IslandClock client:load />
           <button
             id="menu-toggle"
-            class="relative z-[60] p-3 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
+            class="relative z-[60] min-w-[44px] min-h-[44px] flex items-center justify-center p-3 rounded-md hover:bg-gray-100 dark:hover:bg-stone-800"
             aria-label={t("openNav")}
             aria-expanded="false"
             aria-controls="sidebar"
@@ -604,7 +605,7 @@ import ClientUI from "../components/ClientUI.astro";
                 <a
                   href={href}
                   class:list={[
-                    "flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors",
+                    "flex items-center justify-between px-3 py-1.5 rounded-md text-sm pointer-coarse:min-h-[44px] transition-colors",
                     isActive
                       ? "theme-active-nav font-medium"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800",
@@ -627,7 +628,7 @@ import ClientUI from "../components/ClientUI.astro";
           <a
             href="/exercises"
             class:list={[
-              "block px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wider mb-1",
+              "flex items-center px-3 py-1.5 rounded-md text-xs font-mono uppercase tracking-wider mb-1 pointer-coarse:min-h-[44px]",
               currentPath === "/exercises" || currentPath === "/exercises/"
                 ? "theme-active-nav font-medium"
                 : "text-gray-500 dark:text-stone-500 hover:text-gray-900 dark:hover:text-stone-200",
@@ -642,7 +643,7 @@ import ClientUI from "../components/ClientUI.astro";
                   <a
                     href={href}
                     class:list={[
-                      "flex items-center justify-between px-3 py-1.5 rounded-md text-sm transition-colors",
+                      "flex items-center justify-between px-3 py-1.5 rounded-md text-sm pointer-coarse:min-h-[44px] transition-colors",
                       isActive
                         ? "theme-active-nav font-medium"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800",
@@ -661,7 +662,7 @@ import ClientUI from "../components/ClientUI.astro";
           <a
             href="/troubleshooting"
             class:list={[
-              "block px-3 py-1.5 rounded-md text-sm transition-colors",
+              "flex items-center px-3 py-1.5 rounded-md text-sm pointer-coarse:min-h-[44px] transition-colors",
               currentPath === "/troubleshooting" || currentPath === "/troubleshooting/"
                 ? "theme-active-nav font-medium"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800",
@@ -670,14 +671,14 @@ import ClientUI from "../components/ClientUI.astro";
           <a
             id="sidebar-disenroll-link"
             href="/disenroll"
-            class="hidden block px-3 py-1.5 rounded-md text-sm transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800"
+            class="hidden flex items-center px-3 py-1.5 rounded-md text-sm pointer-coarse:min-h-[44px] transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-stone-400 dark:hover:text-stone-200 dark:hover:bg-stone-800"
           >{t("disenroll")}</a>
         </div>
 
       </nav>
 
       <!-- Main content -->
-      <main class="flex-1 min-w-0 p-6 lg:p-12 max-w-3xl">
+      <main id="main-content" tabindex="-1" class="flex-1 min-w-0 p-6 lg:p-12 max-w-3xl focus:outline-none">
         <slot />
       </main>
       <aside class="island-rail hidden xl:block w-72 shrink-0 sticky top-0 h-screen overflow-y-auto p-6">

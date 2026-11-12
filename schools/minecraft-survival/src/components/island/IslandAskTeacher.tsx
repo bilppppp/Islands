@@ -4,6 +4,7 @@ import { createRoot, type Root } from "react-dom/client";
 import type { NotificationItem } from "animal-island-ui";
 import { NotificationView } from "animal-island-ui/es/components/Notification/Notification.js";
 import notificationStyles from "animal-island-ui/es/components/Notification/notification.module.less.js";
+import { t as catalogT } from "../../lib/ui";
 
 export type CopyStatus = "idle" | "copied" | "error";
 
@@ -65,10 +66,7 @@ export function t(key: string, values?: Record<string, string | number>): string
 	if (typeof window !== "undefined" && window.schoolUI?.t) {
 		return window.schoolUI.t(key, values);
 	}
-	if (!values) return key;
-	return key.replace(/\{(\w+)\}/g, (match, name) => {
-		return values[name] == null ? match : String(values[name]);
-	});
+	return catalogT(key, values);
 }
 
 function getLessonTitle(): string {

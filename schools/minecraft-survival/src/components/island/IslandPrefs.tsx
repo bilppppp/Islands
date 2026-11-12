@@ -2,13 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Select } from "animal-island-ui";
 import { showAskTeacherNotice, t } from "./IslandAskTeacher";
 
-const depthOptions = [
-	{ key: "brief", label: "简短" },
-	{ key: "some-context", label: "适中" },
-	{ key: "all-details", label: "充分" },
-];
-
 export default function IslandPrefs() {
+	const depthOptions = [
+		{ key: "brief", label: t("depthBrief") },
+		{ key: "some-context", label: t("depthModerate") },
+		{ key: "all-details", label: t("depthComprehensive") },
+	];
 	const [depth, setDepth] = useState("some-context");
 	const [studentId, setStudentId] = useState<string | null>(null);
 	const [pending, setPending] = useState(false);
@@ -56,7 +55,7 @@ export default function IslandPrefs() {
 	return (
 		<section className="island-prefs">
 			<p className="island-prefs-label" id="island-depth-label">
-				讲解详略
+				{t("depthLabel")}
 			</p>
 			<div className="island-depth">
 				<Select
@@ -70,7 +69,7 @@ export default function IslandPrefs() {
 				/>
 			</div>
 			<Button type="primary" disabled={!studentId || pending} onClick={save}>
-				保存偏好
+				{t("savePreferences")}
 			</Button>
 		</section>
 	);

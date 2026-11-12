@@ -60,7 +60,7 @@ async function loadThreeModuleSources(): Promise<Record<string, string>> {
 			["three.js", "orbit-controls.js"].map(async (name) => {
 				const res = await fetch(`/vendor/three-preview/${name}`);
 				if (!res.ok) {
-					throw new Error(`无法加载 three 运行库 (HTTP ${res.status})`);
+					throw new Error(t("cannotLoadThreeLib", { status: res.status }));
 				}
 				return res.text();
 			}),
@@ -92,7 +92,7 @@ async function loadReactRuntimeSource(): Promise<string> {
 	if (!reactRuntimeSource) {
 		const res = await fetch("/vendor/react-preview/runtime.js");
 		if (!res.ok) {
-			throw new Error(`无法加载 React 运行时 (HTTP ${res.status})`);
+			throw new Error(t("cannotLoadReactRuntime", { status: res.status }));
 		}
 		reactRuntimeSource = await res.text();
 	}
@@ -124,7 +124,7 @@ function getWorker(runtime: "python" | "javascript"): Worker {
 				window.clearTimeout(currentTimeout);
 			}
 			currentTimeout = window.setTimeout(() => {
-				terminateWorker("运行超时，已停止");
+				terminateWorker(t("runTimeoutStopped"));
 			}, 10000);
 		} else if (data.type === "result") {
 			if (currentTimeout !== null) {
@@ -143,12 +143,13 @@ function getWorker(runtime: "python" | "javascript"): Worker {
 		}
 	};
 	worker.onerror = (e) => {
-		terminateWorker(`Worker 运行错误: ${e.message}`);
+		terminateWorker(t("workerRunError", { message: e.message }));
 	};
 	return worker;
 }
 
-export function terminateWorker(reason = "已被另一段代码的运行中断") {
+export function terminateWorker(reason?: string) {
+	const finalReason = reason ?? t("runInterruptedByAnother");
 	if (currentWorker) {
 		currentWorker.terminate();
 		currentWorker = null;
@@ -161,7 +162,7 @@ export function terminateWorker(reason = "已被另一段代码的运行中断")
 	const resolve = pendingResolve;
 	pendingResolve = null;
 	pendingStatus = null;
-	resolve?.({ stdout: "", stderr: reason, ok: false });
+	resolve?.({ stdout: "", stderr: finalReason, ok: false });
 }
 
 export async function runCode(
@@ -180,7 +181,7 @@ export async function runCode(
 			const msg = err instanceof Error ? err.message : String(err);
 			return {
 				stdout: "",
-				stderr: `语法错误：${msg}`,
+				stderr: t("syntaxErrorMsg", { msg }),
 				ok: false,
 			};
 		}
@@ -285,7 +286,7 @@ export default function IslandRunBlock({
 				moduleSources = await loadThreeModuleSources();
 			} catch (err: unknown) {
 				const msg = err instanceof Error ? err.message : String(err);
-				setPreviewError(`加载运行库失败：${msg}`);
+				setPreviewError(t("loadLibraryFailedMsg", { msg }));
 				return;
 			}
 		}
@@ -315,7 +316,7 @@ export default function IslandRunBlock({
 				);
 			} catch (err: unknown) {
 				const msg = err instanceof Error ? err.message : String(err);
-				setPreviewError(`语法错误：${msg}`);
+				setPreviewError(t("syntaxErrorMsg", { msg }));
 				return;
 			}
 
@@ -336,7 +337,7 @@ export default function IslandRunBlock({
 				setPreviewDoc(doc);
 			} catch (err: unknown) {
 				const msg = err instanceof Error ? err.message : String(err);
-				setPreviewError(`加载运行库失败：${msg}`);
+				setPreviewError(t("loadLibraryFailedMsg", { msg }));
 			}
 		}
 	};
@@ -588,9 +589,9 @@ export default function IslandRunBlock({
 		teacherDisabled?: boolean;
 	}) => (
 		<div className="island-run-header">
-			{!inModal ? (
+			{!inModal && !demo ? (
 				<span className="island-run-badge">
-					{demo ? badgeSuffix : `${langTitle} ${badgeSuffix}`}
+					{`${langTitle} ${badgeSuffix}`}
 				</span>
 			) : null}
 			<div className="island-run-actions">
@@ -611,7 +612,7 @@ export default function IslandRunBlock({
 						disabled={running}
 						onClick={handleRun}
 					>
-						{running ? "运行中…" : "运行"}
+						{running ? t("running") : t("run")}
 					</button>
 				) : null}
 				<button
@@ -620,7 +621,7 @@ export default function IslandRunBlock({
 					disabled={showRunButton ? running : undefined}
 					onClick={handleReset}
 				>
-					重置
+					{t("resetBtn")}
 				</button>
 				{inModal ? (
 					<button
@@ -654,7 +655,7 @@ export default function IslandRunBlock({
 			value={code}
 			onChange={setCode}
 			lang={lang}
-			ariaLabel={`可编辑 ${langTitle} 代码`}
+			ariaLabel={t("editableCodeAria", { lang: langTitle })}
 			inModal={inModal}
 			isWrapOff={mode === "preview"}
 		/>
@@ -677,7 +678,7 @@ export default function IslandRunBlock({
 						sandbox="allow-scripts"
 						srcDoc={previewDoc}
 						className="island-preview-iframe"
-						title={`${langTitle} 预览页面`}
+						title={t("previewIframeTitle", { lang: langTitle })}
 					/>
 				) : (
 					<div className="island-preview-placeholder">
@@ -712,7 +713,7 @@ export default function IslandRunBlock({
 			<div className="island-preview-console" aria-live="polite">
 				{hasConsoleOutput ? (
 					<>
-						<div className="island-preview-console-header">控制台</div>
+						<div className="island-preview-console-header">{t("consoleTitle")}</div>
 						<div className="island-preview-console-body">
 							{consoleLogs.map((log, idx) => (
 								<div
@@ -731,7 +732,7 @@ export default function IslandRunBlock({
 					</>
 				) : (
 					<div className="island-preview-console-empty">
-						控制台（无输出）
+						{t("consoleEmpty")}
 					</div>
 				)}
 			</div>
@@ -751,10 +752,10 @@ export default function IslandRunBlock({
 					answer={
 						<div
 							ref={containerRef}
-							className={`island-run-card island-preview-card${demo && !showCode ? " island-demo-card" : ""}`}
+							className={`island-run-card island-preview-card${demo ? " island-demo-card" : ""}${demo && showCode ? " island-demo-with-code" : ""}`}
 						>
 							{renderHeader({
-								badgeSuffix: demo ? t("demoBadge") : "预览",
+								badgeSuffix: demo ? t("demoBadge") : t("previewBadge"),
 								showRunButton: showCode,
 								showFullscreenButton: true,
 								teacherKind: "preview",
@@ -791,7 +792,7 @@ export default function IslandRunBlock({
 				>
 					<div className="island-preview-modal-content">
 						{renderHeader({
-							badgeSuffix: demo ? t("demoBadge") : "预览",
+							badgeSuffix: demo ? t("demoBadge") : t("previewBadge"),
 							showRunButton: showCode,
 							inModal: true,
 							teacherKind: "preview",
@@ -833,7 +834,7 @@ export default function IslandRunBlock({
 				answer={
 					<div className="island-run-card">
 						{renderHeader({
-							badgeSuffix: "运行",
+							badgeSuffix: t("runBadge"),
 							showRunButton: true,
 							teacherKind: "run",
 							teacherDescribe: describeRun,
@@ -845,13 +846,13 @@ export default function IslandRunBlock({
 						{needsStdin ? (
 							<div className="island-run-stdin-wrap">
 								<label htmlFor="island-run-stdin" className="island-run-label">
-									程序输入（每行一项）：
+									{t("stdinLabel")}
 								</label>
 								<textarea
 									id="island-run-stdin"
 									className="island-run-stdin-input"
 									value={stdin}
-									placeholder="按 input() 调用顺序逐行读取"
+									placeholder={t("stdinPlaceholder")}
 									rows={Math.max(2, stdin.split("\n").length)}
 									onChange={(e) => setStdin(e.target.value)}
 								/>
@@ -864,7 +865,7 @@ export default function IslandRunBlock({
 								{stdout ? <pre className="island-run-stdout">{stdout}</pre> : null}
 								{stderr ? <pre className="island-run-stderr">{stderr}</pre> : null}
 								{!status && !stdout && !stderr && !running ? (
-									<div className="island-run-empty">（程序无输出）</div>
+									<div className="island-run-empty">{t("programNoOutput")}</div>
 								) : null}
 							</div>
 						) : null}

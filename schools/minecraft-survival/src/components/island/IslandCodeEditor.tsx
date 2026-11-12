@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { EditorView as EditorViewType } from "@codemirror/view";
 import type { Compartment as CompartmentType, Extension } from "@codemirror/state";
 import { resolveEditorLanguage } from "../../lib/run-block.mjs";
+import { t } from "./IslandAskTeacher";
 
 export interface IslandCodeEditorProps {
 	value: string;
@@ -270,6 +271,25 @@ export default function IslandCodeEditor({
 				"--indent-marker-active-bg-color": "rgba(232, 213, 188, 0.25)",
 				"--indent-marker-bg-color": "rgba(232, 213, 188, 0.08)",
 			},
+			".cm-scroller": {
+				scrollbarWidth: "thin",
+				scrollbarColor: "#5a4632 #221a13",
+			},
+			".cm-scroller::-webkit-scrollbar": {
+				width: "8px",
+				height: "8px",
+			},
+			".cm-scroller::-webkit-scrollbar-track": {
+				background: "#221a13",
+				borderRadius: "4px",
+			},
+			".cm-scroller::-webkit-scrollbar-thumb": {
+				background: "#5a4632",
+				borderRadius: "4px",
+			},
+			".cm-scroller::-webkit-scrollbar-thumb:hover": {
+				background: "#785e44",
+			},
 		});
 
 		const escapeKeymap = modules.keymap.of([
@@ -313,7 +333,7 @@ export default function IslandCodeEditor({
 				modules.syntaxHighlighting(islandHighlightStyle),
 				langCompartment.of(getLanguageExtension(lang, modules)),
 				modules.EditorView.contentAttributes.of({
-					"aria-label": ariaLabel || "Code Editor",
+					"aria-label": ariaLabel || t("codeEditor"),
 				}),
 				modules.EditorView.updateListener.of((update) => {
 					if (update.docChanged) {
@@ -389,11 +409,14 @@ export default function IslandCodeEditor({
 			className={`island-run-editor-wrap${inModal ? " island-run-editor-modal" : ""}${className ? ` ${className}` : ""}`}
 		>
 			{cmLoaded && !cmFailed ? (
-				<div
-					ref={containerRef}
-					className="island-code-editor"
-					style={inlineStyle}
-				/>
+				<>
+					<div
+						ref={containerRef}
+						className="island-code-editor"
+						style={inlineStyle}
+					/>
+					<div className="island-editor-hint">{t("editorKeyboardHint")}</div>
+				</>
 			) : (
 				<textarea
 					ref={textareaRef}

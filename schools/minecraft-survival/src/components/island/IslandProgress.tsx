@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Progress } from "animal-island-ui";
+import { t } from "./IslandAskTeacher";
 
 type SchoolProgress = {
 	completedLessons?: unknown[];
@@ -59,7 +60,7 @@ export default function IslandProgress({ total }: Props) {
 		};
 	}, [total]);
 
-	const caption = `已完成 ${done}/${total} 关`;
+	const caption = t("progressLessons", { done, total });
 	return (
 		<div className="island-progress-block">
 			<Progress percent={percent} size="small" aria-label={caption} />
