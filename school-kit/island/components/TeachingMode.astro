@@ -41,6 +41,30 @@ const { compact = false } = Astro.props;
     var pending = false;
     var selectionRevision = 0;
 
+    function getActiveStudentId() {
+      if (window.school && typeof window.school.getStudentId === "function") {
+        var sid = window.school.getStudentId();
+        if (sid) return sid;
+      }
+      try {
+        var fromStorage = localStorage.getItem("studentId");
+        if (fromStorage) return fromStorage;
+      } catch (_) {}
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var fromUrl = params.get("sid");
+        if (fromUrl) {
+          if (window.school && typeof window.school.setStudentId === "function") {
+            window.school.setStudentId(fromUrl);
+          } else {
+            localStorage.setItem("studentId", fromUrl);
+          }
+          return fromUrl;
+        }
+      } catch (_) {}
+      return null;
+    }
+
     function localMode() {
       try {
         var value = localStorage.getItem("teachingMode");
@@ -90,16 +114,66 @@ const { compact = false } = Astro.props;
       error.classList.remove("hidden");
     }
 
+    async function fetchProfileWithRetry(studentId) {
+      var url = "/api/profile/" + encodeURIComponent(studentId);
+      try {
+        var res = await fetch(url);
+        if (res.status === 404) return { status: 404 };
+        if (!res.ok && res.status >= 500) {
+          await new Promise(function(resolve) { setTimeout(resolve, 300); });
+          res = await fetch(url);
+          if (res.status === 404) return { status: 404 };
+          if (!res.ok) throw new Error("status " + res.status);
+        } else if (!res.ok) {
+          throw new Error("status " + res.status);
+        }
+        return { ok: true, data: await res.json() };
+      } catch (err) {
+        if (err && err.name === "AbortError") return { aborted: true };
+        try {
+          await new Promise(function(resolve) { setTimeout(resolve, 300); });
+          var retryRes = await fetch(url);
+          if (retryRes.status === 404) return { status: 404 };
+          if (!retryRes.ok) throw new Error("status " + retryRes.status);
+          return { ok: true, data: await retryRes.json() };
+        } catch (retryErr) {
+          if (retryErr && retryErr.name === "AbortError") return { aborted: true };
+          return { ok: false, error: retryErr };
+        }
+      }
+    }
+
     async function saveForStudent(mode, studentId) {
       if (!studentId) {
         setStatus(window.schoolUI.t("modeBrowserSaved"));
         return true;
       }
-      var response = await fetch("/api/profile/" + encodeURIComponent(studentId), {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teachingMode: mode }),
-      });
+      var url = "/api/profile/" + encodeURIComponent(studentId);
+      var payload = JSON.stringify({ teachingMode: mode });
+      var response;
+      try {
+        response = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+        });
+        if (!response.ok && response.status >= 500) {
+          await new Promise(function(resolve) { setTimeout(resolve, 300); });
+          response = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: payload,
+          });
+        }
+      } catch (netErr) {
+        if (netErr && netErr.name === "AbortError") return true;
+        await new Promise(function(resolve) { setTimeout(resolve, 300); });
+        response = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+        });
+      }
       if (response.status === 404) {
         try {
           localStorage.removeItem("studentId");
@@ -111,7 +185,7 @@ const { compact = false } = Astro.props;
         if (window.school && typeof window.school.updateAllCheckmarks === "function") {
           window.school.updateAllCheckmarks();
         }
-        setStatus(window.schoolUI.t("modeBrowserSaved"));
+        setStatus(window.schoolUI.t("modeChoose"));
         return true;
       }
       if (!response.ok) throw new Error(window.schoolUI.t("modeSaveError"));
@@ -135,12 +209,13 @@ const { compact = false } = Astro.props;
       setLocalMode(mode);
       setVisualMode(mode);
       setButtonsDisabled(true);
-      setStatus(window.school && window.school.getStudentId() ? window.schoolUI.t("saving") : window.schoolUI.t("modeBrowserSaved"));
+      var studentId = getActiveStudentId();
+      setStatus(studentId ? window.schoolUI.t("saving") : window.schoolUI.t("modeBrowserSaved"));
       if (error) error.classList.add("hidden");
       try {
-        await saveForStudent(mode, window.school && window.school.getStudentId());
+        await saveForStudent(mode, studentId);
       } catch (err) {
-        if (window.school && window.school.getStudentId()) {
+        if (studentId) {
           setLocalMode(previousMode);
           setVisualMode(previousMode);
         }
@@ -161,38 +236,54 @@ const { compact = false } = Astro.props;
 
     var current = localMode();
     setVisualMode(current);
-    if (window.school && window.school.getStudentId()) {
+    var studentId = getActiveStudentId();
+    if (studentId) {
       var profileLoadRevision = selectionRevision;
-      fetch("/api/profile/" + encodeURIComponent(window.school.getStudentId()))
-        .then(function(response) {
-          if (response.status === 404) {
-            try {
-              localStorage.removeItem("studentId");
-              localStorage.removeItem("progress");
-            } catch (_) {}
-            if (window.school && typeof window.school.updateEnrolledIndicator === "function") {
-              window.school.updateEnrolledIndicator();
-            }
-            if (window.school && typeof window.school.updateAllCheckmarks === "function") {
-              window.school.updateAllCheckmarks();
-            }
-            throw new Error(window.schoolUI.t("profileUnavailable"));
+      var cached = window.school && typeof window.school.getCachedProgress === "function" ? window.school.getCachedProgress() : null;
+      if (!cached) {
+        try { cached = JSON.parse(localStorage.getItem("progress") || "null"); } catch (_) {}
+      }
+      var cachedProfile = cached && cached.profile;
+      if (cachedProfile && (cachedProfile.teachingMode === "immersive" || cachedProfile.teachingMode === "simple")) {
+        var cachedMode = cachedProfile.teachingMode;
+        setLocalMode(cachedMode);
+        setVisualMode(cachedMode);
+        setStatus(window.schoolUI.t("modeLoaded"));
+      }
+
+      fetchProfileWithRetry(studentId).then(function(result) {
+        if (result.aborted) return;
+        if (result.status === 404) {
+          try {
+            localStorage.removeItem("studentId");
+            localStorage.removeItem("progress");
+          } catch (_) {}
+          if (window.school && typeof window.school.updateEnrolledIndicator === "function") {
+            window.school.updateEnrolledIndicator();
           }
-          if (!response.ok) throw new Error(window.schoolUI.t("profileUnavailable"));
-          return response.json();
-        })
-        .then(function(data) {
-          if (selectionRevision !== profileLoadRevision) {
-            setStatus(window.schoolUI.t("modeSelected"));
-            return;
+          if (window.school && typeof window.school.updateAllCheckmarks === "function") {
+            window.school.updateAllCheckmarks();
           }
-          var profileMode = data && data.profile && data.profile.teachingMode;
-          var mode = profileMode === "immersive" || profileMode === "simple" ? profileMode : current;
-          setLocalMode(mode);
-          setVisualMode(mode);
-          setStatus(window.schoolUI.t("modeLoaded"));
-        })
-        .catch(function() { setStatus(window.schoolUI.t("modeBrowserFallback")); });
+          setStatus(window.schoolUI.t("modeChoose"));
+          return;
+        }
+        if (!result.ok) {
+          if (!cachedProfile || (cachedProfile.teachingMode !== "immersive" && cachedProfile.teachingMode !== "simple")) {
+            setStatus(window.schoolUI.t("modeBrowserFallback"));
+          }
+          return;
+        }
+        if (selectionRevision !== profileLoadRevision) {
+          setStatus(window.schoolUI.t("modeSelected"));
+          return;
+        }
+        var data = result.data;
+        var profileMode = data && data.profile && data.profile.teachingMode;
+        var finalMode = profileMode === "immersive" || profileMode === "simple" ? profileMode : current;
+        setLocalMode(finalMode);
+        setVisualMode(finalMode);
+        setStatus(window.schoolUI.t("modeLoaded"));
+      });
     } else {
       setStatus(window.schoolUI.t("modeChoose"));
     }
@@ -209,7 +300,7 @@ const { compact = false } = Astro.props;
     });
 
     window.addEventListener("school:enrolled", function() {
-      var id = window.school && window.school.getStudentId();
+      var id = getActiveStudentId();
       saveForStudent(localMode(), id).catch(function(err) {
         setError(window.schoolUI.t("modeEnrollError"));
       });
