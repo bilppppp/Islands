@@ -858,11 +858,15 @@ html[data-learning-role="ranger"] {
 .island-sidebar-toc .island-toc a {
   display: flex;
   align-items: center;
-  min-height: 44px;
   padding: 0.35rem 0.75rem;
   border-radius: 0.5rem;
   color: #725d42;
   text-decoration: none;
+}
+@media (pointer: coarse) {
+  .island-sidebar-toc .island-toc a {
+    min-height: 44px;
+  }
 }
 
 .island-sidebar-toc .island-toc a:hover {
